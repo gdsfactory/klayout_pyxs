@@ -1,0 +1,1215 @@
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+
+# A feasibility study for a cross section generation using
+# boolean operations. See "cmos.xs" for a brief description of the
+# commands available and some examples.
+
+# TODO: use a much smaller dbu for the simulation to have a really small delta
+# the paths used for generating the masks are somewhat too thick
+# TODO: the left and right areas are not treated correctly
+
+import os
+import re
+import math
+
+from pya import Application, MessageBox, Action, FileDialog
+from pya import Point, Edge, Box
+from pya import Trans, LayerInfo
+
+from importlib import reload
+
+import pyxs
+try:
+    reload(pyxs)
+    reload(pyxs.misc)
+    reload(pyxs.geometry_2d)
+except:
+    pass
+
+from . import Polygon
+from .misc import print_info, int_floor, make_iterable, info
+from .geometry_2d import ep, EP, LayoutData, parse_grow_etch_args
+from .geometry_2d import string_to_layer_info
+
+
+info('Module pyxs.pyxs_lib.py reloaded')
+
+
+class MaterialData(LayoutData):
+    """ Class to operate 2D cross-sections.
+
+    Material data is a list of single
+
+    """
+    def __init__(self, polygons, xs, delta):
+        """
+        Parameters
+        ----------
+        polygons : list of Polygon
+            list of shapes in cross-section
+        xs: XSectionGenerator
+            passed to LayoutData.__init__()
+        delta : float
+            the intrinsic height (required for mask data because there
+            cannot be an infinitely small mask layer (in database units)
+        """
+        super().__init__(polygons, xs)  # LayoutData()
+        self._delta = delta
+
+    def __str__(self):
+        n_poly = self.n_poly
+
+        s = 'MaterialData (delta = {}, n_polygons = {})'.format(
+            self._delta, n_poly)
+
+        if n_poly > 0:
+            s += ':'
+
+        for pi in range(min(2, n_poly)):
+            s += '\n    {}'.format(self._polygons[pi])
+        return s
+
+    def __repr__(self):
+        s = '<MaterialData (delta = {}, n_polygons = {})>'.format(
+            self._delta, self.n_poly)
+        return s
+
+    @print_info(False)
+    def grow(self, z, xy=0.0, into=[], through=[], on=[], mode='square',
+             taper=None, bias=None, buried=None):
+        """
+        Parameters
+        ----------
+        z : float
+            height
+        xy : float
+            lateral
+        mode : str
+            'round|square|octagon'. The profile mode.
+        taper : float
+            The taper angle. This option specifies tapered mode and cannot
+            be combined with :mode.
+        bias : float
+            Adjusts the profile by shifting it to the interior of the figure.
+            Positive values will reduce the line width by twice the value.
+        on : list of MaterialData (optional)
+            A material or an array of materials onto which the material is
+            deposited (selective grow). The default is "all". This option
+            cannot be combined with ":into". With ":into", ":through" has the
+            same effect than ":on".
+        into : list of MaterialData (optional)
+            Specifies a material or an array of materials that the new
+            material should consume instead of growing upwards. This will
+            make "grow" a "conversion" process like an implant step.
+        through : list of MaterialData (optional)
+            To be used together with ":into". Specifies a material or an array
+            of materials to be used for selecting grow. Grow will happen
+            starting on the interface of that material with air, pass
+            through the "through" material (hence the name) and consume and
+            convert the ":into" material below.
+        buried : float
+            Applies the conversion of material at the given depth below the
+            mask level. This is intended to be used together with :into
+            and allows modeling of deep implants. The value is the depth
+            below the surface.
+
+        """
+        # parse the arguments
+        info('    into={}'.format(into))
+        into, through, on, mode = parse_grow_etch_args(
+            'grow', into=into, through=through, on=on, mode=mode,
+            material_cls=MaterialData)
+
+        info('    into={}'.format(into))
+        # produce the geometry of the new material
+        d = self.produce_geom('grow', xy, z,
+                              into, through, on,
+                              taper, bias, mode, buried)
+
+        # prepare the result
+        # list of Polygon which are removed
+        res = MaterialData(d, self._xs, 0)
+
+        # consume material
+        if into:
+            for i in into:  # for each MaterialData
+                i.sub(res)
+                i.remove_slivers()
+        else:
+            self._xs.air().sub(res)  # remove air where material was added
+            self._xs.air().remove_slivers()
+        return res
+
+    def etch(self, z, xy=0.0, into=[], through=[], mode='square',
+             taper=None, bias=None, buried=None):
+        """
+
+        Parameters
+        ----------
+        z : float
+            etch depth
+        xy : float (optional)
+            mask extension, lateral
+        mode : str
+            'round|square|octagon'. The profile mode.
+        taper :	float
+            The taper angle. This option specifies tapered mode and cannot
+            be combined with mode.
+        bias : float
+            Adjusts the profile by shifting it to the interior of the
+            figure. Positive values will reduce the line width by twice
+            the value.
+        into :	list of MaterialData (optional)
+            A material or an array of materials into which the etch is
+            performed. This specification is mandatory.
+        through : list of MaterialData (optional)
+            A material or an array of materials which form the selective
+            material of the etch. The etch will happen only where this
+            material interfaces with air and pass through this material
+            (hence the name).
+        buried : float
+            Applies the etching at the given depth below the surface. This
+            option allows to create cavities. It specifies the vertical
+            displacement of the etch seed and there may be more applications
+            for this feature.
+
+        """
+        # parse the arguments
+        into, through, on, mode = parse_grow_etch_args(
+            'etch', into=into, through=through, on=[], mode=mode,
+            material_cls=MaterialData)
+
+        if not into:
+            raise ValueError("'etch' method: requires an 'into' specification")
+
+        # prepare the result
+        d = self.produce_geom('etch', xy, z,
+                              into, through, on,
+                              taper, bias, mode, buried)  # list of Polygon
+
+        # produce the geometry of the etched material
+        # list of Polygon which are removed
+        res = MaterialData(d, self._xs, 0)
+
+        # consume material and add to air
+        if into:
+            for i in into:  # for each MaterialData
+                i.sub(res)
+                i.remove_slivers()
+
+        # Add air in place of the etched materials
+        self._xs.air().add(res)
+        self._xs.air().close_gaps()
+
+    @print_info(False)
+    def produce_geom(self, method, xy, z,
+                     into, through, on,
+                     taper, bias, mode, buried):
+        """
+
+        Parameters
+        ----------
+        method : str
+        xy : float
+            extension
+        z : float
+            height
+        into : list of MaterialData
+        through : list of MaterialData
+        on : list of MaterialData
+        taper : float
+        bias : float
+        mode : str
+            'round|square|octagon'
+        buried :
+
+        Returns
+        -------
+        d : list of Polygon
+        """
+        info('    method={}, xy={}, z={}, \n'
+             '    into={}, through={}, on={}, \n'
+             '    taper={}, bias={}, mode={}, buried={})'
+             .format(method, xy, z, into, through, on,
+                     taper, bias, mode, buried))
+
+        prebias = bias or 0.0
+
+        if xy < 0.0:  # if size to be reduced,
+            xy = -xy  #
+            prebias += xy  # positive prebias
+
+        if taper:
+            d = z * math.tan(math.pi / 180.0 * taper)
+            prebias += d - xy
+            xy = d
+
+        # determine the "into" material by joining the data of all "into" specs
+        # or taking "air" if required.
+        # into_data is a list of polygons from all `into` MaterialData
+        # Finally we get a into_data, which is a list of Polygons
+        if into:
+            into_data = []
+            for i in into:
+                if len(into_data) == 0:
+                    into_data = i.data
+                else:
+                    into_data = self._ep.boolean_p2p(i.data, into_data,
+                                                     EP.ModeOr)
+        else:
+            # when deposit or grow is selected, into_data is self.air()
+            into_data = self._xs.air().data
+
+        info('    into_data = {}'.format(into_data))
+
+        # determine the "through" material by joining the data of all
+        # "through" specs
+        # through_data is a list of polygons from all `through` MaterialData
+        # Finally we get a through_data, which is a list of Polygons
+        if through:
+            through_data = []
+            for i in through:
+                if len(through_data) == 0:
+                    through_data = i.data
+                else:
+                    through_data = self._ep.boolean_p2p(
+                            i.data, through_data,
+                            EP.ModeOr)
+            info('    through_data = {}'.format(through_data))
+
+        # determine the "on" material by joining the data of all "on" specs
+        # on_data is a list of polygons from all `on` MaterialData
+        # Finally we get an on_data, which is a list of Polygons
+        if on:
+            on_data = []
+            for i in on:
+                if len(on_data) == 0:
+                    on_data = i.data
+                else:
+                    on_data = self._ep.boolean_p2p(i.data, on_data,
+                                                   EP.ModeOr)
+            info('    on_data = {}'.format(on_data))
+
+        offset = self._delta
+        d = self._polygons  # list of Polygon
+        info('    initial d = {}'.format(d))
+
+        if abs(buried or 0.0) > 1e-6:
+            t = Trans(Point(0, -int_floor(buried / self._xs.dbu + 0.5)))
+            d = [p.transformed(t) for p in d]
+
+        # Calculate an overlap between d and into / through / on
+        # in the "into" case determine the interface region between
+        # self and into
+        if into or through or on:
+            # apply an artificial sizing to create an overlap before
+            if offset == 0:
+                offset = self._xs.delta_dbu / 2
+                d = self._ep.size_p2p(d, 0, offset)
+
+            if on:
+                d = self._ep.boolean_p2p(d, on_data, EP.ModeAnd)
+            elif through:
+                d = self._ep.boolean_p2p(d, through_data, EP.ModeAnd)
+            else:
+                d = self._ep.boolean_p2p(d, into_data, EP.ModeAnd)
+
+        info('    overlap d = {}'.format(d))
+
+        pi = int_floor(prebias / self._xs.dbu + 0.5)
+        info('    pi = {}'.format(pi))
+        if pi < 0:
+            d = self._ep.size_p2p(d, -pi, 0)
+        elif pi > 0:
+            # apply a positive prebias by filtering with a sized box
+            dd = []
+            for p in d:  # for each polygon
+                box = p.bbox()  # polygon box
+                if box.width() > 2 * pi:  # width
+                    box = Box(box.left + pi, box.bottom,
+                              box.right - pi, box.top)
+
+                    for pp in self._ep.boolean_p2p([Polygon(box)], [p],
+                                                   EP.ModeAnd):
+                        dd.append(pp)
+            d = dd
+
+        xyi = int_floor(xy / self._xs.dbu + 0.5)
+        zi = int_floor(z / self._xs.dbu + 0.5) - offset
+        info('    xyi = {}, zi = {}'.format(xyi, zi))
+
+        # Apply taper
+        if taper:
+            d = self._ep.size_p2p(d, xyi, zi, 0)
+        elif xyi <= 0:
+            info('    before sizing: d = {}'.format(d))
+            d = self._ep.size_p2p(d, 0, zi)
+            info('    after sizing: d = {}'.format(d))
+        elif mode == 'round':
+            # emulate "rounding" of corners by performing soft-edged sizes
+            d = self._ep.size_p2p(d, xyi / 3, zi / 3, 1)
+            d = self._ep.size_p2p(d, xyi / 3, zi / 3, 0)
+            d = self._ep.size_p2p(d, xyi - 2 * (xyi / 3), zi - 2 * (zi / 3), 0)
+        elif mode == 'square':
+            d = self._ep.size_p2p(d, xyi, zi)
+        elif mode == 'octagon':
+            d = self._ep.size_p2p(d, xyi, zi, 1)
+
+        if through:
+            d = self._ep.boolean_p2p(d, through_data, EP.ModeANotB)
+
+        d = self._ep.boolean_p2p(d, into_data, EP.ModeAnd)
+        info('    final d = {}'.format(d))
+
+        if None:
+            # remove small features
+            # Hint: this is done separately in x and y direction since that is
+            # more robust against snapping distortions
+            d = self._ep.size_p2p(d, 0, self._xs.delta_dbu / 2)
+            d = self._ep.size_p2p(d, 0, -self._xs.delta_dbu)
+            d = self._ep.size_p2p(d, 0, self._xs.delta_dbu / 2)
+            d = self._ep.size_p2p(d, self._xs.delta_dbu / 2, 0)
+            d = self._ep.size_p2p(d, -self._xs.delta_dbu, 0)
+            d = self._ep.size_p2p(d, self._xs.delta_dbu / 2, 0)
+
+        return d
+
+
+class XSectionGenerator(object):
+    """ The main class that creates a cross-section file
+    """
+    def __init__(self, file_path):
+        """
+        Parameters
+        ----------
+        file_path : str
+        """
+        # TODO: adjust this path:
+        self._file_path = file_path
+        self._lyp_file = None
+        self._ep = ep
+        self._flipped = False
+        self._air, self._air_below = None, None
+        self._delta = 1
+
+    def layer(self, layer_spec):
+        """ Fetches an input layer from the original layout.
+
+        Parameters
+        ----------
+        layer_spec : str
+
+        Returns
+        -------
+        ld : LayerData
+
+        """
+        ld = LayoutData([], self)  # empty
+        # collect shapes from the corresponding layer into ld._polygons
+        ld.load(self._layout, self._cell,
+                self._line_dbu.bbox().enlarged(
+                    Point(self._extend, self._extend)),
+                layer_spec)
+        return ld
+
+    @print_info(False)
+    def mask(self, layer_data):
+        """ Designates the layout_data object as a litho pattern (mask).
+
+        This is the starting point for structured grow or etch operations.
+
+        Parameters
+        ----------
+        layer_data : LayoutData
+
+        Returns
+        -------
+        res : MaterialData
+        """
+        crossing_points = []
+
+        info('    layer_data: {}'.format(layer_data))
+
+        info('    n polygons in layer_data: {}'.format(layer_data.n_poly))
+
+        for polygon in layer_data.data:
+            info('    polygon: {}'.format(polygon))
+            for edge_dbu in polygon.each_edge():
+                info('        edge: {}'.format(edge_dbu))
+                if self._line_dbu.crossed_by(edge_dbu):
+                    info('        crosses!')
+
+                if (self._line_dbu.crossed_by(edge_dbu) and
+                        (self._line_dbu.side_of(edge_dbu.p1) > 0 or
+                         self._line_dbu.side_of(edge_dbu.p2) > 0)):
+                    info('        inside if')
+                    # compute the crossing point of "edge" and "line" in
+                    # database units
+                    # confine the point to the length of the line
+                    z = (float(edge_dbu.dx()) * (edge_dbu.p1.y -
+                                                 self._line_dbu.p1.y) -
+                         float(edge_dbu.dy()) * (edge_dbu.p1.x -
+                                                 self._line_dbu.p1.x)) / \
+                        (float(edge_dbu.dx()) * (self._line_dbu.p2.y -
+                                                 self._line_dbu.p1.y) -
+                         float(edge_dbu.dy()) * (self._line_dbu.p2.x -
+                                                 self._line_dbu.p1.x))
+                    z = math.floor(z * self._line_dbu.length() + 0.5)
+                    if z < -self._extend:
+                        z = -self._extend
+                    elif z > self._line_dbu.length() + self._extend:
+                        z = self._line_dbu.length() + self._extend
+
+                    v = (edge_dbu.dy() * self._line_dbu.dx() -
+                         edge_dbu.dx() * self._line_dbu.dy())
+                    if v < 0:
+                        s = -1
+                    elif v == 0:
+                        s = 0
+                    else:
+                        s = 1
+
+                    # store that along with the orientation of the edge
+                    # (+1: "enter geometry", -1: "leave geometry")
+                    info('        appending x-point [{}, {}]'.format(z, s))
+                    crossing_points.append([z, s])
+
+        # compress the crossing points by collecting all of those which
+        # cut the measure line at the same position
+        compressed_crossing_points = []
+        last_z = None
+        sum_s = 0
+        crossing_points.sort()
+        for z, s in crossing_points:
+            if z == last_z:
+                sum_s += s
+            else:
+                if sum_s != 0:
+                    compressed_crossing_points.append([last_z, sum_s])
+                last_z, sum_s = z, s
+
+        if last_z and sum_s != 0:
+            compressed_crossing_points.append([last_z, sum_s])
+
+        # create the final intervals by selecting those crossing points which
+        # denote an entry or leave point into or out of drawn geometry. This
+        # basically does a merge of all drawn shapes.
+        return self._xpoints_to_mask(compressed_crossing_points)
+
+    # @property
+    def air(self):
+        return self._air
+
+    # @property
+    def bulk(self):
+        """ Return a material describing the wafer body
+
+        Return
+        ------
+        bulk : MaterialData
+        """
+
+        return MaterialData(self._bulk.data, self, 0)
+
+    def output(self, layer_spec, layer_data, *args):
+        """Outputs a material object to the output layout
+
+        Parameters
+        ----------
+        layer_spec : str
+            layer specification
+        layer_data : LayoutData
+        """
+        if not isinstance(layer_data, LayoutData):
+            raise TypeError("'output' method: second parameter must be "
+                            "a geometry object. {} is given"
+                            .format(type(layer_data)))
+
+        ls = string_to_layer_info(layer_spec)
+        li = self._target_layout.insert_layer(ls)
+        shapes = self._target_layout.cell(self._target_cell).shapes(li)
+
+        # confine the shapes to the region of interest
+        for polygon in self._ep.boolean_to_polygon(
+                [Polygon(self._roi)], layer_data.data,
+                EP.ModeAnd, True, True):
+            shapes.insert(polygon)
+
+    @print_info(False)
+    def all(self):
+        """ A pseudo-mask, covering the whole wafer
+
+        Return
+        ------
+        res : MaterialData
+        """
+        res = self._xpoints_to_mask(
+                [[-self._extend, 1],
+                 [self._line_dbu.length() + self._extend, -1]])
+
+        info('    all().res = {}'.format(res))
+        return res
+
+    def flip(self):
+        """ Start or end backside processing
+
+        """
+        self._air, self._air_below = self._air_below, self._air
+        self._flipped = not self._flipped
+
+    def diffuse(self, *args, **kwargs):
+        """ Same as deposit()
+        """
+        return self.all().grow(*args, **kwargs)
+
+    def deposit(self, *args, **kwargs):
+        """ Deposits material as a uniform sheet.
+
+        Equivalent to all.grow(...)
+
+        Return
+        ------
+        res : MaterialData
+        """
+        return self.all().grow(*args, **kwargs)
+
+    def grow(self, *args, **kwargs):
+        """ Same as deposit()
+        """
+        return self.all().grow(*args, **kwargs)
+
+    def etch(self, *args, **kwargs):
+        """ Uniform etching
+
+        Equivalent to all.etch(...)
+
+        """
+        return self.all().etch(*args, **kwargs)
+
+    def planarize(self, *args, **kwargs):
+        """ Planarization
+        """
+        downto = None
+        less = None
+        to = None
+        into = []
+
+        for k, v in kwargs.items():
+            if k == 'downto':
+                downto = make_iterable(v)
+                for i in downto:
+                    if not isinstance(i, MaterialData):
+                        raise TypeError("'planarize' method: 'downto' expects "
+                                        "a material parameter or an array "
+                                        "of such")
+
+            elif k == 'into':
+                into = make_iterable(v)
+                for i in into:
+                    if not isinstance(i, MaterialData):
+                        raise TypeError("'planarize' method: 'into' expects "
+                                        "a material parameter or an array "
+                                        "of such")
+            elif k == 'less':
+                less = int_floor(0.5 + float(v) / self.dbu)
+            elif k == 'to':
+                to = int_floor(0.5 + float(v) / self.dbu)
+
+        if not into:
+            raise "'planarize' requires an 'into' argument"
+
+        if downto:
+            downto_data = None
+            if len(downto) == 1:
+                downto_data = downto[0].data
+            else:
+                for i in downto:
+                    if len(downto_data) == 0:
+                        downto_data = i.data
+                    else:
+                        downto_data = self._ep.boolean_p2p(
+                                i.data, downto_data,
+                                EP.ModeOr)
+
+            # determine upper bound of material
+            if downto_data:
+                for p in downto_data:
+                    yt = p.bbox().top
+                    yb = p.bbox().bottom
+                    to = to or yt
+                    if not self._flipped:
+                        to = max([to, yt, yb])
+                    else:
+                        to = min([to, yt, yb])
+
+        elif into and not to:
+
+            # determine upper bound of our material
+            for i in into:
+                for p in i.data:
+                    yt = p.bbox().top
+                    yb = p.bbox().bottom
+                    to = to or yt
+                    if not self._flipped:
+                        to = max([to, yt, yb])
+                    else:
+                        to = min([to, yt, yb])
+
+        if to:
+            less = less or 0
+            if self._flipped:
+                removed_box = Box(-self._extend,
+                                  -self.depth_dbu - self.below_dbu,
+                                  self._line_dbu.length() + self._extend,
+                                  to + less)
+            else:
+                removed_box = Box(-self._extend,
+                                  to - less,
+                                  self._line_dbu.length() + self._extend,
+                                  self.height_dbu)
+
+            rem = LayoutData([], self)
+            for i in into:
+                rem.add(i.and_([Polygon(removed_box)]))
+                i.sub([Polygon(removed_box)])
+
+            self.air().add(rem)
+            self.air().close_gaps()
+
+    def set_thickness_scale_factor(self, factor):
+        """Configures layer thickness scale factor
+
+        to have better proportions
+        """
+        self._thickness_scale_factor = factor
+
+    def set_output_parameters(self, filename=None, format=None):
+        print('set_output_filename() has no effect in pyxs.')
+
+    @print_info(False)
+    def set_delta(self, x):
+        """Configures the accuracy parameter
+        """
+        self._delta = int_floor(x / self._dbu + 0.5)
+        info('XSG._delta set to {}'.format(self._delta))
+
+    @property
+    def delta_dbu(self):
+        return self._delta
+
+    @print_info(False)
+    def set_height(self, x):
+        """ Configures the height of the processing window
+
+        """
+        self._height = int_floor(x / self._dbu + 0.5)
+        info('XSG._height set to {}'.format(self._height))
+        self._update_basic_regions()
+
+    @property
+    def height_dbu(self):
+        return self._height
+
+    @print_info(False)
+    def set_depth(self, x):
+        """ Configures the depth of the processing window
+        or the wafer thickness for backside processing (see below)
+
+        """
+        self._depth = int_floor(x / self._dbu + 0.5)
+        info('XSG._depth set to {}'.format(self._depth))
+        self._update_basic_regions()
+
+    @property
+    def depth_dbu(self):
+        return self._depth
+
+    @print_info(False)
+    def set_below(self, x):
+        """ Configures the lower height of the processing window for backside processing
+
+        Parameters
+        ----------
+        x : float
+            depth below the wafer in um,
+
+        """
+        self._below = int_floor(x / self._dbu + 0.5)
+        info('XSG._below set to {}'.format(self._below))
+        self._update_basic_regions()
+
+    @property
+    def below_dbu(self):
+        return self._below
+
+    def set_extend(self, x):
+        """ Configures the computation margin
+
+        """
+        self._extend = int_floor(x / self._dbu + 0.5)
+        self._update_basic_regions()
+
+    @property
+    def extend_dbu(self):
+        return self._extend
+
+    @property
+    def width_dbu(self):
+        """ Cross-section width.
+
+        Determined by the ruler width.
+        """
+        return self._line_dbu.length()  # TODO
+
+    def background(self):
+        """
+        Returns
+        -------
+        res : Box
+            The extended box including the ruler.
+        """
+
+        x1 = self._line_dbu.p1.x
+        y1 = self._line_dbu.p1.y
+        x2 = self._line_dbu.p2.x
+        y2 = self._line_dbu.p2.y
+        if x2 < x1:
+            x1, x2 = x2, x1
+
+        if y2 < y1:
+            y1, y2 = y2, y1
+
+        x1 -= self._extend
+        y1 -= self._extend
+        x2 += self._extend
+        y2 += self._extend
+        return Box(Point(x1 - self._delta * 5, y1 - self._delta * 5),
+                   Point(x2 + self._delta * 5, y2 + self._delta * 5))
+
+    @property
+    def dbu(self):
+        return self._dbu
+
+    def layers_file(self, lyp_file):
+        """Configures a .lyp layer properties file to be used on the cross-section layout
+
+        """
+        self._lyp_file = lyp_file
+
+    # The basic generation method
+    def run(self):
+
+        if not self._setup():
+            return None
+
+        self._update_basic_regions()
+
+        text = None
+        with open(self._file_path) as file:
+            text = file.read()
+
+        if not text:
+            MessageBox.critical("Error",
+                                "Error reading file #{self._file_path}",
+                                MessageBox.b_ok())
+            return None
+
+        # prepare variables to be visible in the script
+        locals_ = dir(self)
+        locals_dict = {}
+        for attr in locals_:
+            if attr[0] != '_':
+                locals_dict.update({attr: getattr(self, attr)})
+
+        try:
+            exec(text, locals_dict)
+        except Exception as e:
+            # For development
+            # print(e.__traceback__.)
+            # print(dir(e))
+            MessageBox.critical("Error", str(e), MessageBox.b_ok())
+            # pass
+            return None
+
+        Application.instance().main_window().cm_lv_add_missing()  # @@@
+        if self._lyp_file:
+            self._target_view.load_layer_props(self._lyp_file)
+        self._target_view.zoom_fit()
+        return None
+
+    @print_info(False)
+    def _xpoints_to_mask(self, iv):
+        """ Convert crossing points to a mask
+
+        Parameters
+        ----------
+        iv : list of lists or list of tuple
+            each list / tuple represents two coordinates.
+
+        Return
+        ------
+        res : MaterialData
+            Top ot the surface for deposition
+        """
+        info('    iv = {})'.format(iv))
+        s = 0
+        last_s = 0
+        p1 = 0
+        p2 = 0
+
+        mask_polygons = []
+        for i in iv:
+            z = i[0]  # first coordinate
+            s += i[1]  # increase second coordinate
+
+            if last_s <= 0 < s:  # s increased and became > 0
+                p1 = z
+            elif last_s > 0 >= s:  # s decreased and became < 0
+                p2 = z
+                poly = Polygon(Box(p1, -self._depth - self._below,
+                                   p2, self._height))
+                info('        Appending poly {}'.format(poly))
+                mask_polygons.append(poly)
+            last_s = s
+
+        info('    mask_polys = {}'.format(mask_polygons))
+
+        air = self._air.data
+        info('    air =        {}'.format(air))
+
+        # Sizing is needed only in vertical direction, it seems
+        # air_sized = self._ep.size_p2p(air, self._delta, self._delta)
+        air_sized = self._ep.size_p2p(air, 0, self._delta)  # self._delta, self._delta)
+        info('    air_sized =  {}'.format(air_sized))
+
+        # extended air minus air
+        air_border = self._ep.boolean_p2p(air_sized, air, EP.ModeANotB)
+        info('    air_border = {}'.format(air_border))
+
+        # overlap of air border and mask polygons
+        mask_data = self._ep.boolean_p2p(
+                air_border, mask_polygons,
+                EP.ModeAnd)
+        info('    mask_data  = {}'.format(mask_data))
+
+        # info('____Creating MD from {}'.format([str(p) for p in mask_data]))
+        return MaterialData(mask_data, self, self._delta)
+
+    @print_info(False)
+    def _update_basic_regions(self):
+
+        h = self._height  # height above the wafer
+        d = self._depth  # thickness of the wafer
+        b = self._below  # distance below the wafer
+
+        w = self._line_dbu.length()  # length of the ruler
+        e = self._extend  # extend to the sides
+
+        self._area = Box(-e, -(d+b), w+e, h)
+        self._roi = Box(0, -(d + b), w, h)
+
+        self._air = MaterialData(
+            [Polygon(Box(-e, 0, w+e, h))], self, 0)
+        self._air_below = MaterialData(
+            [Polygon(Box(-e, -(d+b), w+e, -d))], self, 0)
+        self._bulk = MaterialData(
+            [Polygon(Box(-e, -d, w+e, 0))], self, 0)
+
+        info('    XSG._area:      {}'.format(self._area))
+        info('    XSG._roi:       {}'.format(self._roi))
+        info('    XSG._air:       {}'.format(self._air))
+        info('    XSG._bulk:      {}'.format(self._bulk))
+        info('    XSG._air_below: {}'.format(self._air_below))
+
+    @print_info(False)
+    def _setup(self):
+
+        # locate the layout
+        app = Application.instance()
+        view = app.main_window().current_view()  # LayoutView
+        if not view:
+            MessageBox.critical(
+                    "Error", "No view open for creating the cross "
+                    "section from", MessageBox.b_ok())
+            return False
+
+        # locate the (single) ruler
+        ruler = None
+        n_rulers = 0
+        for a in view.each_annotation():
+            # Use only rulers with "plain line" style
+            # self._@@ if a.style == Annotation::style_line
+                ruler = a
+                n_rulers += 1
+            # @@@
+
+        if n_rulers == 0:
+            MessageBox.critical("Error",
+                                    "No ruler present for the cross "
+                                    "section line", MessageBox.b_ok())
+            return False
+
+        if n_rulers > 1:
+            MessageBox.critical(
+                    "Error", "More than one ruler present for the cross "
+                    "section line (with 'plain line' style)",
+                    MessageBox.b_ok())
+            return False
+
+        cv = view.cellview(view.active_cellview_index())  # CellView
+        if not cv.is_valid():
+            MessageBox.critical("Error",
+                                "The selected layout is not valid",
+                                MessageBox.b_ok())
+            return False
+
+        self._cv = cv  # CellView
+        self._layout = cv.layout()  # Layout
+        self._dbu = self._layout.dbu
+        self._cell = cv.cell_index  # int
+
+        # get the start and end points in database units and micron
+        p1_dbu = Point.from_dpoint(ruler.p1 * (1.0 / self._dbu))
+        p2_dbu = Point.from_dpoint(ruler.p2 * (1.0 / self._dbu))
+        self._line_dbu = Edge(p1_dbu, p2_dbu)  # Edge describing the ruler
+
+        # create a new layout for the output
+        cv = app.main_window().create_layout(1)
+        cell = cv.layout().add_cell("XSECTION")
+        self._target_view = app.main_window().current_view()
+        self._target_view.select_cell(cell, 0)
+        self._target_layout = cv.layout()
+        self._target_layout.dbu = self._dbu
+        self._target_cell = cell
+
+        # initialize height and depth
+        self._extend = int_floor(2.0 / self._dbu + 0.5)  # 2 um in dbu
+        self._delta = 10
+        self._height = int_floor(2.0 / self._dbu + 0.5)  # 2 um in dbu
+        self._depth = int_floor(2.0 / self._dbu + 0.5)  # 2 um in dbu
+        self._below = int_floor(2.0 / self._dbu + 0.5)  # 2 um in dbu
+
+        info('    XSG._dbu is:    {}'.format(self._dbu))
+        info('    XSG._extend is: {}'.format(self._extend))
+        info('    XSG._delta is:  {}'.format(self._delta))
+        info('    XSG._height is: {}'.format(self._height))
+        info('    XSG._depth is:  {}'.format(self._depth))
+        info('    XSG._below is:  {}'.format(self._below))
+
+        return True
+
+
+# MENU AND ACTIONS
+# ----------------
+N_PYXS_SCRIPTS_MAX = 4
+
+pyxs_script_load_menuhandler = None
+pyxs_scripts = None
+
+
+class MenuHandler(Action):
+    """ Handler for the load .xs file action
+    """
+    def __init__(self, title, action, shortcut=None, icon=None):
+        """
+        Parameters
+        ----------
+        title : str
+        action : callable
+        shortcut : str
+        icon : str
+        """
+        self.title = title
+        self._action = action
+        if shortcut:
+            self.shortcut = shortcut
+        if icon:
+            self.icon = icon
+
+    def triggered(self):
+        self._action()
+
+
+class XSectionMRUAction(Action):
+    """ A special action to implement the cross section MRU menu item
+    """
+
+    def __init__(self, action):
+        """
+        Parameters
+        ----------
+        action : callable
+        """
+        self._action = action
+        self._script = None
+        # self.title = None
+        # self.visible = False
+
+    def triggered(self):
+        self._action(self.script)
+
+    @property
+    def script(self):
+        return self._script
+
+    @script.setter
+    def script(self, s):
+        self._script = s
+        self.visible = (s is not None)
+        if s:
+            self.title = os.path.basename(s)
+
+
+class XSectionScriptEnvironment(object):
+    """ The cross section script environment
+    """
+    def __init__(self):
+        app = Application.instance()
+        mw = app.main_window()
+
+        def _on_triggered_callback():
+            """ Load pyxs script menu action.
+
+            Load new .pyxs file and run it.
+            """
+            view = Application.instance().main_window().current_view()
+            if not view:
+                raise UserWarning("No view open for running the pyxs script")
+
+            filename = FileDialog.get_open_file_name(
+                    "Select cross-section script", "",
+                    "XSection Scripts (*.pyxs);;All Files (*)")
+
+            # run the script and save it
+            if filename.has_value():
+                self.run_script(filename.value())
+                self.make_mru(filename.value())
+
+        def _XSectionMRUAction_callback(script):
+            """ *.pyxs menu action
+
+            Load selected .pyxs file and run it.
+
+            Parameters
+            ----------
+            script : str
+            """
+            self.run_script(script)
+            self.make_mru(script)
+
+        # Create pyxs submenu in Tools
+        menu = mw.menu()
+        if not menu.is_valid("tools_menu.pyxs_script_group"):
+            menu.insert_separator("tools_menu.end", "pyxs_script_group")
+            menu.insert_menu("tools_menu.end", "pyxs_script_submenu", "pyxs")
+
+        # Create Load XSection.py Script item in XSection (py)
+        global pyxs_script_load_menuhandler
+        pyxs_script_load_menuhandler = MenuHandler(
+                "Load pyxs script", _on_triggered_callback)
+        menu.insert_item("tools_menu.pyxs_script_submenu.end",
+                         "pyxs_script_load", pyxs_script_load_menuhandler)
+        menu.insert_separator("tools_menu.pyxs_script_submenu.end.end",
+                              "pyxs_script_mru_group")
+
+        # Create list of existing pyxs scripts item in pyxs
+        self._mru_actions = []
+        for i in range(N_PYXS_SCRIPTS_MAX):
+            a = XSectionMRUAction(_XSectionMRUAction_callback)
+            self._mru_actions.append(a)
+            menu.insert_item("tools_menu.pyxs_script_submenu.end",
+                             "pyxs_script_mru{}".format(i), a)
+            a.script = None
+
+        # try to save the MRU list to $HOME/.klayout-processing-mru
+        i = 0
+        home = os.getenv("HOME", None) or os.getenv("HOMESHARE", None)
+        global pyxs_scripts
+        if pyxs_scripts:
+            for i, script in enumerate(pyxs_scripts.split(":")):
+                if i < len(self._mru_actions):
+                    self._mru_actions[i].script = script
+        elif home:
+            fn = home + "\\.klayout-pyxs-scripts"
+            try:
+                with open(fn, "r") as file:
+                    for line in file.readlines():
+                        match = re.match('<mru>(.*)<\/mru>', line)
+                        if match:
+                            if i < len(self._mru_actions):
+                                self._mru_actions[i].script = match.group(1)
+                            i += 1
+            except:
+                pass
+
+    def run_script(self, filename):
+        """ Run .pyxs script
+
+        filename : str
+            path to the .pyxs script
+        """
+        view = Application.instance().main_window().current_view()
+        if not view:
+            raise UserWarning("No view open for running the pyxs script")
+
+        # cv = view.cellview(view.active_cellview_index())
+
+        XSectionGenerator(filename).run()
+        # try:
+        #     # print('XSectionGenerator(filename).run()')
+        #     XSectionGenerator(filename).run()
+        # except Exception as e:
+        #     MessageBox.critical("Script failed", str(e),
+        #                             MessageBox.b_ok())
+
+    def make_mru(self, script):
+        """ Save list of scripts
+
+        script : str
+            path to the script to be saved
+        """
+        # Don't maintain MRU if an external list is provided
+        global pyxs_scripts
+        if pyxs_scripts:
+            return
+
+        # Make a new script list. New script goes first, ...
+        scripts = [script]
+        # ... the rest are taken from the existing list
+        for a in self._mru_actions:
+            if a.script != script:
+                scripts.append(a.script)
+
+        # make sure the list is filled to the same length
+        while len(scripts) < len(self._mru_actions):
+            scripts.append(None)
+
+        # update list of actions
+        for i in range(len(self._mru_actions)):
+            self._mru_actions[i].script = scripts[i]
+
+        # try to save the MRU list to $HOME/.klayout-xsection
+        home = os.getenv("HOME", None) or os.getenv("HOMESHARE", None)
+        if home:
+            fn = home + "\\.klayout-pyxs-scripts"
+            with open(fn, "w") as file:
+                file.write("<pyxs>\n")
+                for a in self._mru_actions:
+                    if a.script:
+                        file.write("<mru>{}</mru>\n".format(a.script))
+                file.write("</pyxs>\n")
+
+
+if __name__ == '__main__':
+    import doctest
+    doctest.testmod()
