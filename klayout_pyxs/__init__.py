@@ -4,7 +4,28 @@
 Copyright 2017-2019 Dima Pustakhod
 
 """
-from pya import Polygon
+try:
+    import klayout as klayout
+    from klayout.db import Polygon
+    from klayout.dbcore import LayerInfo
+
+
+    HAS_KLAYOUT = True
+    print('Found klayout module')
+except:
+    try:
+        import pya as klayout
+        from pya import Polygon
+        from pya import EdgeProcessor as pya_EP
+
+
+        HAS_PYA = True
+        print('Found pya module')
+    except:
+        raise ModuleNotFoundError(
+            'Neither pya nor klayout module are not '
+            'installed in the current python distribution'
+        )
 
 # from .misc import info
 # reload(pyxs.misc)
