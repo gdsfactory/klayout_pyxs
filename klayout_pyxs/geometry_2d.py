@@ -3,13 +3,11 @@
 
 (C) 2017 Dima Pustakhod and contributors
 """
-import re
 
-from pya import EdgeProcessor as pya_EP
-from pya import LayerInfo
-
-from . import Polygon
-from .misc import info, print_info, int_floor, make_iterable
+from klayout_pyxs import pya_EP
+from klayout_pyxs import Polygon
+from klayout_pyxs.layer_parameters import string_to_layer_info
+from klayout_pyxs.misc import info, print_info, int_floor, make_iterable
 
 
 class EdgeProcessor(pya_EP):
@@ -140,69 +138,6 @@ class EdgeProcessor(pya_EP):
 
 EP = EdgeProcessor
 ep = EdgeProcessor()
-
-
-def string_to_layer_info_params(layer_spec, return_None=False):
-    """ Convert the layer specification into a LayerInfo parameters
-
-    Parameters
-    ----------
-    layer_spec : str
-        format: "l", "l/d", "n(l/d)" or "n".
-
-    Returns
-    -------
-    res : tuple
-        layer (int), data type (int), name (str)
-
-    Examples
-    --------
-    >>> print(string_to_layer_info_params('1'))
-    (1, 0)
-    >>> print(string_to_layer_info_params('1/2'))
-    (1, 2)
-    >>> print(string_to_layer_info_params('a(1/2)'))
-    (1, 2, 'a')
-    >>> print(string_to_layer_info_params('a'))
-    ('a',)
-    """
-    if re.match('^(\d+)$', layer_spec):
-        match = re.match('^(\d+)$', layer_spec)
-        ls = (int(match.group(0)), 0)
-    elif re.match('^(\d+)/(\d+)$', layer_spec):
-        match = re.match('^(\d+)/(\d+)$', layer_spec)
-        ls = (int(match.group(1)), int(match.group(2)))
-    elif re.match('^(.*)\s*\((\d+)/(\d+)\)$', layer_spec):
-        match = re.match('^(.*)\s*\((\d+)/(\d+)\)$', layer_spec)
-        ls = (int(match.group(2)), int(match.group(3)), match.group(1))
-    else:
-        ls = (layer_spec, )
-
-    if return_None:
-        if len(ls) == 1:
-            ls = (None, None, ls[0])
-        elif len(ls) == 2:
-            ls = (ls[0], ls[1], None)
-
-    return ls
-
-
-def string_to_layer_info(layer_spec):
-    """ Convert the layer specification into a LayerInfo structure
-
-    Parameters
-    ----------
-    layer_spec : str
-        format: "l", "l/d", "n(l/d)" or "n".
-
-    Returns
-    -------
-    ls : LayerInfo
-        layer parameters are given by the `layer_spec`.
-    """
-    ls_param = string_to_layer_info_params(layer_spec)
-    ls = LayerInfo(*ls_param)
-    return ls
 
 
 def parse_grow_etch_args(method, into=[], through=[], on=[],
