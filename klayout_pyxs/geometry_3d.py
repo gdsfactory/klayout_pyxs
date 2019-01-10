@@ -5,9 +5,8 @@
 """
 from random import random
 
-from .misc import print_info, info
-from .geometry_2d import EdgeProcessor, LayoutData
-
+from klayout_pyxs.misc import print_info, info
+from klayout_pyxs.geometry_2d import EdgeProcessor, LayoutData
 
 
 class LayerProcessor(EdgeProcessor):
@@ -623,6 +622,7 @@ def _check_layer_list_sorted(layers):
                              'MaterialLayer. Layers {} and {} are not '
                              'sorted.'.format(la, lb))
 
+
 @print_info(False)
 def layer_to_tech_str(layer_no_gds, layer, name='', color=None, filter=0.0,
                       metal=0, shortcut='', show=True):
@@ -688,6 +688,7 @@ def layer_to_tech_str(layer_no_gds, layer, name='', color=None, filter=0.0,
     s += 'Show: {}\n'.format(int(show))
     s += 'LayerEnd\n\n'
     return s
+
 
 LP = LayerProcessor
 lp = LayerProcessor()
