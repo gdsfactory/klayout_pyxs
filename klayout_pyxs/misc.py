@@ -45,7 +45,8 @@ def print_info(v=True):
 
 
 def int_floor(x):
-    """
+    """ Floor a float value and return int
+
     Returns
     -------
     res : int
@@ -55,6 +56,14 @@ def int_floor(x):
 
 
 def _check_type(instance, typ, caller=''):
+    """Check type of an object
+
+    Parameters
+    ----------
+    caller : str
+        caller name. Used for more informative error messages.
+    """
+
     if caller != '':
         caller_str = "'{}': ".format(caller)
     else:
