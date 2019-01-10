@@ -5,13 +5,13 @@
 """
 import math
 
-from klayout_pyxs import pya_EP
+from klayout_pyxs import EP_
 from klayout_pyxs import Polygon
 from klayout_pyxs.layer_parameters import string_to_layer_info
 from klayout_pyxs.misc import info, print_info, int_floor, make_iterable
 
 
-class EdgeProcessor(pya_EP):
+class EdgeProcessor(EP_):
     """
     Problems: empty polygon arrays produce errors with boolean_to_polygon
     because RBA does not recognize the empty array as an array of polygons
