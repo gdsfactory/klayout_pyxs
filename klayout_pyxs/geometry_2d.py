@@ -3,6 +3,7 @@
 
 (C) 2017 Dima Pustakhod and contributors
 """
+import math
 
 from klayout_pyxs import pya_EP
 from klayout_pyxs import Polygon
@@ -501,3 +502,343 @@ class LayoutData(object):
             raise TypeError('l should be either an instance of LayoutData or '
                             'a list of Polygon. {} is given.'
                             .format(type(l)))
+
+
+class MaterialData(LayoutData):
+    """ Class to operate 2D cross-sections.
+
+    Material data is a list of single
+
+    """
+    def __init__(self, polygons, xs, delta):
+        """
+        Parameters
+        ----------
+        polygons : list of Polygon
+            list of shapes in cross-section
+        xs: XSectionGenerator
+            passed to LayoutData.__init__()
+        delta : float
+            the intrinsic height (required for mask data because there
+            cannot be an infinitely small mask layer (in database units)
+        """
+        super().__init__(polygons, xs)  # LayoutData()
+        self._delta = delta
+
+    def __str__(self):
+        n_poly = self.n_poly
+
+        s = 'MaterialData (delta = {}, n_polygons = {})'.format(
+            self._delta, n_poly)
+
+        if n_poly > 0:
+            s += ':'
+
+        for pi in range(min(2, n_poly)):
+            s += '\n    {}'.format(self._polygons[pi])
+        return s
+
+    def __repr__(self):
+        s = '<MaterialData (delta = {}, n_polygons = {})>'.format(
+            self._delta, self.n_poly)
+        return s
+
+    @print_info(False)
+    def grow(self, z, xy=0.0, into=(), through=(), on=(), mode='square',
+             taper=None, bias=None, buried=None):
+        """
+        Parameters
+        ----------
+        z : float
+            height
+        xy : float
+            lateral
+        mode : str
+            'round|square|octagon'. The profile mode.
+        taper : float
+            The taper angle. This option specifies tapered mode and cannot
+            be combined with :mode.
+        bias : float
+            Adjusts the profile by shifting it to the interior of the figure.
+            Positive values will reduce the line width by twice the value.
+        on : list of MaterialData (optional)
+            A material or an array of materials onto which the material is
+            deposited (selective grow). The default is "all". This option
+            cannot be combined with ":into". With ":into", ":through" has the
+            same effect than ":on".
+        into : list of MaterialData (optional)
+            Specifies a material or an array of materials that the new
+            material should consume instead of growing upwards. This will
+            make "grow" a "conversion" process like an implant step.
+        through : list of MaterialData (optional)
+            To be used together with ":into". Specifies a material or an array
+            of materials to be used for selecting grow. Grow will happen
+            starting on the interface of that material with air, pass
+            through the "through" material (hence the name) and consume and
+            convert the ":into" material below.
+        buried : float
+            Applies the conversion of material at the given depth below the
+            mask level. This is intended to be used together with :into
+            and allows modeling of deep implants. The value is the depth
+            below the surface.
+
+        """
+        # parse the arguments
+        info('    into={}'.format(into))
+        into, through, on, mode = parse_grow_etch_args(
+            'grow', into=into, through=through, on=on, mode=mode,
+            material_cls=MaterialData)
+
+        info('    into={}'.format(into))
+        # produce the geometry of the new material
+        d = self.produce_geom('grow', xy, z,
+                              into, through, on,
+                              taper, bias, mode, buried)
+
+        # prepare the result
+        # list of Polygon which are removed
+        res = MaterialData(d, self._xs, 0)
+
+        # consume material
+        if into:
+            for i in into:  # for each MaterialData
+                i.sub(res)
+                i.remove_slivers()
+        else:
+            self._xs.air().sub(res)  # remove air where material was added
+            self._xs.air().remove_slivers()
+        return res
+
+    def etch(self, z, xy=0.0, into=(), through=(), mode='square',
+             taper=None, bias=None, buried=None):
+        """
+
+        Parameters
+        ----------
+        z : float
+            etch depth
+        xy : float (optional)
+            mask extension, lateral
+        mode : str
+            'round|square|octagon'. The profile mode.
+        taper :	float
+            The taper angle. This option specifies tapered mode and cannot
+            be combined with mode.
+        bias : float
+            Adjusts the profile by shifting it to the interior of the
+            figure. Positive values will reduce the line width by twice
+            the value.
+        into :	list of MaterialData (optional)
+            A material or an array of materials into which the etch is
+            performed. This specification is mandatory.
+        through : list of MaterialData (optional)
+            A material or an array of materials which form the selective
+            material of the etch. The etch will happen only where this
+            material interfaces with air and pass through this material
+            (hence the name).
+        buried : float
+            Applies the etching at the given depth below the surface. This
+            option allows to create cavities. It specifies the vertical
+            displacement of the etch seed and there may be more applications
+            for this feature.
+
+        """
+        # parse the arguments
+        into, through, on, mode = parse_grow_etch_args(
+            'etch', into=into, through=through, on=(), mode=mode,
+            material_cls=MaterialData)
+
+        if not into:
+            raise ValueError("'etch' method: requires an 'into' specification")
+
+        # prepare the result
+        d = self.produce_geom('etch', xy, z,
+                              into, through, on,
+                              taper, bias, mode, buried)  # list of Polygon
+
+        # produce the geometry of the etched material
+        # list of Polygon which are removed
+        res = MaterialData(d, self._xs, 0)
+
+        # consume material and add to air
+        if into:
+            for i in into:  # for each MaterialData
+                i.sub(res)
+                i.remove_slivers()
+
+        # Add air in place of the etched materials
+        self._xs.air().add(res)
+        self._xs.air().close_gaps()
+
+    @print_info(False)
+    def produce_geom(self, method, xy, z,
+                     into, through, on,
+                     taper, bias, mode, buried):
+        """
+
+        Parameters
+        ----------
+        method : str
+        xy : float
+            extension
+        z : float
+            height
+        into : list of MaterialData
+        through : list of MaterialData
+        on : list of MaterialData
+        taper : float
+        bias : float
+        mode : str
+            'round|square|octagon'
+        buried :
+
+        Returns
+        -------
+        d : list of Polygon
+        """
+        info('    method={}, xy={}, z={}, \n'
+             '    into={}, through={}, on={}, \n'
+             '    taper={}, bias={}, mode={}, buried={})'
+             .format(method, xy, z, into, through, on,
+                     taper, bias, mode, buried))
+
+        prebias = bias or 0.0
+
+        if xy < 0.0:  # if size to be reduced,
+            xy = -xy  #
+            prebias += xy  # positive prebias
+
+        if taper:
+            d = z * math.tan(math.pi / 180.0 * taper)
+            prebias += d - xy
+            xy = d
+
+        # determine the "into" material by joining the data of all "into" specs
+        # or taking "air" if required.
+        # into_data is a list of polygons from all `into` MaterialData
+        # Finally we get a into_data, which is a list of Polygons
+        if into:
+            into_data = []
+            for i in into:
+                if len(into_data) == 0:
+                    into_data = i.data
+                else:
+                    into_data = self._ep.boolean_p2p(i.data, into_data,
+                                                     EP.ModeOr)
+        else:
+            # when deposit or grow is selected, into_data is self.air()
+            into_data = self._xs.air().data
+
+        info('    into_data = {}'.format(into_data))
+
+        # determine the "through" material by joining the data of all
+        # "through" specs
+        # through_data is a list of polygons from all `through` MaterialData
+        # Finally we get a through_data, which is a list of Polygons
+        if through:
+            through_data = []
+            for i in through:
+                if len(through_data) == 0:
+                    through_data = i.data
+                else:
+                    through_data = self._ep.boolean_p2p(
+                            i.data, through_data,
+                            EP.ModeOr)
+            info('    through_data = {}'.format(through_data))
+
+        # determine the "on" material by joining the data of all "on" specs
+        # on_data is a list of polygons from all `on` MaterialData
+        # Finally we get an on_data, which is a list of Polygons
+        if on:
+            on_data = []
+            for i in on:
+                if len(on_data) == 0:
+                    on_data = i.data
+                else:
+                    on_data = self._ep.boolean_p2p(i.data, on_data,
+                                                   EP.ModeOr)
+            info('    on_data = {}'.format(on_data))
+
+        offset = self._delta
+        d = self._polygons  # list of Polygon
+        info('    initial d = {}'.format(d))
+
+        if abs(buried or 0.0) > 1e-6:
+            t = Trans(Point(0, -int_floor(buried / self._xs.dbu + 0.5)))
+            d = [p.transformed(t) for p in d]
+
+        # Calculate an overlap between d and into / through / on
+        # in the "into" case determine the interface region between
+        # self and into
+        if into or through or on:
+            # apply an artificial sizing to create an overlap before
+            if offset == 0:
+                offset = self._xs.delta_dbu / 2
+                d = self._ep.size_p2p(d, 0, offset)
+
+            if on:
+                d = self._ep.boolean_p2p(d, on_data, EP.ModeAnd)
+            elif through:
+                d = self._ep.boolean_p2p(d, through_data, EP.ModeAnd)
+            else:
+                d = self._ep.boolean_p2p(d, into_data, EP.ModeAnd)
+
+        info('    overlap d = {}'.format(d))
+
+        pi = int_floor(prebias / self._xs.dbu + 0.5)
+        info('    pi = {}'.format(pi))
+        if pi < 0:
+            d = self._ep.size_p2p(d, -pi, 0)
+        elif pi > 0:
+            # apply a positive prebias by filtering with a sized box
+            dd = []
+            for p in d:  # for each polygon
+                box = p.bbox()  # polygon box
+                if box.width() > 2 * pi:  # width
+                    box = Box(box.left + pi, box.bottom,
+                              box.right - pi, box.top)
+
+                    for pp in self._ep.boolean_p2p([Polygon(box)], [p],
+                                                   EP.ModeAnd):
+                        dd.append(pp)
+            d = dd
+
+        xyi = int_floor(xy / self._xs.dbu + 0.5)
+        zi = int_floor(z / self._xs.dbu + 0.5) - offset
+        info('    xyi = {}, zi = {}'.format(xyi, zi))
+
+        # Apply taper
+        if taper:
+            d = self._ep.size_p2p(d, xyi, zi, 0)
+        elif xyi <= 0:
+            info('    before sizing: d = {}'.format(d))
+            d = self._ep.size_p2p(d, 0, zi)
+            info('    after sizing: d = {}'.format(d))
+        elif mode == 'round':
+            # emulate "rounding" of corners by performing soft-edged sizes
+            d = self._ep.size_p2p(d, xyi / 3, zi / 3, 1)
+            d = self._ep.size_p2p(d, xyi / 3, zi / 3, 0)
+            d = self._ep.size_p2p(d, xyi - 2 * (xyi / 3), zi - 2 * (zi / 3), 0)
+        elif mode == 'square':
+            d = self._ep.size_p2p(d, xyi, zi)
+        elif mode == 'octagon':
+            d = self._ep.size_p2p(d, xyi, zi, 1)
+
+        if through:
+            d = self._ep.boolean_p2p(d, through_data, EP.ModeANotB)
+
+        d = self._ep.boolean_p2p(d, into_data, EP.ModeAnd)
+        info('    final d = {}'.format(d))
+
+        if None:
+            # remove small features
+            # Hint: this is done separately in x and y direction since that is
+            # more robust against snapping distortions
+            d = self._ep.size_p2p(d, 0, self._xs.delta_dbu / 2)
+            d = self._ep.size_p2p(d, 0, -self._xs.delta_dbu)
+            d = self._ep.size_p2p(d, 0, self._xs.delta_dbu / 2)
+            d = self._ep.size_p2p(d, self._xs.delta_dbu / 2, 0)
+            d = self._ep.size_p2p(d, -self._xs.delta_dbu, 0)
+            d = self._ep.size_p2p(d, self._xs.delta_dbu / 2, 0)
+
+        return d
