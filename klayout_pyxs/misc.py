@@ -51,6 +51,21 @@ def int_floor(x):
     -------
     res : int
         int(math.floor(x))
+
+    Examples
+    --------
+    >>> int_floor(1.5)
+    1
+    >>> int_floor(1.2)
+    1
+    >>> int_floor(1.8)
+    1
+    >>> int_floor(-1.2)
+    -2
+    >>> int_floor(-1.5)
+    -2
+    >>> int_floor(-1.8)
+    -2
     """
     return int(math.floor(x))
 
@@ -76,3 +91,12 @@ def _check_type(instance, typ, caller=''):
 
 def make_iterable(v):
     return v if (v is None) or (type(v) in (list, tuple)) else [v]
+
+
+def main():
+    import doctest
+    doctest.testmod()
+
+
+if __name__ == '__main__':
+    main()
