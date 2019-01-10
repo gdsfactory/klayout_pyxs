@@ -146,20 +146,21 @@ EP = EdgeProcessor
 ep = EdgeProcessor()
 
 
-def parse_grow_etch_args(method, into=[], through=[], on=[],
-                         mode='square', material_cls=None):
+def parse_grow_etch_args(method, material_cls, into=(), through=(), on=(),
+                         mode='square'):
     """
     Parameters
     ----------
     method : str
-        'etch|grow'
+        'etch|grow': calling method, used for debug messages.
+    material_cls : type
+        into, through, and on lists must contain instances of this type.
     into : None or list (optional)
     on : None or list (optional)
     through : None or list (optional)
     mode : str (optional)
         'square|round|octagon'
-    material_cls : type (optional)
-        into, through, and on lists must contain instances of this type.
+
 
     Returns
     -------
@@ -591,8 +592,7 @@ class MaterialData(LayoutData):
         # parse the arguments
         info('    into={}'.format(into))
         into, through, on, mode = parse_grow_etch_args(
-            'grow', into=into, through=through, on=on, mode=mode,
-            material_cls=MaterialData)
+            'grow', MaterialData, into=into, through=through, on=on, mode=mode)
 
         info('    into={}'.format(into))
         # produce the geometry of the new material
@@ -650,8 +650,7 @@ class MaterialData(LayoutData):
         """
         # parse the arguments
         into, through, on, mode = parse_grow_etch_args(
-            'etch', into=into, through=through, on=(), mode=mode,
-            material_cls=MaterialData)
+            'etch', MaterialData, into=into, through=through, on=(), mode=mode)
 
         if not into:
             raise ValueError("'etch' method: requires an 'into' specification")
