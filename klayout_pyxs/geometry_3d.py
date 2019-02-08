@@ -5,7 +5,7 @@
 """
 from random import random
 
-from klayout_pyxs.misc import print_info, info
+from klayout_pyxs.utils import print_info, info
 from klayout_pyxs.geometry_2d import EdgeProcessor, LayoutData
 
 

@@ -18,31 +18,35 @@
 # the paths used for generating the masks are somewhat too thick
 # TODO: the left and right areas are not treated correctly
 
+from importlib import reload
 import math
 import os
 import re
 
-from pya import Application, MessageBox, Action, FileDialog
-from pya import Point, Box, LayerInfo
-from pya import Trans
-
-from importlib import reload
-
-import pyxs
+import klayout_pyxs
 try:
-    reload(pyxs.misc)
-    reload(pyxs.geometry_2d)
-    reload(pyxs.geometry_3d)
+    reload(klayout_pyxs.misc)
+    reload(klayout_pyxs.geometry_2d)
+    reload(klayout_pyxs.geometry_3d)
 except:
     pass
 
-from . import Polygon
-from .misc import print_info, int_floor, make_iterable, info
-from .geometry_2d import EP, LayoutData, parse_grow_etch_args
-from .geometry_2d import string_to_layer_info, string_to_layer_info_params
-from .geometry_3d import MaterialLayer, LP, lp, layer_to_tech_str
+from klayout_pyxs import Application
+from klayout_pyxs import MessageBox
+from klayout_pyxs import Action
+from klayout_pyxs import FileDialog
 
-# from .geometry_3d import LayerProcessor, MaterialLayers
+from klayout_pyxs import Box
+from klayout_pyxs import LayerInfo
+from klayout_pyxs import Point
+from klayout_pyxs import Polygon
+from klayout_pyxs import Trans
+
+from klayout_pyxs.utils import print_info, int_floor, make_iterable, info
+from klayout_pyxs.geometry_2d import EP, LayoutData, parse_grow_etch_args
+from klayout_pyxs.layer_parameters import string_to_layer_info_params
+from klayout_pyxs.layer_parameters import string_to_layer_info
+from klayout_pyxs.geometry_3d import MaterialLayer, LP, lp, layer_to_tech_str
 
 info('Module pyxs3D_lib.py reloaded')
 MIN_EXPORT_LAYER_THICKNESS = 5
@@ -343,8 +347,8 @@ class MaterialData3D(object):
 
         # parse the arguments
         into, through, on, mode = parse_grow_etch_args(
-            'grow', into=into, on=on, through=through, mode=mode,
-            material_cls=MaterialData3D)
+            'grow', MaterialData3D,
+            into=into, on=on, through=through, mode=mode)
 
         # produce the geometry of the new material
         layers = self.produce_geom('grow', xy, z,
@@ -400,8 +404,8 @@ class MaterialData3D(object):
         """
         # parse the arguments
         into, through, on, mode = parse_grow_etch_args(
-            'etch', into=into, through=through, on=None, mode=mode,
-            material_cls=MaterialData3D)
+            'etch', MaterialData3D,
+            into=into, through=through, on=None, mode=mode)
 
         if not into:
             raise ValueError("'etch' method: requires an 'into' specification")
@@ -805,7 +809,7 @@ class XSectionGenerator(object):
         """
 
         if not into:
-            raise "'planarize' requires an 'into' argument"
+            raise ValueError("'planarize' requires an 'into' argument")
 
         into = make_iterable(into)
         for i in into:

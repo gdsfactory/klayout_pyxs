@@ -4,6 +4,9 @@
 Copyright 2017-2019 Dima Pustakhod
 
 """
+HAS_KLAYOUT = False
+HAS_PYA = False
+
 try:
     import klayout as klayout
 

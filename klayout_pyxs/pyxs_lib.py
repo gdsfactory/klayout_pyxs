@@ -30,8 +30,6 @@ import re
 
 import klayout_pyxs
 
-from klayout_pyxs_repo.klayout_pyxs.geometry_2d import MaterialData
-
 try:
     reload(klayout_pyxs)
     reload(klayout_pyxs.utils)
@@ -39,20 +37,22 @@ try:
 except:
     pass
 
-# Imports for KLayout plugin
-from klayout_pyxs import Application
-from klayout_pyxs import MessageBox
-from klayout_pyxs import Action
-from klayout_pyxs import FileDialog
+from klayout_pyxs import HAS_KLAYOUT, HAS_PYA
 
 from klayout_pyxs import Box
 from klayout_pyxs import Edge
 from klayout_pyxs import Point
 from klayout_pyxs import Polygon
 
+if HAS_PYA:
+    # Imports for KLayout plugin
+    from klayout_pyxs import Application
+    from klayout_pyxs import MessageBox
+    from klayout_pyxs import Action
+    from klayout_pyxs import FileDialog
 
 from klayout_pyxs.utils import print_info, int_floor, make_iterable, info
-from klayout_pyxs.geometry_2d import ep, EP, LayoutData
+from klayout_pyxs.geometry_2d import ep, EP, LayoutData, MaterialData
 from klayout_pyxs.layer_parameters import string_to_layer_info
 
 info('Module klayout_pyxs.pyxs_lib.py reloaded')
