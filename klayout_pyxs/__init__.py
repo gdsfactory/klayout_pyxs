@@ -8,7 +8,11 @@ HAS_KLAYOUT = False
 HAS_PYA = False
 
 try:
-    import klayout as klayout
+    print('Trying to import klayout module... ', end='')
+    import importlib
+
+    importlib.import_module('klayout')
+    HAS_KLAYOUT = True
 
     from klayout.db import Box
     from klayout.db import Edge
@@ -18,11 +22,11 @@ try:
     from klayout.db import Polygon
     from klayout.db import Trans
 
-
-    HAS_KLAYOUT = True
-    print('Found klayout module')
+    print('found!')
 except:
+    print('not found!')
     try:
+        print('Trying to import pya module... ', end='')
         import pya as klayout
 
         from pya import Box
@@ -40,12 +44,14 @@ except:
         from pya import MessageBox
 
         HAS_PYA = True
-        print('Found pya module')
+        print('found!')
     except:
+        print('not found!')
         raise ModuleNotFoundError(
             'Neither pya nor klayout module are not '
-            'installed in the current python distribution'
+            'installed in the current python distribution.'
         )
+
 
 # from .misc import info
 # reload(pyxs.misc)
@@ -63,5 +69,10 @@ def _poly_repr(self):
 
 Polygon.__repr__ = _poly_repr
 
-
 # info('pyxs.__init__.py loaded')
+
+from klayout_pyxs.pyxs_lib import XSectionScriptEnvironment
+
+__all__ = [
+    'XSectionScriptEnvironment'
+]

@@ -13,7 +13,7 @@ from klayout_pyxs import Polygon
 from klayout_pyxs import Trans
 
 from klayout_pyxs.layer_parameters import string_to_layer_info
-from klayout_pyxs.misc import info, print_info, int_floor, make_iterable
+from klayout_pyxs.utils import info, print_info, int_floor, make_iterable
 
 
 class EdgeProcessor(EP_):
