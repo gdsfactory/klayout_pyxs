@@ -480,9 +480,9 @@ class XSectionGenerator(object):
         self._lyp_file = lyp_file
 
     # The basic generation method
-    def run(self):
+    def run(self, p1, p2):
 
-        if not self._setup():
+        if not self._setup(p1, p2):
             return None
 
         self._update_basic_regions()
@@ -518,7 +518,7 @@ class XSectionGenerator(object):
         if self._lyp_file:
             self._target_view.load_layer_props(self._lyp_file)
         self._target_view.zoom_fit()
-        return None
+        return self._target_view
 
     @print_info(False)
     def _xpoints_to_mask(self, iv):
@@ -605,38 +605,22 @@ class XSectionGenerator(object):
         info('    XSG._air_below: {}'.format(self._air_below))
 
     @print_info(False)
-    def _setup(self):
-
+    def _setup(self, p1, p2):
+        """
+        Parameters
+        ----------
+        p1 : Point
+            first point of the ruler
+        p2 : Point
+            second point of the ruler
+        """
         # locate the layout
         app = Application.instance()
         view = app.main_window().current_view()  # LayoutView
         if not view:
             MessageBox.critical(
-                    "Error", "No view open for creating the cross "
+                    "Error", "No view open for creating the cross-"
                     "section from", MessageBox.b_ok())
-            return False
-
-        # locate the (single) ruler
-        ruler = None
-        n_rulers = 0
-        for a in view.each_annotation():
-            # Use only rulers with "plain line" style
-            # self._@@ if a.style == Annotation::style_line
-                ruler = a
-                n_rulers += 1
-            # @@@
-
-        if n_rulers == 0:
-            MessageBox.critical("Error",
-                                    "No ruler present for the cross "
-                                    "section line", MessageBox.b_ok())
-            return False
-
-        if n_rulers > 1:
-            MessageBox.critical(
-                    "Error", "More than one ruler present for the cross "
-                    "section line (with 'plain line' style)",
-                    MessageBox.b_ok())
             return False
 
         cv = view.cellview(view.active_cellview_index())  # CellView
@@ -652,8 +636,8 @@ class XSectionGenerator(object):
         self._cell = cv.cell_index  # int
 
         # get the start and end points in database units and micron
-        p1_dbu = Point.from_dpoint(ruler.p1 * (1.0 / self._dbu))
-        p2_dbu = Point.from_dpoint(ruler.p2 * (1.0 / self._dbu))
+        p1_dbu = Point.from_dpoint(p1 * (1.0 / self._dbu))
+        p2_dbu = Point.from_dpoint(p2 * (1.0 / self._dbu))
         self._line_dbu = Edge(p1_dbu, p2_dbu)  # Edge describing the ruler
 
         # create a new layout for the output
@@ -825,7 +809,7 @@ class XSectionScriptEnvironment(object):
             except:
                 pass
 
-    def run_script(self, filename):
+    def run_script(self, filename, p1=None, p2=None):
         """ Run .pyxs script
 
         filename : str
@@ -835,9 +819,42 @@ class XSectionScriptEnvironment(object):
         if not view:
             raise UserWarning("No view open for running the pyxs script")
 
-        # cv = view.cellview(view.active_cellview_index())
+        if p1 is None or p2 is None:
 
-        XSectionGenerator(filename).run()
+            app = Application.instance()
+            view = app.main_window().current_view()  # LayoutView
+            if not view:
+                MessageBox.critical(
+                    "Error", "No view open for creating the cross-"
+                             "section from", MessageBox.b_ok())
+                return False
+
+            # locate the (single) ruler
+            ruler = None
+            n_rulers = 0
+            for a in view.each_annotation():
+                # Use only rulers with "plain line" style
+                # self._@@ if a.style == Annotation::style_line
+                    ruler = a
+                    n_rulers += 1
+
+            if n_rulers == 0:
+                MessageBox.critical("Error",
+                                    "No ruler present for the cross "
+                                    "section line", MessageBox.b_ok())
+                return False
+
+            if n_rulers > 1:
+                MessageBox.critical(
+                        "Error", "More than one ruler present for the cross "
+                        "section line (with 'plain line' style)",
+                        MessageBox.b_ok())
+                return False
+
+            p1 = ruler.p1
+            p2 = ruler.p2
+
+        return XSectionGenerator(filename).run(p1, p2)
         # try:
         #     # print('XSectionGenerator(filename).run()')
         #     XSectionGenerator(filename).run()
