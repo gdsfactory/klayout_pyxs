@@ -118,3 +118,6 @@ ENV/
 *.tar
 *.zip
 *.rar
+
+# GDS generated while testing
+tests/run_dir
