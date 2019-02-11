@@ -557,6 +557,7 @@ class MaskData(LayoutData):
             the intrinsic height (required for mask data because there
             cannot be an infinitely small mask layer (in database units)
         """
+
         super().__init__([], xs)  # LayoutData()
         self._air_polygons = air_polygons
         self._mask_polygons = mask_polygons
@@ -570,6 +571,8 @@ class MaskData(LayoutData):
     def __str__(self):
         n_air_poly = self.n_air_poly
         n_mask_poly = self.n_mask_poly
+
+        print()
 
         s = '{} (n_air_polygons={}, n_mask_polygons={})'.format(
             self.__class__.__name__, n_air_poly, n_mask_poly)

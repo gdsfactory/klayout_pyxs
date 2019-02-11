@@ -272,7 +272,11 @@ class XSectionGenerator(object):
     def grow(self, *args, **kwargs):
         """ Same as deposit()
         """
-        return self.all().grow(*args, **kwargs)
+        print(args)
+        print(kwargs)
+        all = self.all()
+        print(all)
+        return all.grow(*args, **kwargs)
 
     def etch(self, *args, **kwargs):
         """ Uniform etching
@@ -370,6 +374,7 @@ class XSectionGenerator(object):
                 i.sub([Polygon(removed_box)])
 
             self.air().add(rem)
+
             # self.air().close_gaps()
 
     def set_thickness_scale_factor(self, factor):
