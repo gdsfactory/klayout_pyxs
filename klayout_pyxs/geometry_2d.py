@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """ pyxs.geometry_2d.py
 
-(C) 2017 Dima Pustakhod and contributors
+(C) 2017-2019 Dima Pustakhod and contributors
 """
 import math
 
@@ -299,15 +299,13 @@ class LayoutData(object):
         ld : LayoutData
         """
         other_polygons = self._get_polygons(other)
-        return LayoutData(self._ep.boolean_p2p(
-                self._polygons, other_polygons, EP.ModeAnd),
-                          self._xs)
+        return self.upcast(self._ep.boolean_p2p(
+                self._polygons, other_polygons, EP.ModeAnd))
 
     def invert(self):
         self._polygons = self._ep.boolean_p2p(self._polygons,
-                                              [Polygon(self._xs.background)],
-                                              EP.ModeXor
-                                             )
+                                              [Polygon(self._xs.background())],
+                                              EP.ModeXor)
 
     def inverted(self):
         """ Calculate inversion of the mask.
@@ -409,9 +407,8 @@ class LayoutData(object):
         ld : LayoutData
         """
         other_polygons = self._get_polygons(other)
-        return LayoutData(self._ep.boolean_p2p(
-                self._polygons, other_polygons, EP.ModeANotB),
-                          self._xs)
+        return self.upcast(self._ep.boolean_p2p(
+                self._polygons, other_polygons, EP.ModeANotB))
 
     def or_(self, other):
         """ Calculate sum with another list of polygons (OR).
@@ -499,9 +496,8 @@ class LayoutData(object):
         ld : LayoutData
         """
         other_polygons = self._get_polygons(other)
-        return LayoutData(self._ep.boolean_p2p(
-                self._polygons, other_polygons, EP.ModeXor),
-                          self._xs)
+        return self.upcast(self._ep.boolean_p2p(
+                self._polygons, other_polygons, EP.ModeXor))
 
     def close_gaps(self):
         """ Close gaps in self._polygons.
@@ -545,22 +541,28 @@ class MaskData(LayoutData):
     Material data is a list of single
 
     """
+    @print_info(False)
     def __init__(self, air_polygons, mask_polygons, xs):
         """
         Parameters
         ----------
-        polygons : list of Polygon
-            list of shapes in cross-section
+        air_polygons : list of Polygon
+            list of shapes constituting air in cross-section
+        mask_polygons : list of Polygon
+            list of shapes constituting material in cross-section
         xs: XSectionGenerator
             passed to LayoutData.__init__()
         delta : float
             the intrinsic height (required for mask data because there
             cannot be an infinitely small mask layer (in database units)
         """
-
         super().__init__([], xs)  # LayoutData()
         self._air_polygons = air_polygons
         self._mask_polygons = mask_polygons
+
+        info('air_polygons = {}'.format(air_polygons))
+        info('mask_polygons = {}'.format(mask_polygons))
+        info('Success!')
 
     def upcast(self, polygons):
         return MaskData(self._air_polygons, polygons, self._xs)
@@ -581,7 +583,7 @@ class MaskData(LayoutData):
             s += ':'
 
         for pi in range(min(2, n_mask_poly)):
-            s += '\n    {}'.format(self._polygons[pi])
+            s += '\n    {}'.format(self._mask_polygons[pi])
         return s
 
     @property
@@ -939,9 +941,6 @@ class MaskData(LayoutData):
 class MaterialData(LayoutData):
     def __init__(self, polygons, xs):
         super().__init__(polygons, xs)
-
-    # def upcast(self, polygons):
-    #     return MaterialData(polygons, self._xs)
 
     def discard(self):
         self._xs.air().add(self)

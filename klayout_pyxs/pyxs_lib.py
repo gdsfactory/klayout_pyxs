@@ -16,7 +16,7 @@
 #
 
 # A feasibility study for a cross section generation using
-# boolean operations. See "cmos.xs" for a brief description of the
+# boolean operations. See "cmos.pyxs" for a brief description of the
 # commands available and some examples.
 
 # TODO: use a much smaller dbu for the simulation to have a really small delta
@@ -37,7 +37,7 @@ try:
 except:
     pass
 
-from klayout_pyxs import HAS_KLAYOUT, HAS_PYA
+from klayout_pyxs import HAS_PYA
 
 from klayout_pyxs import Box
 from klayout_pyxs import Edge
@@ -239,9 +239,13 @@ class XSectionGenerator(object):
         ------
         res : MaterialData
         """
-        res = self._xpoints_to_mask(
-                [[-self._extend, 1],
-                 [self._line_dbu.length() + self._extend, -1]])
+        e = self._extend
+        info('e = {}'.format(e))
+
+        line_dbu = self._line_dbu
+        info('line_dbu = {}'.format(line_dbu))
+
+        res = self._xpoints_to_mask([[-e, 1], [line_dbu.length() + e, -1]])
 
         info('    all().res = {}'.format(res))
         return res
@@ -269,13 +273,12 @@ class XSectionGenerator(object):
         """
         return self.all().grow(*args, **kwargs)
 
+    @print_info(False)
     def grow(self, *args, **kwargs):
         """ Same as deposit()
         """
-        print(args)
-        print(kwargs)
         all = self.all()
-        print(all)
+        info(all)
         return all.grow(*args, **kwargs)
 
     def etch(self, *args, **kwargs):
@@ -286,6 +289,7 @@ class XSectionGenerator(object):
         """
         return self.all().etch(*args, **kwargs)
 
+    @print_info(True)
     def planarize(self, *args, **kwargs):
         """ Planarization
         """
@@ -318,6 +322,11 @@ class XSectionGenerator(object):
         if not into:
             raise ValueError("'planarize' requires an 'into' argument")
 
+        info('   downto = {}'.format(downto))
+        info('   less = {}'.format(less))
+        info('   to = {}'.format(to))
+        info('   into = {}'.format(into))
+
         if downto:
             downto_data = None
             if len(downto) == 1:
@@ -341,6 +350,7 @@ class XSectionGenerator(object):
                         to = max([to, yt, yb])
                     else:
                         to = min([to, yt, yb])
+                info('    to = {}'.format(to))
 
         elif into and not to:
 
@@ -355,7 +365,8 @@ class XSectionGenerator(object):
                     else:
                         to = min([to, yt, yb])
 
-        if to:
+        if to is not None:
+            info('    to is true')
             less = less or 0
             if self._flipped:
                 removed_box = Box(-self._extend,
@@ -385,7 +396,7 @@ class XSectionGenerator(object):
         self._thickness_scale_factor = factor
 
     def set_output_parameters(self, filename=None, format=None):
-        print('set_output_filename() has no effect in pyxs.')
+        print('set_output_parameters() has no effect in pyxs.')
 
     @print_info(False)
     def set_delta(self, x):
@@ -503,7 +514,6 @@ class XSectionGenerator(object):
         res : Box
             The extended box including the ruler.
         """
-
         x1 = self._line_dbu.p1.x
         y1 = self._line_dbu.p1.y
         x2 = self._line_dbu.p2.x
@@ -632,7 +642,10 @@ class XSectionGenerator(object):
         # info('____Creating MD from {}'.format([str(p) for p in mask_data]))
         return MaterialData(mask_data, self)
         '''
-        return MaskData(self._air.data, mask_polygons, self)
+        info('Before MaskData creation')
+        res = MaskData(self._air.data, mask_polygons, self)
+        info('res = {}'.format(res))
+        return res
 
     @print_info(False)
     def _update_basic_regions(self):
