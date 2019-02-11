@@ -11,7 +11,7 @@
 #
 
 # A feasibility study for a cross section generation using
-# boolean operations. See "cmos.xs" for a brief description of the
+# boolean operations. See "cmos.pyxs" for a brief description of the
 # commands available and some examples.
 
 # TODO: use a much smaller dbu for the simulation to have a really small delta
