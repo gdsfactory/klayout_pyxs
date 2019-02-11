@@ -52,7 +52,7 @@ if HAS_PYA:
     from klayout_pyxs import FileDialog
 
 from klayout_pyxs.utils import print_info, int_floor, make_iterable, info
-from klayout_pyxs.geometry_2d import ep, EP, LayoutData, MaterialData
+from klayout_pyxs.geometry_2d import ep, EP, LayoutData, MaterialData, MaskData
 from klayout_pyxs.layer_parameters import string_to_layer_info
 
 info('Module klayout_pyxs.pyxs_lib.py reloaded')
@@ -73,7 +73,11 @@ class XSectionGenerator(object):
         self._ep = ep
         self._flipped = False
         self._air, self._air_below = None, None
-        self._delta = 1
+        self._delta = None
+        self._extend = None
+        self._below = None
+        self._depth = None
+        self._height = None
 
     def layer(self, layer_spec):
         """ Fetches an input layer from the original layout.
@@ -90,7 +94,7 @@ class XSectionGenerator(object):
         ld = LayoutData([], self)  # empty
         # collect shapes from the corresponding layer into ld._polygons
         ld.load(self._layout, self._cell,
-                self._line_dbu.bbox().enlarged(
+                self._line_dbu.bbox().enlarge(
                     Point(self._extend, self._extend)),
                 layer_spec)
         return ld
@@ -192,7 +196,7 @@ class XSectionGenerator(object):
         bulk : klayout_pyxs_repo.klayout_pyxs.geometry_2d.MaterialData
         """
 
-        return MaterialData(self._bulk.data, self, 0)
+        return MaterialData(self._bulk.data, self)
 
     def output(self, layer_spec, layer_data, *args):
         """Outputs a material object to the output layout
@@ -217,6 +221,15 @@ class XSectionGenerator(object):
                 [Polygon(self._roi)], layer_data.data,
                 EP.ModeAnd, True, True):
             shapes.insert(polygon)
+
+    def output_raw(self, layer_spec, d):
+        """ For debugging only
+        """
+        ls = string_to_layer_info(layer_spec)
+        li = self._target_layout.insert_layer(ls)
+        shapes = self._target_layout.cell(self._target_cell).shapes(li)
+        shapes.insert(d)
+        return shapes
 
     @print_info(False)
     def all(self):
@@ -357,7 +370,7 @@ class XSectionGenerator(object):
                 i.sub([Polygon(removed_box)])
 
             self.air().add(rem)
-            self.air().close_gaps()
+            # self.air().close_gaps()
 
     def set_thickness_scale_factor(self, factor):
         """Configures layer thickness scale factor
@@ -376,6 +389,10 @@ class XSectionGenerator(object):
         self._delta = int_floor(x / self._dbu + 0.5)
         info('XSG._delta set to {}'.format(self._delta))
 
+    def delta(self, x):
+        self._delta = int_floor(x / self._dbu + 0.5)
+        info('XSG._delta set to {}'.format(self._delta))
+
     @property
     def delta_dbu(self):
         return self._delta
@@ -389,9 +406,26 @@ class XSectionGenerator(object):
         info('XSG._height set to {}'.format(self._height))
         self._update_basic_regions()
 
+    def height(self, x):
+        """ Configures the height of the processing window
+
+        """
+        self._height = int_floor(x / self._dbu + 0.5)
+        info('XSG._height set to {}'.format(self._height))
+        self._update_basic_regions()
+
     @property
     def height_dbu(self):
         return self._height
+
+    def depth(self, x):
+        """ Configures the depth of the processing window
+        or the wafer thickness for backside processing (see below)
+
+        """
+        self._depth = int_floor(x / self._dbu + 0.5)
+        info('XSG._depth set to {}'.format(self._depth))
+        self._update_basic_regions()
 
     @print_info(False)
     def set_depth(self, x):
@@ -406,6 +440,19 @@ class XSectionGenerator(object):
     @property
     def depth_dbu(self):
         return self._depth
+
+    def below(self, x):
+        """ Configures the lower height of the processing window for backside processing
+
+        Parameters
+        ----------
+        x : float
+            depth below the wafer in um,
+
+        """
+        self._below = int_floor(x / self._dbu + 0.5)
+        info('XSG._below set to {}'.format(self._below))
+        self._update_basic_regions()
 
     @print_info(False)
     def set_below(self, x):
@@ -442,7 +489,7 @@ class XSectionGenerator(object):
 
         Determined by the ruler width.
         """
-        return self._line_dbu.length()  # TODO
+        return self._line_dbu.length()
 
     def background(self):
         """
@@ -482,8 +529,9 @@ class XSectionGenerator(object):
     # The basic generation method
     def run(self, p1, p2):
 
-        if not self._setup(p1, p2):
-            return None
+        self._target_view = None
+
+        self._setup(p1, p2)
 
         self._update_basic_regions()
 
@@ -557,12 +605,13 @@ class XSectionGenerator(object):
 
         info('    mask_polys = {}'.format(mask_polygons))
 
+        '''
         air = self._air.data
         info('    air =        {}'.format(air))
 
         # Sizing is needed only in vertical direction, it seems
         # air_sized = self._ep.size_p2p(air, self._delta, self._delta)
-        air_sized = self._ep.size_p2p(air, 0, self._delta)  # self._delta, self._delta)
+        air_sized = self._ep.size_p2p(air, self._delta, self._delta)
         info('    air_sized =  {}'.format(air_sized))
 
         # extended air minus air
@@ -576,7 +625,9 @@ class XSectionGenerator(object):
         info('    mask_data  = {}'.format(mask_data))
 
         # info('____Creating MD from {}'.format([str(p) for p in mask_data]))
-        return MaterialData(mask_data, self, self._delta)
+        return MaterialData(mask_data, self)
+        '''
+        return MaskData(self._air.data, mask_polygons, self)
 
     @print_info(False)
     def _update_basic_regions(self):
@@ -589,14 +640,12 @@ class XSectionGenerator(object):
         e = self._extend  # extend to the sides
 
         self._area = Box(-e, -(d+b), w+e, h)
-        self._roi = Box(0, -(d + b), w, h)
+        self._air = MaterialData([Polygon(Box(-e, 0, w + e, h))], self)
+        self._air_below = MaterialData([Polygon(Box(-e, -(d+b), w+e, -d))],
+                                       self)
 
-        self._air = MaterialData(
-            [Polygon(Box(-e, 0, w+e, h))], self, 0)
-        self._air_below = MaterialData(
-            [Polygon(Box(-e, -(d+b), w+e, -d))], self, 0)
-        self._bulk = MaterialData(
-            [Polygon(Box(-e, -d, w+e, 0))], self, 0)
+        self._bulk = MaterialData([Polygon(Box(-e, -d, w+e, 0))], self)
+        self._roi = Box(0, -(d+b), w, h)
 
         info('    XSG._area:      {}'.format(self._area))
         info('    XSG._roi:       {}'.format(self._roi))
@@ -733,6 +782,8 @@ class XSectionScriptEnvironment(object):
     def __init__(self):
         app = Application.instance()
         mw = app.main_window()
+        if mw is None:
+            return
 
         def _on_triggered_callback():
             """ Load pyxs script menu action.

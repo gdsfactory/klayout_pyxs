@@ -5,12 +5,14 @@
 """
 import math
 
-
 from klayout_pyxs import Box
 from klayout_pyxs import EP_
-from klayout_pyxs import Point
+from klayout_pyxs import Point, DPoint
 from klayout_pyxs import Polygon
 from klayout_pyxs import Trans
+from klayout_pyxs import Edges
+from klayout_pyxs import Region
+from klayout_pyxs import SimplePolygon
 
 from klayout_pyxs.layer_parameters import string_to_layer_info
 from klayout_pyxs.utils import info, print_info, int_floor, make_iterable
@@ -231,6 +233,12 @@ class LayoutData(object):
         self._xs = xs
         self._ep = ep
 
+    def upcast(self, polygons):
+        return self.__class__(polygons, self._xs)
+
+    def dup(self):
+        return self.__class__(self._polygons, self._xs)
+
     def __str__(self):
         n_poly = self.n_poly
 
@@ -295,6 +303,12 @@ class LayoutData(object):
                 self._polygons, other_polygons, EP.ModeAnd),
                           self._xs)
 
+    def invert(self):
+        self._polygons = self._ep.boolean_p2p(self._polygons,
+                                              [Polygon(self._xs.background)],
+                                              EP.ModeXor
+                                             )
+
     def inverted(self):
         """ Calculate inversion of the mask.
 
@@ -304,9 +318,8 @@ class LayoutData(object):
         -------
         ld : LayoutData
         """
-        return LayoutData(self._ep.boolean_p2p(
-                self._polygons, [Polygon(self._xs.background())], EP.ModeXor),
-            self._xs)
+        return self.upcast(self._ep.boolean_p2p(
+                self._polygons, [Polygon(self._xs.background())], EP.ModeXor))
 
     @print_info(False)
     def load(self, layout, cell, box, layer_spec):
@@ -349,7 +362,7 @@ class LayoutData(object):
                 shape = shape_iter.shape()
                 if shape.is_polygon() or shape.is_path() or shape.is_box():
                     self._polygons.append(
-                            shape.polygon.transformed_cplx(shape_iter.itrans()))
+                            shape.polygon.transformed(shape_iter.itrans()))
                 shape_iter.next()
 
         n_poly = self.n_poly
@@ -411,9 +424,25 @@ class LayoutData(object):
         ld : LayoutData
         """
         other_polygons = self._get_polygons(other)
-        return LayoutData(self._ep.boolean_p2p(
-                self._polygons, other_polygons, EP.ModeOr),
-                          self._xs)
+        return self.upcast(self._ep.boolean_p2p(
+                self._polygons, other_polygons, EP.ModeOr))
+
+    def size(self, dx, dy=None):
+        """ Resize the layout mask.
+
+        Parameters
+        ----------
+        dx : float
+            size change in x-direction in [um]
+        dy : float (optional)
+            size change in y-direction in [um]. Equals to dx by default.
+
+        """
+        dy = dx if dy is None else dy
+        self._polygons = self._ep.size_p2p(self._polygons,
+                                           int_floor(dx / self._xs.dbu + 0.5),
+                                           int_floor(dy / self._xs.dbu + 0.5),
+                                           )
 
     def sized(self, dx, dy=None):
         """ Calculate a sized mask.
@@ -430,10 +459,10 @@ class LayoutData(object):
         ld : LayoutData
         """
         dy = dx if dy is None else dy
-        ld = LayoutData(self._ep.size_p2p(self._polygons,
-                                          int_floor(dx / self._xs.dbu + 0.5),
-                                          int_floor(dy / self._xs.dbu + 0.5)),
-                        self._xs)
+        ld = self.upcast(self._ep.size_p2p(self._polygons,
+                                           int_floor(dx / self._xs.dbu + 0.5),
+                                           int_floor(dy / self._xs.dbu + 0.5)
+                                           ))
         return ld
 
     def sub(self, other):
@@ -510,13 +539,13 @@ class LayoutData(object):
                             .format(type(l)))
 
 
-class MaterialData(LayoutData):
+class MaskData(LayoutData):
     """ Class to operate 2D cross-sections.
 
     Material data is a list of single
 
     """
-    def __init__(self, polygons, xs, delta):
+    def __init__(self, air_polygons, mask_polygons, xs):
         """
         Parameters
         ----------
@@ -528,25 +557,55 @@ class MaterialData(LayoutData):
             the intrinsic height (required for mask data because there
             cannot be an infinitely small mask layer (in database units)
         """
-        super().__init__(polygons, xs)  # LayoutData()
-        self._delta = delta
+        super().__init__([], xs)  # LayoutData()
+        self._air_polygons = air_polygons
+        self._mask_polygons = mask_polygons
+
+    def upcast(self, polygons):
+        return MaskData(self._air_polygons, polygons, self._xs)
+
+    def dup(self):
+        return MaskData(self._air_polygons, self._mask_polygons, self._xs)
 
     def __str__(self):
-        n_poly = self.n_poly
+        n_air_poly = self.n_air_poly
+        n_mask_poly = self.n_mask_poly
 
-        s = 'MaterialData (delta = {}, n_polygons = {})'.format(
-            self._delta, n_poly)
+        s = '{} (n_air_polygons={}, n_mask_polygons={})'.format(
+            self.__class__.__name__, n_air_poly, n_mask_poly)
 
-        if n_poly > 0:
+        if n_mask_poly > 0:
             s += ':'
 
-        for pi in range(min(2, n_poly)):
+        for pi in range(min(2, n_mask_poly)):
             s += '\n    {}'.format(self._polygons[pi])
         return s
 
+    @property
+    def n_air_poly(self):
+        """
+        Returns
+        -------
+        int
+            number of polygons describing air
+
+        """
+        return len(self._air_polygons)
+
+    @property
+    def n_mask_poly(self):
+        """
+        Returns
+        -------
+        int
+            number of polygons describing mask
+
+        """
+        return len(self._mask_polygons)
+
     def __repr__(self):
-        s = '<MaterialData (delta = {}, n_polygons = {})>'.format(
-            self._delta, self.n_poly)
+        s = '<MaskData (delta={}, n_air_polygons={}, n_mask_polygons={})>' \
+            .format(self._delta, self.n_air_poly, self.n_mask_poly)
         return s
 
     @print_info(False)
@@ -602,16 +661,14 @@ class MaterialData(LayoutData):
 
         # prepare the result
         # list of Polygon which are removed
-        res = MaterialData(d, self._xs, 0)
+        res = MaterialData(d, self._xs)
 
         # consume material
         if into:
             for i in into:  # for each MaterialData
                 i.sub(res)
-                i.remove_slivers()
         else:
             self._xs.air().sub(res)  # remove air where material was added
-            self._xs.air().remove_slivers()
         return res
 
     def etch(self, z, xy=0.0, into=(), through=(), mode='square',
@@ -649,6 +706,7 @@ class MaterialData(LayoutData):
 
         """
         # parse the arguments
+
         into, through, on, mode = parse_grow_etch_args(
             'etch', MaterialData, into=into, through=through, on=(), mode=mode)
 
@@ -662,19 +720,20 @@ class MaterialData(LayoutData):
 
         # produce the geometry of the etched material
         # list of Polygon which are removed
-        res = MaterialData(d, self._xs, 0)
+        res = MaterialData(d, self._xs)
 
         # consume material and add to air
-        if into:
-            for i in into:  # for each MaterialData
-                i.sub(res)
-                i.remove_slivers()
+        for i in into:  # for each MaterialData
+            j = LayoutData(i.data, self._xs)
+            i.sub(res)
+            j.sub(i)
+            self._xs.air().add(j)
 
         # Add air in place of the etched materials
-        self._xs.air().add(res)
-        self._xs.air().close_gaps()
+        # self._xs.air().add(res)
+        # self._xs.air().close_gaps()
 
-    @print_info(False)
+    @print_info(True)
     def produce_geom(self, method, xy, z,
                      into, through, on,
                      taper, bias, mode, buried):
@@ -700,11 +759,10 @@ class MaterialData(LayoutData):
         -------
         d : list of Polygon
         """
-        info('    method={}, xy={}, z={}, \n'
-             '    into={}, through={}, on={}, \n'
-             '    taper={}, bias={}, mode={}, buried={})'
-             .format(method, xy, z, into, through, on,
-                     taper, bias, mode, buried))
+        info('    method={}, xy={}, z={},'.format(method, xy, z))
+        info('    into={}, through={}, on={},'.format(into, through, on))
+        info('    taper={}, bias={}, mode={}, buried={})'
+             .format(taper, bias, mode, buried))
 
         prebias = bias or 0.0
 
@@ -763,86 +821,144 @@ class MaterialData(LayoutData):
                                                    EP.ModeOr)
             info('    on_data = {}'.format(on_data))
 
-        offset = self._delta
-        d = self._polygons  # list of Polygon
-        info('    initial d = {}'.format(d))
+        pi = int_floor(prebias / self._xs.dbu + 0.5)
+        xyi = int_floor(xy / self._xs.dbu + 0.5)
+        zi = int_floor(z / self._xs.dbu + 0.5)
 
-        if abs(buried or 0.0) > 1e-6:
-            t = Trans(Point(0, -int_floor(buried / self._xs.dbu + 0.5)))
-            d = [p.transformed(t) for p in d]
+        # calculate all edges without prebias and check if prebias
+        # would remove edges if so reduce it
+        mp = self._ep.size_p2p(self._mask_polygons, 0, 0, 2)
 
-        # Calculate an overlap between d and into / through / on
+        for p in mp:
+            box = p.bbox()
+            if box.width() <= 2 * pi:
+                pi = int_floor(box.width() / 2.0) - 1
+                xyi = pi
+
+        mp = self._ep.size_p2p(self._mask_polygons, -pi, 0, 2)
+        air_masked = self._ep.boolean_p2p(self._air_polygons,
+                                          mp, EP.ModeAnd)
+        me = (Edges(air_masked) if air_masked else Edges()) - \
+             (Edges(mp) if mp else Edges())
+        info('me after creation: {}'.format(me))
+
         # in the "into" case determine the interface region between
         # self and into
         if into or through or on:
-            # apply an artificial sizing to create an overlap before
-            if offset == 0:
-                offset = self._xs.delta_dbu / 2
-                d = self._ep.size_p2p(d, 0, offset)
-
             if on:
-                d = self._ep.boolean_p2p(d, on_data, EP.ModeAnd)
+                data = on_data
             elif through:
-                d = self._ep.boolean_p2p(d, through_data, EP.ModeAnd)
+                data = through_data
             else:
-                d = self._ep.boolean_p2p(d, into_data, EP.ModeAnd)
+                data = into_data
 
-        info('    overlap d = {}'.format(d))
+            info("data = {}".format(data))
+            me = (me & Edges(data)) if data else list()
 
-        pi = int_floor(prebias / self._xs.dbu + 0.5)
-        info('    pi = {}'.format(pi))
-        if pi < 0:
-            d = self._ep.size_p2p(d, -pi, 0)
-        elif pi > 0:
-            # apply a positive prebias by filtering with a sized box
-            dd = []
-            for p in d:  # for each polygon
-                box = p.bbox()  # polygon box
-                if box.width() > 2 * pi:  # width
-                    box = Box(box.left + pi, box.bottom,
-                              box.right - pi, box.top)
+            # if len(data) == 0:
+            #     me = []
+            # else:
+            #     me += Edges(data)
+        info('type(me): {}'.format(type(me)))
+        info('me before operation: {}'.format(me))
 
-                    for pp in self._ep.boolean_p2p([Polygon(box)], [p],
-                                                   EP.ModeAnd):
-                        dd.append(pp)
-            d = dd
+        d = Region()
 
-        xyi = int_floor(xy / self._xs.dbu + 0.5)
-        zi = int_floor(z / self._xs.dbu + 0.5) - offset
-        info('    xyi = {}, zi = {}'.format(xyi, zi))
+        if taper and xyi > 0:
+            info('    case taper and xyi > 0')
+            kernel_pts = list()
+            kernel_pts.append(Point(-xyi, 0))
+            kernel_pts.append(Point(0, zi))
+            kernel_pts.append(Point(xyi, 0))
+            kernel_pts.append(Point(0, -zi))
+            kp = Polygon(kernel_pts)
+            for e in me:
+                d.insert(kp.minkowsky_sum(e, False))
 
-        # Apply taper
-        if taper:
-            d = self._ep.size_p2p(d, xyi, zi, 0)
         elif xyi <= 0:
-            info('    before sizing: d = {}'.format(d))
-            d = self._ep.size_p2p(d, 0, zi)
-            info('    after sizing: d = {}'.format(d))
-        elif mode == 'round':
-            # emulate "rounding" of corners by performing soft-edged sizes
-            d = self._ep.size_p2p(d, xyi / 3, zi / 3, 1)
-            d = self._ep.size_p2p(d, xyi / 3, zi / 3, 0)
-            d = self._ep.size_p2p(d, xyi - 2 * (xyi / 3), zi - 2 * (zi / 3), 0)
+            info('    case xyi <= 0')
+            # TODO: there is no way to do that with a Minkowsky sum currently
+            # since polygons cannot be lines except through dirty tricks
+            dz = Point(0, zi)
+            for e in me:
+                d.insert(Polygon([e.p1-dz, e.p2-dz, e.p2+dz, e.p1+dz]))
+        elif mode in ('round', 'octagon'):
+            info('    case round / octagon')
+            # approximate round corners by 64 points for "round" and
+            # 8 for "octagon"
+            n = 64 if mode == 'round' else 8
+            da = 2.0 * math.pi / n
+            rf = 1.0 / math.cos(da * 0.5)
+
+            info("    n = {}, da = {}, rf = {}".format(n, da, rf))
+            kernel_pts = list()
+            for i in range(n):
+                kernel_pts.append(Point.from_dpoint(
+                    DPoint(
+                        xyi * rf * math.cos(da * (i + 0.5)),
+                        zi * rf * math.sin(da * (i + 0.5))
+                    )
+                ))
+            info('    n kernel_pts: {}'.format(len(kernel_pts)))
+            info('    kernel_pts: {}'.format(kernel_pts))
+
+            kp = Polygon(kernel_pts)
+            for n, e in enumerate(me):
+                d.insert(kp.minkowsky_sum(e, False))
+                if n > 0 and n % 10 == 0:
+                    d.merge()
+
         elif mode == 'square':
-            d = self._ep.size_p2p(d, xyi, zi)
-        elif mode == 'octagon':
-            d = self._ep.size_p2p(d, xyi, zi, 1)
+            kernel_pts = list()
+            kernel_pts.append(Point(-xyi, -zi))
+            kernel_pts.append(Point(-xyi, zi))
+            kernel_pts.append(Point(xyi, zi))
+            kernel_pts.append(Point(xyi, -zi))
+            kp = SimplePolygon()
+            kp.set_points(kernel_pts, True)  # "raw" - don't optimize away
+            for e in me:
+                d.insert(kp.minkowsky_sum(e, False))
 
+        d.merge()
+        info('d after merge: {}'.format(d))
+
+        if abs(buried or 0.0) > 1e-6:
+            t = Trans(Point(0, -int_floor(buried / self._xs.dbu + 0.5)))
+            d.transform(t)
         if through:
-            d = self._ep.boolean_p2p(d, through_data, EP.ModeANotB)
+            d -= Region(through_data)
+        d &= Region(into_data)
 
-        d = self._ep.boolean_p2p(d, into_data, EP.ModeAnd)
-        info('    final d = {}'.format(d))
+        poly = [p for p in d]
+        return poly
 
-        if None:
-            # remove small features
-            # Hint: this is done separately in x and y direction since that is
-            # more robust against snapping distortions
-            d = self._ep.size_p2p(d, 0, self._xs.delta_dbu / 2)
-            d = self._ep.size_p2p(d, 0, -self._xs.delta_dbu)
-            d = self._ep.size_p2p(d, 0, self._xs.delta_dbu / 2)
-            d = self._ep.size_p2p(d, self._xs.delta_dbu / 2, 0)
-            d = self._ep.size_p2p(d, -self._xs.delta_dbu, 0)
-            d = self._ep.size_p2p(d, self._xs.delta_dbu / 2, 0)
 
-        return d
+class MaterialData(LayoutData):
+    def __init__(self, polygons, xs):
+        super().__init__(polygons, xs)
+
+    # def upcast(self, polygons):
+    #     return MaterialData(polygons, self._xs)
+
+    def discard(self):
+        self._xs.air().add(self)
+
+    def keep(self):
+        self._xs.air().sub(self)
+
+    def __repr__(self):
+        n_poly = self.n_poly
+
+        s = '{} (n_polygons = {})'.format(self.__class__.__name__, n_poly)
+
+        if n_poly > 0:
+            s += ':'
+
+        for pi in range(min(2, n_poly)):
+            s += '\n    {}'.format(self._polygons[pi])
+        return s
+
+    def __str__(self):
+        s = '<{} (n_polygons = {})>'.format(self.__class__.__name__,
+                                            self.n_poly)
+        return s
