@@ -574,8 +574,6 @@ class MaskData(LayoutData):
         n_air_poly = self.n_air_poly
         n_mask_poly = self.n_mask_poly
 
-        print()
-
         s = '{} (n_air_polygons={}, n_mask_polygons={})'.format(
             self.__class__.__name__, n_air_poly, n_mask_poly)
 
@@ -738,7 +736,7 @@ class MaskData(LayoutData):
         # self._xs.air().add(res)
         # self._xs.air().close_gaps()
 
-    @print_info(True)
+    @print_info(False)
     def produce_geom(self, method, xy, z,
                      into, through, on,
                      taper, bias, mode, buried):

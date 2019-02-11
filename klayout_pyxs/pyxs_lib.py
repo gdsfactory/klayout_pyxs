@@ -289,7 +289,7 @@ class XSectionGenerator(object):
         """
         return self.all().etch(*args, **kwargs)
 
-    @print_info(True)
+    @print_info(False)
     def planarize(self, *args, **kwargs):
         """ Planarization
         """
@@ -422,6 +422,7 @@ class XSectionGenerator(object):
         info('XSG._height set to {}'.format(self._height))
         self._update_basic_regions()
 
+    @print_info(False)
     def height(self, x):
         """ Configures the height of the processing window
 
@@ -434,6 +435,7 @@ class XSectionGenerator(object):
     def height_dbu(self):
         return self._height
 
+    @print_info(False)
     def depth(self, x):
         """ Configures the depth of the processing window
         or the wafer thickness for backside processing (see below)
@@ -457,6 +459,7 @@ class XSectionGenerator(object):
     def depth_dbu(self):
         return self._depth
 
+    @print_info(False)
     def below(self, x):
         """ Configures the lower height of the processing window for backside processing
 
