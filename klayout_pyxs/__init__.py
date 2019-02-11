@@ -4,11 +4,13 @@
 Copyright 2017-2019 Dima Pustakhod
 
 """
+DEBUG = False
 HAS_KLAYOUT = False
 HAS_PYA = False
 
 try:
-    print('Trying to import klayout module... ', end='')
+    if DEBUG:
+        print('Trying to import klayout module... ', end='')
     import importlib
 
     importlib.import_module('klayout')
@@ -18,24 +20,33 @@ try:
     from klayout.db import Edge
     from klayout.db import EdgeProcessor as EP_
     from klayout.db import LayerInfo
-    from klayout.db import Point
+    from klayout.db import Point, DPoint
     from klayout.db import Polygon
     from klayout.db import Trans
+    from klayout.db import Edges
+    from klayout.db import Region
+    from klayout.db import SimplePolygon
 
-    print('found!')
+    if DEBUG:
+        print('found!')
 except:
-    print('not found!')
+    if DEBUG:
+        print('not found!')
     try:
-        print('Trying to import pya module... ', end='')
+        if DEBUG:
+            print('Trying to import pya module... ', end='')
         import pya as klayout
 
         from pya import Box
         from pya import Edge
         from pya import EdgeProcessor as EP_
         from pya import LayerInfo
-        from pya import Point
+        from pya import Point, DPoint
         from pya import Polygon
         from pya import Trans
+        from pya import Edges
+        from pya import Region
+        from pya import SimplePolygon
 
         # For plugin only
         from pya import Action
@@ -44,9 +55,11 @@ except:
         from pya import MessageBox
 
         HAS_PYA = True
-        print('found!')
+        if DEBUG:
+            print('found!')
     except:
-        print('not found!')
+        if DEBUG:
+            print('not found!')
         raise ModuleNotFoundError(
             'Neither pya nor klayout module are not '
             'installed in the current python distribution.'
