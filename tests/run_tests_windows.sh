@@ -44,11 +44,11 @@ for tc_file in $tc_files; do
     xs_cut="-1,0;1,0"
   fi
 
-  echo $tc.pyxs
-  echo $xs_cut
-  echo $tc.gds
-  echo $xs_input
-  echo $bin
+  # echo $tc.pyxs
+  # echo $xs_cut
+  # echo $tc.gds
+  # echo $xs_input
+  # echo $bin
 
   klayout_app -rx -z -rd xs_run=$tc.pyxs -rd xs_cut="$xs_cut" -rd xs_out=run_dir/$tc.gds "$xs_input" -r $bin
 

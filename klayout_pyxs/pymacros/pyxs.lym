@@ -21,7 +21,7 @@ if not fpath in sys.path:
     sys.path.insert(0, fpath)
 
 from pprint import pprint
-pprint(sys.path)
+# pprint(sys.path)
 
 # import  klayout_pyxs.pyxs_lib as pyxs_lib
 
