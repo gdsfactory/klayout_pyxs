@@ -1,0 +1,20 @@
+# This sed script contains replacement patterns to convert XS to PYXS
+# It implements some of the required changes, however more changes 
+# might be needed.
+
+/^#.*/! s/(all|bulk|flip)/\1()/
+s/:mode[ ]*=>[ ]*/mode=/
+s/:taper[ ]*=>[ ]*/taper=/
+s/:bias[ ]*=>[ ]*/bias=/
+s/:into[ ]*=>[ ]*/into=/
+s/:through[ ]*=>[ ]*/through=/
+s/:buried[ ]*=>[ ]*/buried=/
+s/:mode/mode/
+s/:taper/taper/
+s/:bias/bias/
+s/:into/into/
+s/:through/through/
+s/:buried/buried/
+s/:round/'round'/
+s/:square/'square'/
+s/:octagon/'octagon'/
