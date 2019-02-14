@@ -1,20 +1,25 @@
 # This sed script contains replacement patterns to convert XS to PYXS
-# It implements some of the required changes, however more changes 
+# It implements some of the required changes, however more changes
 # might be needed.
 
-/^#.*/! s/(all|bulk|flip)/\1()/
-s/:mode[ ]*=>[ ]*/mode=/
-s/:taper[ ]*=>[ ]*/taper=/
-s/:bias[ ]*=>[ ]*/bias=/
-s/:into[ ]*=>[ ]*/into=/
-s/:through[ ]*=>[ ]*/through=/
-s/:buried[ ]*=>[ ]*/buried=/
-s/:mode/mode/
-s/:taper/taper/
-s/:bias/bias/
-s/:into/into/
-s/:through/through/
-s/:buried/buried/
-s/:round/'round'/
-s/:square/'square'/
-s/:octagon/'octagon'/
+/^#.*/! s/(all|bulk|flip|dbu)([^A-Za-z_0-9]|$)/\1()\2/g
+s/:mode[ ]*=>[ ]*/mode=/g
+s/:taper[ ]*=>[ ]*/taper=/g
+s/:bias[ ]*=>[ ]*/bias=/g
+s/:into[ ]*=>[ ]*/into=/g
+s/:through[ ]*=>[ ]*/through=/g
+s/:buried[ ]*=>[ ]*/buried=/g
+s/:to[ ]*=>[ ]*/to=/g
+s/:mode/mode/g
+s/:taper/taper/g
+s/:bias/bias/g
+s/:into/into/g
+s/:through/through/g
+s/:buried/buried/g
+s/:to/buried/g
+s/:round/'round'/g
+s/:square/'square'/g
+s/:octagon/'octagon'/g
+s/.and\(/.and_\(/g
+s/.or\(/.or_\(/g
+s/.not\(/.not_\(/g
