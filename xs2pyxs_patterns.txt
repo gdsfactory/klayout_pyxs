@@ -2,7 +2,8 @@
 # It implements some of the required changes, however more changes
 # might be needed.
 
-/^#.*/! s/(all|bulk|flip|dbu)([^A-Za-z_0-9]|$)/\1()\2/g
+/^#.*/! s/([^A-Za-z_0-9]|^)(all|bulk|flip|)([^A-Za-z_0-9]|$)/\1\2()\3/g
+/^#.*/! s/([^A-Za-z_0-9]|^)(inverted|invert)([^A-Za-z_0-9]|$)/\1\2()\3/g
 s/:mode[ ]*=>[ ]*/mode=/g
 s/:taper[ ]*=>[ ]*/taper=/g
 s/:bias[ ]*=>[ ]*/bias=/g
