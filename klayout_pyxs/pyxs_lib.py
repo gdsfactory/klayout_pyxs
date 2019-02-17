@@ -198,15 +198,36 @@ class XSectionGenerator(object):
 
         return MaterialData(self._bulk.data, self)
 
-    def output(self, layer_spec, layer_data, *args):
+    def output(self, layer_spec=None, layer_data=None, output_layers=None,
+               *args):
         """Outputs a material object to the output layout
+
+        Can be used for a single material (layer_spec and layer_data pair),
+        or for a list of materials passed through an output_layers
+        dictionary.
 
         Parameters
         ----------
         layer_spec : str
             layer specification
         layer_data : LayoutData
+
+        output_layers :  Dict[str, LayoutData]
+            keys have the same meaning as layer_spec, values are layer_data.
         """
+        if (layer_spec is None or layer_data is None) and output_layers is None:
+            raise ValueError('layer_spec and layer_data cannot be None when no'
+                             'output_layers is given.')
+
+        if output_layers:
+            if layer_spec or layer_data:
+                raise ValueError('Cannot use both layer_spec/layer_data'
+                                 'and output_layers. Use only one of them.')
+            for ls, ld in output_layers.items():
+                self.output(layer_spec=ls, layer_data=ld)
+            return
+
+        # process layer_spec / layer_data pair
         if not isinstance(layer_data, LayoutData):
             raise TypeError("'output' method: second parameter must be "
                             "a geometry object. {} is given"
@@ -899,7 +920,6 @@ class XSectionScriptEnvironment(object):
             raise UserWarning("No view open for running the pyxs script")
 
         if p1 is None or p2 is None:
-
             app = Application.instance()
             scr_view = app.main_window().current_view()  # type: LayoutView
             scr_view_idx = app.main_window().current_view_index
@@ -918,17 +938,28 @@ class XSectionScriptEnvironment(object):
                 MessageBox.critical("Error",
                                     "No ruler present for the cross "
                                     "section line", MessageBox.b_ok())
-                return False
+                return None
+
+            p1_arr, p2_arr, ruler_text_arr = [], [], []
 
             for ruler in rulers:
-                p1 = ruler.p1
-                p2 = ruler.p2
-                text = ruler.text()
+                p1_arr.append(ruler.p1)
+                p2_arr.append(ruler.p2)
+                ruler_text_arr.append(ruler.text())
+
+        else:
+            p1_arr, p2_arr, ruler_text_arr = [p1], [p2], ['']
+            scr_view_idx = None
+
+        target_views = []
+        for p1_, p2_, text_ in zip(p1_arr, p2_arr, ruler_text_arr):
+            if scr_view_idx:
                 # return to the original view to run it again
                 app.main_window().select_view(scr_view_idx)
-                XSectionGenerator(filename).run(p1, p2, text)
+            view = XSectionGenerator(filename).run(p1_, p2_, text_)
+            target_views.append(view)
 
-        return True
+        return target_views
         # try:
         #     # print('XSectionGenerator(filename).run()')
         #     XSectionGenerator(filename).run()

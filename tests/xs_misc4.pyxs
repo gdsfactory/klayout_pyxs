@@ -1,0 +1,18 @@
+# This script tests new format of output function.
+# It accepts a dictionary as an output_layers parameter.
+# Keys are layer specifications, and values are LayoutData instances.
+
+l1 = layer("1/0")
+
+substrate = bulk()
+
+m1 = mask(l1).grow(0.2, bias=-0.2, taper=20)
+etch(0.1, into=[substrate, m1])
+
+output_layers = {
+    "100/0": bulk(),
+    "101/0": substrate,
+    "102/0": m1,
+}
+
+output(output_layers=output_layers)
