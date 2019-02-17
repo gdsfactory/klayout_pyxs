@@ -545,11 +545,16 @@ class XSectionGenerator(object):
         self._lyp_file = lyp_file
 
     # The basic generation method
-    def run(self, p1, p2):
+    def run(self, p1, p2, ruler_text=''):
+        """
 
+        Returns
+        -------
+        LayoutView
+        """
         self._target_view = None
 
-        self._setup(p1, p2)
+        self._setup(p1, p2, xs_name=ruler_text)
 
         self._update_basic_regions()
 
@@ -675,7 +680,7 @@ class XSectionGenerator(object):
         info('    XSG._air_below: {}'.format(self._air_below))
 
     @print_info(False)
-    def _setup(self, p1, p2):
+    def _setup(self, p1, p2, xs_name=''):
         """
         Parameters
         ----------
@@ -683,6 +688,8 @@ class XSectionGenerator(object):
             first point of the ruler
         p2 : Point
             second point of the ruler
+        xs_name : str
+            identifier to be used to name a new cross-section cell
         """
         # locate the layout
         app = Application.instance()
@@ -711,13 +718,13 @@ class XSectionGenerator(object):
         self._line_dbu = Edge(p1_dbu, p2_dbu)  # Edge describing the ruler
 
         # create a new layout for the output
-        cv = app.main_window().create_layout(1)
-        cell = cv.layout().add_cell("XSECTION")
-        self._target_view = app.main_window().current_view()
+        cv = app.main_window().create_layout(1)  # type: CellView
+        cell = cv.layout().add_cell("PYXS: {}".format(xs_name))  # type: Cell
+        self._target_view = app.main_window().current_view()  # type: LayoutView
         self._target_view.select_cell(cell, 0)
-        self._target_layout = cv.layout()
+        self._target_layout = cv.layout()  # type: Layout
         self._target_layout.dbu = self._dbu
-        self._target_cell = cell
+        self._target_cell = cell  # type: cell
 
         # initialize height and depth
         self._extend = int_floor(2.0 / self._dbu + 0.5)  # 2 um in dbu
@@ -894,39 +901,34 @@ class XSectionScriptEnvironment(object):
         if p1 is None or p2 is None:
 
             app = Application.instance()
-            view = app.main_window().current_view()  # LayoutView
-            if not view:
+            scr_view = app.main_window().current_view()  # type: LayoutView
+            scr_view_idx = app.main_window().current_view_index
+            if not scr_view:
                 MessageBox.critical(
                     "Error", "No view open for creating the cross-"
                              "section from", MessageBox.b_ok())
                 return False
 
-            # locate the (single) ruler
-            ruler = None
-            n_rulers = 0
-            for a in view.each_annotation():
-                # Use only rulers with "plain line" style
-                # self._@@ if a.style == Annotation::style_line
-                    ruler = a
-                    n_rulers += 1
+            rulers = []
 
-            if n_rulers == 0:
+            for a in scr_view.each_annotation():
+                rulers.append(a)
+
+            if len(rulers) == 0:
                 MessageBox.critical("Error",
                                     "No ruler present for the cross "
                                     "section line", MessageBox.b_ok())
                 return False
 
-            if n_rulers > 1:
-                MessageBox.critical(
-                        "Error", "More than one ruler present for the cross "
-                        "section line (with 'plain line' style)",
-                        MessageBox.b_ok())
-                return False
+            for ruler in rulers:
+                p1 = ruler.p1
+                p2 = ruler.p2
+                text = ruler.text()
+                # return to the original view to run it again
+                app.main_window().select_view(scr_view_idx)
+                XSectionGenerator(filename).run(p1, p2, text)
 
-            p1 = ruler.p1
-            p2 = ruler.p2
-
-        return XSectionGenerator(filename).run(p1, p2)
+        return True
         # try:
         #     # print('XSectionGenerator(filename).run()')
         #     XSectionGenerator(filename).run()
