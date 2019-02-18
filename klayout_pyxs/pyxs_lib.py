@@ -198,8 +198,7 @@ class XSectionGenerator(object):
 
         return MaterialData(self._bulk.data, self)
 
-    def output(self, layer_spec=None, layer_data=None, output_layers=None,
-               *args):
+    def output(self, layer_spec=None, layer_data=None, *args):
         """Outputs a material object to the output layout
 
         Can be used for a single material (layer_spec and layer_data pair),
@@ -211,27 +210,12 @@ class XSectionGenerator(object):
         layer_spec : str
             layer specification
         layer_data : LayoutData
-
-        output_layers :  Dict[str, LayoutData]
-            keys have the same meaning as layer_spec, values are layer_data.
         """
-        if (layer_spec is None or layer_data is None) and output_layers is None:
-            raise ValueError('layer_spec and layer_data cannot be None when no'
-                             'output_layers is given.')
-
-        if output_layers:
-            if layer_spec or layer_data:
-                raise ValueError('Cannot use both layer_spec/layer_data'
-                                 'and output_layers. Use only one of them.')
-            for ls, ld in output_layers.items():
-                self.output(layer_spec=ls, layer_data=ld)
-            return
-
         # process layer_spec / layer_data pair
         if not isinstance(layer_data, LayoutData):
-            raise TypeError("'output' method: second parameter must be "
-                            "a geometry object. {} is given"
-                            .format(type(layer_data)))
+                raise TypeError(
+                    "'output()': layer_data parameter must be "
+                    "a geometry object. {} is given".format(type(layer_data)))
 
         ls = string_to_layer_info(layer_spec)
         li = self._target_layout.insert_layer(ls)
@@ -242,6 +226,60 @@ class XSectionGenerator(object):
                 [Polygon(self._roi)], layer_data.data,
                 EP.ModeAnd, True, True):
             shapes.insert(polygon)
+
+    def output_all(self, output_layers, script_globals=None,
+                   new_target_layout=True, step_name=None,
+                   save_png=False, *args):
+            """Output a list of material objects to the output layout
+
+            A list of materials is passed through an output_layers dictionary.
+
+            Parameters
+            ----------
+            output_layers :  Dict[str, LayoutData] or Dict[str, str]
+                key is the layer specification (see layer_spec in output()).
+                Value is either LayoutData instance, or a name of such instance
+                instance in script_globals.
+            script_globals : Dict[str, Any]
+                globals() dictionary
+            new_target_layout : bool
+                if True, a new target layout will be created
+            step_name : str
+                name extension for the newly created layout
+            save_png : bool
+                if True, the resulting view will be saved as an image in the
+                gds file folder
+            """
+            if script_globals is None:
+                script_globals = {}
+
+            if new_target_layout:
+                self._finalize_view()
+                self._create_new_layout(cell_name_extension=step_name)
+
+            for ls, ld in output_layers.items():
+                if isinstance(ld, str):
+                    if ld in script_globals.keys():
+                        self.output(layer_spec=ls,
+                                    layer_data=script_globals[ld])
+                    else:
+                        # skip a non-existing (yet) material
+                        continue
+                else:
+                    self.output(layer_spec=ls, layer_data=ld)
+
+            if save_png:
+                self._finalize_view()
+                if step_name:
+                    file_name = '{} ({})'.format(self._cell_file_name, step_name)
+                else:
+                    file_name = self._cell_file_name
+
+                self._target_view.save_image(file_name+'.png',
+                                             self._height/10,
+                                             self.background().width()/10,
+                                             )
+            return None
 
     def output_raw(self, layer_spec, d):
         """ For debugging only
@@ -566,16 +604,23 @@ class XSectionGenerator(object):
         self._lyp_file = lyp_file
 
     # The basic generation method
-    def run(self, p1, p2, ruler_text=''):
+    def run(self, p1, p2, ruler_text=None):
         """
+
+        Parameters
+        ----------
+        ruler_text : str
+            identifier to be used to name a new cross-section cell
 
         Returns
         -------
         LayoutView
         """
         self._target_view = None
+        self._target_cell_name = "PYXS: " + ruler_text if ruler_text else "XSECTION"
+        self._cell_file_name = "PYXS_" + ruler_text if ruler_text else "XSECTION"
 
-        self._setup(p1, p2, xs_name=ruler_text)
+        self._setup(p1, p2)
 
         self._update_basic_regions()
 
@@ -607,10 +652,13 @@ class XSectionGenerator(object):
             return None
 
         Application.instance().main_window().cm_lv_add_missing()  # @@@
+        self._finalize_view()
+        return self._target_view
+
+    def _finalize_view(self):
         if self._lyp_file:
             self._target_view.load_layer_props(self._lyp_file)
         self._target_view.zoom_fit()
-        return self._target_view
 
     @print_info(False)
     def _xpoints_to_mask(self, iv):
@@ -701,7 +749,7 @@ class XSectionGenerator(object):
         info('    XSG._air_below: {}'.format(self._air_below))
 
     @print_info(False)
-    def _setup(self, p1, p2, xs_name=None):
+    def _setup(self, p1, p2):
         """
         Parameters
         ----------
@@ -709,8 +757,7 @@ class XSectionGenerator(object):
             first point of the ruler
         p2 : Point
             second point of the ruler
-        xs_name : str
-            identifier to be used to name a new cross-section cell
+
         """
         # locate the layout
         app = Application.instance()
@@ -738,16 +785,7 @@ class XSectionGenerator(object):
         p2_dbu = Point.from_dpoint(p2 * (1.0 / self._dbu))
         self._line_dbu = Edge(p1_dbu, p2_dbu)  # Edge describing the ruler
 
-        cell_name = "PYXS: "+xs_name if xs_name else "XSECTION"
-
-        # create a new layout for the output
-        cv = app.main_window().create_layout(1)  # type: CellView
-        cell = cv.layout().add_cell(cell_name)  # type: Cell
-        self._target_view = app.main_window().current_view()  # type: LayoutView
-        self._target_view.select_cell(cell, 0)
-        self._target_layout = cv.layout()  # type: Layout
-        self._target_layout.dbu = self._dbu
-        self._target_cell = cell  # type: cell
+        self._create_new_layout()
 
         # initialize height and depth
         self._extend = int_floor(2.0 / self._dbu + 0.5)  # 2 um in dbu
@@ -764,6 +802,24 @@ class XSectionGenerator(object):
         info('    XSG._below is:  {}'.format(self._below))
 
         return True
+
+    def _create_new_layout(self, cell_name_extension=None):
+        if cell_name_extension:
+            cell_name = '{} ({})'.format(
+                self._target_cell_name, cell_name_extension)
+        else:
+            cell_name = self._target_cell_name
+
+        # create a new layout for the output
+        app = Application.instance()
+        main_window = app.main_window()
+        cv = main_window.create_layout(1)  # type: CellView
+        cell = cv.layout().add_cell(cell_name)  # type: Cell
+        self._target_view = main_window.current_view()  # type: LayoutView
+        self._target_view.select_cell(cell, 0)
+        self._target_layout = cv.layout()  # type: Layout
+        self._target_layout.dbu = self._dbu
+        self._target_cell = cell  # type: cell
 
 
 # MENU AND ACTIONS
@@ -947,7 +1003,7 @@ class XSectionScriptEnvironment(object):
             for ruler in rulers:
                 p1_arr.append(ruler.p1)
                 p2_arr.append(ruler.p2)
-                ruler_text_arr.append(ruler.text())
+                ruler_text_arr.append(ruler.text().split('.')[0])
 
         else:
             p1_arr, p2_arr, ruler_text_arr = [p1], [p2], ['']
@@ -955,9 +1011,11 @@ class XSectionScriptEnvironment(object):
 
         target_views = []
         for p1_, p2_, text_ in zip(p1_arr, p2_arr, ruler_text_arr):
+
             if scr_view_idx:
                 # return to the original view to run it again
                 app.main_window().select_view(scr_view_idx)
+
             view = XSectionGenerator(filename).run(p1_, p2_, text_)
             target_views.append(view)
 
