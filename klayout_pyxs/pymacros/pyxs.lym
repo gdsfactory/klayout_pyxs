@@ -53,10 +53,10 @@ if pya.LayoutView.current() and xs_run and xs_cut and xs_out:
     print("Running pyxs script {} with {} to {} ...".format(xs_run, p1, p2))
     target_view = pyxs_processing_environment.run_script(xs_run, p1, p2)[-1]
 
-    print(type(target_view))
+    l = target_view.active_cellview().layout()
 
     print("Writing {} ...".format(xs_out))
-    target_view.active_cellview().layout().write(xs_out)
+    l.write(xs_out)
 
 </text>
 </klayout-macro>

@@ -701,7 +701,7 @@ class XSectionGenerator(object):
         info('    XSG._air_below: {}'.format(self._air_below))
 
     @print_info(False)
-    def _setup(self, p1, p2, xs_name=''):
+    def _setup(self, p1, p2, xs_name=None):
         """
         Parameters
         ----------
@@ -738,9 +738,11 @@ class XSectionGenerator(object):
         p2_dbu = Point.from_dpoint(p2 * (1.0 / self._dbu))
         self._line_dbu = Edge(p1_dbu, p2_dbu)  # Edge describing the ruler
 
+        cell_name = "PYXS: "+xs_name if xs_name else "XSECTION"
+
         # create a new layout for the output
         cv = app.main_window().create_layout(1)  # type: CellView
-        cell = cv.layout().add_cell("PYXS: {}".format(xs_name))  # type: Cell
+        cell = cv.layout().add_cell(cell_name)  # type: Cell
         self._target_view = app.main_window().current_view()  # type: LayoutView
         self._target_view.select_cell(cell, 0)
         self._target_layout = cv.layout()  # type: Layout
