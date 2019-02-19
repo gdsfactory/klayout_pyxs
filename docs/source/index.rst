@@ -46,6 +46,8 @@ The following screenshot shows a sample cross section taken from the
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
+   
+   DocReference
 
 Indices and tables
 ==================
