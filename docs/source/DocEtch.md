@@ -43,7 +43,7 @@ some examples.
 
 The initial layout is always this in all following examples:
 
-![e1](e1.png)
+![](./img/e1.png)
 
 The first example if the effect of the plain etch with a thickness of 
 0.3 um. It will remove a rectangular part at the mask:
@@ -52,7 +52,7 @@ The first example if the effect of the plain etch with a thickness of
 etch(0.3, into=substrate)
 ```
 
-![e1_xs](e1_xs.png)
+![](./img/e1_xs.png)
 
 The next example illustrates the effect of a lateral extension on a 
 square profile. The 0.1 um extension will remove material left and right 
@@ -62,7 +62,7 @@ of the main trench:
 etch(0.3, 0.1, into=substrate)
 ```
 
-![e2_xs](e2_xs.png)
+![](./img/e2_xs.png)
 
 In "round" mode, the material will be removed with an elliptical 
 profile. The vertical axis will be 0.3 um, the horizontal 0.1 um 
@@ -73,7 +73,7 @@ than the mask by the lateral extension at the bottom:
 etch(0.3, 0.1, mode='round', into=substrate)
 ```
 
-![e3_xs](e3_xs.png)
+![](./img/e3_xs.png)
 
 To avoid overetch, a negative lateral extension can be specified, 
 resulting in a alignment of patch and mask at the top:
@@ -82,7 +82,7 @@ resulting in a alignment of patch and mask at the top:
 etch(0.3, -0.1, mode='round', into=substrate)
 ```
 
-![e4_xs](e4_xs.png)
+![](./img/e4_xs.png)
 
 Another mode is "octagon" which is basically a coarse approximation 
 of the ellipse and computationally less expensive:
@@ -91,7 +91,7 @@ of the ellipse and computationally less expensive:
 etch(0.3, 0.1, mode='octagon', into=substrate)
 ```
 
-![e5_xs](e5_xs.png)
+![](./img/e5_xs.png)
 
 A bias value can be specified to fine-tune the position of the top 
 edge of the trench. A *positive* bias value will *shrink* the figure:
@@ -100,7 +100,7 @@ edge of the trench. A *positive* bias value will *shrink* the figure:
 etch(0.3, 0.1, mode='round', bias=0.05, into=substrate)
 ```
 
-![e6_xs](e6_xs.png)
+![](./img/e6_xs.png)
 
 A special profile can be specified with the "taper" option. This option 
 specifies a taper angle and a conical trench will be created. The taper 
@@ -112,13 +112,13 @@ be combined with "bias" however:
 etch(0.3, taper=10, into=substrate)
 ```
 
-![e7_xs](e7_xs.png)
+![](./img/e7_xs.png)
 
 ```python
 etch(0.3, taper=10, bias=-0.1, into=substrate)
 ```
 
-![e8_xs](e8_xs.png)
+![](./img/e8_xs.png)
 
 ## Step etch profile
 
@@ -133,7 +133,7 @@ The solid gray line shows the profile before the etch:
 etch(0.3, 0.1, mode='round', into=substrate)
 ```
 
-![e10_xs](e10_xs.png)
+![](./img/e10_xs.png)
 
 ## <tt>through</tt> - selective etch
 
@@ -160,11 +160,11 @@ output("2/0", stop)
 
 With the following input:
 
-![e12](e12.png)
+![](./img/e12.png)
 
 This script will produce the following result:
 
-![e12_xs](e12_xs.png)
+![](./img/e12_xs.png)
 
 The blue material will prevent etching as it blocks the air/substrate 
 interface. The "through" options reverses that scheme: giving this 
@@ -191,7 +191,7 @@ output("2/0", stop)
 
 This script will produce the following result:
 
-![e13_xs](e13_xs.png)
+![](./img/e13_xs.png)
 
 ## <tt>buried</tt> - vertically displaced etch
 
@@ -218,8 +218,8 @@ output("0/0", substrate)
 
 With the following input:
 
-![e14](e14.png)
+![](./img/e14.png)
 
 This script will produce the following result:
 
-![e14_xs](e14_xs.png)
+![](./img/e14_xs.png)
