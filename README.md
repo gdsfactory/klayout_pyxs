@@ -3,9 +3,6 @@
 This is a python port of the XSection project 
 (https://github.com/klayoutmatthias/xsection). 
 
-It's been turned into a KLayout package now and is available through 
-KLayout's new package manager (available for version 0.25 and later).
-
 The goal of this project is to provide an add-on to KLayout (www.klayout.de) to 
 create and visualize a realistic cross-section view for VLSI designs 
 supporting a wide range of technology options.
