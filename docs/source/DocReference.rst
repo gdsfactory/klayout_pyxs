@@ -1,4 +1,5 @@
-# PYXS File Reference
+## PYXS File Reference
+
 
 This document details the functions available in PYXS scripts. An
 introduction is available as a separate document:
@@ -13,7 +14,8 @@ methods:
 material data objects), i.e. "invert()" or "not_()".
 * Methods on mask data objects, i.e. "grow()" and "etch()".
 
-## Functions
+Functions
+---------
 
 The following standalone functions are available:
 
@@ -121,7 +123,9 @@ happens with dimensions bigger than the extend value, artifacts start
 to appear at the borders of the simulation window. The extend value can
 then be increased to hide these effects.
 
-### <tt>flip()</tt> method
+<tt>flip()</tt> method
+^^^^^^^^^^^^^^^^^^^^^^
+
 
 This function will start backside processing. After this function,
 modifications will be applied on the back side of the wafer. Calling

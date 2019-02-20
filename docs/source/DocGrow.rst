@@ -1,4 +1,4 @@
-# The <tt>grow()</tt> Method
+## The <tt>grow()</tt> Method
 
 The grow method is one of the basic methods for describing a process.
 It is called on a mask data object. The basic use case is:

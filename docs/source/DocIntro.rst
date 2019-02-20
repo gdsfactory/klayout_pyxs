@@ -1,4 +1,4 @@
-# Writing PYXS files - an Introduction
+## Writing PYXS files - an Introduction
 
 Cross section files are simple to write. They provide a description how
 to convert a planar layout into a vertical material stack. PYXS scripts
