@@ -8,7 +8,8 @@ It is a port of Ruby script [xsection](https://github.com/klayoutmatthias/xsecti
 Most of the algorithms / tests / documentation are taken with minor adaptations
 from XSection project.
 
-## Installation
+Installation
+------------
 
 Installations instructions to be defined.
 
@@ -21,7 +22,8 @@ The source tree contains one example for such a file in "samples/cmos.pyxs". Thi
 illustrates how to create a ".pyxs" and has a lot of documentation inside. Have a look at
 this file here: [cmos.pyxs](cmos.pyxs).
 
-## Using The KLayout PYXS Module
+Using The KLayout PYXS Module
+-----------------------------
 
 Start KLayout after you have installed the script. You will find a new entry in the "Tools" menu.
 Choosing "Tools/pyxs/Load pyxs script" opens a file browser and you are prompted for the .pyxs file.
@@ -34,24 +36,23 @@ menu entry for quick access.
 
 An introduction into writing PYXS files can be found here: [Writing PYXS Files - an Introduction](DocIntro).
 
-A function reference is also available here: [PYXS File Reference](DocReference).
+A function reference is also available here: :ref:`DocReference`.
 
-## Example
+Example
+-------
 
 The following screenshot shows a sample cross section taken from the
 [cmos.pyxs](cmos.pyxs) sample file and the [sample.gds](sample.gds) layout found in the samples folder:
-![](./img/xsection_70p.png)
+
+.. image:: ./img/xsection_70p.png
 
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :caption: Contents:
-   
-   DocReference
+   :glob:
 
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+    DocIntro
+    DocGrow
+    DocEtch
+    DocReference

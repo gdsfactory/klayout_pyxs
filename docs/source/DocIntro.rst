@@ -29,11 +29,11 @@ output("1/0", metal1)
 
 With the following input:
 
-![](./img/s1.png)
+.. image:: ./img/s1.png
 
 This script will produce a simple cross section:
 
-![](./img/s1_xs.png)
+.. image:: ./img/s1_xs.png
 
 PYXS files are basically Python scripts, so the syntax rules for the
 Python language apply. Specifically:
@@ -271,11 +271,11 @@ output("1/0", metal1)
 
 With the following input:
 
-![](./img/s2.png)
+.. image:: ./img/s2.png
 
 This script will produce the following cross section:
 
-![](./img/s2_xs.png)
+.. image:: ./img/s2_xs.png
 
 The layer preparation step performs the inversion using the "inverted()"
 method:
@@ -365,11 +365,11 @@ output("1/0", metal1.or_(metal2))
 
 With the following input:
 
-![](./img/s3.png)
+.. image:: ./img/s3.png
 
 This script will produce the following cross section:
 
-![](./img/s3_xs.png)
+.. image:: ./img/s3_xs.png
 
 The topside processing part is the same than the previous sample and
 produces a metal structure at the top of the wafer. For backside

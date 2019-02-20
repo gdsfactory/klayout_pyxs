@@ -44,7 +44,7 @@ some examples.
 
 The initial layout is always this in all following examples:
 
-![](./img/g1.png)
+.. image:: ./img/g1.png
 
 The first example if the effect of the plain grow with a thickness of
 0.3 um. It will deposit a rectangular material profile at the mask:
@@ -53,7 +53,7 @@ The first example if the effect of the plain grow with a thickness of
 grow(0.3)
 ```
 
-![](./img/g1_xs.png)
+.. image:: ./img/g1_xs.png
 
 The next example illustrates the effect of a lateral extension on a
 square profile. The 0.1 um extension will add material left and right of
@@ -63,7 +63,7 @@ the main patch:
 grow(0.3, 0.1)
 ```
 
-![](./img/g2_xs.png)
+./img/g2_xs.png
 
 In "round" mode, the material will be deposited with an elliptical
 profile. The vertical axis will be 0.3 um, the horizontal 0.1 um
@@ -74,7 +74,7 @@ the mask by the lateral extension at the bottom:
 grow(0.3, 0.1, mode='round')
 ```
 
-![](./img/g3_xs.png)
+./img/g3_xs.png
 
 To avoid overgrow, a negative lateral extension can be specified,
 resulting in a alignment of patch and mask at the bottom:
@@ -83,7 +83,7 @@ resulting in a alignment of patch and mask at the bottom:
 grow(0.3, -0.1, mode='round')
 ```
 
-![](./img/g4_xs.png)
+./img/g4_xs.png
 
 Another mode is "octagon" which is basically a coarse approximation of
 the ellipse and computationally less expensive:
@@ -92,7 +92,7 @@ the ellipse and computationally less expensive:
 grow(0.3, 0.1, mode='octagon')
 ```
 
-![](./img/g5_xs.png)
+.. image:: ./img/g5_xs.png
 
 A bias value can be specified to fine-tune the position of the bottom
 edge of the patch. A *positive* bias value will *shrink* the figure:
@@ -101,7 +101,7 @@ edge of the patch. A *positive* bias value will *shrink* the figure:
 grow(0.3, 0.1, mode'round', bias=0.05)
 ```
 
-![](./img/g6_xs.png)
+.. image:: ./img/g6_xs.png
 
 A special profile can be specified with the "taper" option. This option
 specifies a taper angle and a conical patch will be created. The taper
@@ -113,13 +113,13 @@ be combined with "bias" however:
 grow(0.3, taper=10)
 ```
 
-![](./img/g7_xs.png)
+.. image:: ./img/g7_xs.png
 
 ```python
 grow(0.3, taper=10, bias=-0.1)
 ```
 
-![](./img/g8_xs.png)
+.. image:: ./img/g8_xs.png
 
 ## Step coverage
 
@@ -133,7 +133,7 @@ extension:
 grow(0.3, 0.1, mode='round')
 ```
 
-![](./img/g10_xs.png)
+.. image:: ./img/g10_xs.png
 
 ## <tt>on</tt> - growing on specific material
 
@@ -165,11 +165,11 @@ output("2/0", stop)
 
 Here is the input data:
 
-![](./img/g12.png)
+.. image:: ./img/g12.png
 
 And this is the result:
 
-![](./img/g12_xs.png)
+.. image:: ./img/g12_xs.png
 
 
 ## <tt>into</tt> - converting material
@@ -198,7 +198,7 @@ output("1/0", metal)
 
 This script gives the following result:
 
-![](./img/g13_xs.png)
+.. image:: ./img/g13_xs.png
 
 ## <tt>through</tt> - selective conversion
 
@@ -228,11 +228,11 @@ output("2/0", stop)
 
 With the following input:
 
-![](./img/g14.png)
+.. image:: ./img/g14.png
 
 This script gives the following result:
 
-![](./img/g14_xs.png)
+.. image:: ./img/g14_xs.png
 
 ## <tt>buried</tt> - applies a conversion in a region below the surface
 
@@ -260,8 +260,8 @@ output("1/0", metal)
 
 With the following input:
 
-![](./img/g15.png)
+.. image:: ./img/g15.png
 
 This script gives the following result:
 
-![](./img/g15_xs.png)
+.. image:: ./img/g15_xs.png
