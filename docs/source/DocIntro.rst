@@ -1,4 +1,7 @@
-## Writing PYXS files - an Introduction
+.. _DocIntro:
+
+Writing PYXS files - an Introduction
+====================================
 
 Cross section files are simple to write. They provide a description how
 to convert a planar layout into a vertical material stack. PYXS scripts
@@ -113,7 +116,8 @@ written to layer 0, datatype 0 for illustration. In the screenshot,
 the metal1 material has been colored light red, the bulk material is
 colored gray.
 
-## Variables and notation
+Variables and notation
+----------------------
 
 The above form of the script is not mandatory. "m1" and "metal1" are
 variables which carry certain information. It is not required to store
@@ -131,7 +135,8 @@ behind the material names - they're just variables carrying certain
 information. For the interested readers: instances of Python objects
 of various kinds representing layout data or material data.
 
-## Input preparation
+Input preparation
+-----------------
 
 As stated before, input data can be combined to produce mask data.
 PYXS scripts use Python methods on layout data objects to implement
@@ -197,7 +202,9 @@ l1.invert()
 p = l1.inverted()
 ```
 
-### Caveat: Python and object references
+Caveat: Python and object references
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 
 When assigning something to another variable it is easy to make a common
 mistake: when Python assigns something to another variable, it will
@@ -225,7 +232,8 @@ b = a.dup()
 a.invert()
 ```
 
-### Material data is layout data too
+Material data is layout data too
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Material data derived from deposition methods is layout data too,
 although not related to design layers. That allows to apply boolean
@@ -241,7 +249,8 @@ metal1b = mask(l2).grow(0.1, 0.1, mode='round')
 output("1/0", metal1a.or_(metal1b))
 ```
 
-## Etch operations
+Etch operations
+---------------
 
 The next sample script demonstrates the etch operation and mask-less
 deposit methods. It is closer to a real process, which does not use
@@ -326,7 +335,8 @@ operation when the mask data is prepared in a real process.
 
 Find details about the "etch" method here: [Etch Method](DocEtch)
 
-## Backside processing
+Backside processing
+-------------------
 
 The last sample script demonstrates combinations of process steps and
 backside processing. Here is the script:

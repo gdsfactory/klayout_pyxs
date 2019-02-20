@@ -1,4 +1,7 @@
-## PYXS File Reference
+.. _DocReference:
+
+PYXS File Reference
+===================
 
 
 This document details the functions available in PYXS scripts. An
@@ -37,12 +40,14 @@ The following standalone functions are available:
 | <tt>output(<i>layer_spec</i>, <i>material</i>)</tt> | Outputs a material object to the output layout |
 | <tt>planarize(<i>...</i>)</tt> | Planarization |
 
-### <tt>all()</tt> method
+<tt>all()</tt> method
+^^^^^^^^^^^^^^^^^^^^^
 
 This method delivers a mask data object which covers the whole wafer.
 It's used as seed for the global etch and grow function only.
 
-### <tt>below()</tt>, <tt>depth()</tt> and <tt>height()</tt> methods
+<tt>below()</tt>, <tt>depth()</tt> and <tt>height()</tt> methods
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The material operations a performed in a limited processing window,
 which extends a certain height over the wafer top surface ("height"),
@@ -56,7 +61,8 @@ The parameters can be modified with the respective functions. All
 functions accept a value in micrometer units. The default value is
 2 micrometers.
 
-### <tt>bulk()</tt> method
+<tt>bulk()</tt> method
+^^^^^^^^^^^^^^^^^^^^^^
 
 This methods returns a material data object which represents the wafer
 at it's initial state. This object can be used to represent the
@@ -70,7 +76,8 @@ mask(layer).etch(0.5, into='substrate')
 output("1/0", substrate)
 ```
 
-### <tt>delta()</tt> method
+<tt>delta()</tt> method
+^^^^^^^^^^^^^^^^^^^^^^^
 
 Due to limitations of the underlying processor which cannot handle
 infinitely thin polygons, there is an accuracy limit for the creation
@@ -87,7 +94,8 @@ units. The minimum value recommended is 2 database unit. That implies
 that the accuracy can be increased by using a smaller database unit for
 the input layout.
 
-### <tt>deposit()</tt> (<tt>grow()</tt>, <tt>diffuse()</tt>) methods
+<tt>deposit()</tt> (<tt>grow()</tt>, <tt>diffuse()</tt>) methods
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 This function will deposit material uniformly. "grow" and "diffuse"
 are just synonyms. It is equivalent to <tt>all.grow(...)</tt>. For a
@@ -97,13 +105,15 @@ object.
 The "deposit()" function will return a material object representing the
 deposited material.
 
-### <tt>etch()</tt> method
+<tt>etch()</tt> method
+^^^^^^^^^^^^^^^^^^^^^^
 
 This function will perform a uniform etch and is equivalent to
 <tt>all().etch(...)</tt>. For a description of the parameter see the
 "etch()" function on the mask data object.
 
-### <tt>extend()</tt> method
+<tt>extend()</tt> method
+^^^^^^^^^^^^^^^^^^^^^^^^
 
 To reduce the likelihood of missing important features, the cross
 section script will sample the layout in a window around the cut line.
@@ -131,7 +141,8 @@ This function will start backside processing. After this function,
 modifications will be applied on the back side of the wafer. Calling
 flip again, will continue processing on the front side.
 
-### <tt>layer()</tt> method
+<tt>layer()</tt> method
+^^^^^^^^^^^^^^^^^^^^^^^
 
 The layer method fetches a layout layer and prepares a layout data
 object for further processing. The "layer()" function expects a single
@@ -147,7 +158,8 @@ named layers (DXF, CIF)
 (layer 17, datatype 0) and "METAL1" for named-layer formats like DXF
 and CIF.
 
-### <tt>layers_file()</tt> method
+<tt>layers_file()</tt> method
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 This function specifies a layer properties file which will be loaded
 when the cross section has been generated. This file specifies colors,
@@ -157,7 +169,8 @@ fill pattern and other parameters of the display:
 layers_file("/home/matthias/xsection/lyp_files/cmos1.lyp")
 ```
 
-### <tt>mask()</tt> method
+<tt>mask()</tt> method
+^^^^^^^^^^^^^^^^^^^^^^
 
 The "mask" function designates the given layout data object as a litho
 mask. It returns a mask data object which is the starting point for
@@ -169,7 +182,8 @@ metal = mask(l1).grow(0.3)
 output("1/0", metal)
 ```
 
-### <tt>output()</tt> method
+<tt>output()</tt> method
+^^^^^^^^^^^^^^^^^^^^^^^^
 
 The "output" function will write the given material to the output
 layout. The function expects two parameters: an output layer
@@ -182,7 +196,8 @@ output("1/0", metal)
 The layer specifications follow the same rules than for the "layer()"
 function described above.
 
-### <tt>planarize()</tt> method
+<tt>planarize()</tt> method
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The "planarize()" function removes material of the given kind ("into"
 argument) down to a certain level. The level can be determined
@@ -206,7 +221,8 @@ The named parameters are:
 | to | Value is micrometer z value. Planarization stops when reaching that value. The z value is measured from the initial wafer surface. Cannot be used together with downto or less. |
 
 
-## Methods on original layout layers or material data objects
+Methods on original layout layers or material data objects
+----------------------------------------------------------
 
 The following methods are available for these objects:
 
@@ -221,21 +237,22 @@ The following methods are available for these objects:
 | <tt>xor(<i>other</i>)</tt> | Boolean XOR (symmetric difference) with another layer |
 | <tt>not_(<i>other</i>)</tt> | Boolean NOT (difference) with another layer |
 
-### <tt>size()</tt> method
+<tt>size()</tt> method
+^^^^^^^^^^^^^^^^^^^^^^
 
-This method will apply a bias to the layout data. A bias is applied by 
-shifting the edges to the outside (for positive bias) or the inside 
+This method will apply a bias to the layout data. A bias is applied by
+shifting the edges to the outside (for positive bias) or the inside
 (for negative bias) of the figure.
 
-Applying a bias will increase or reduce the dimension of a figure by 
+Applying a bias will increase or reduce the dimension of a figure by
 twice the value.
 
-Two versions are available: isotropic or anisotropic sizing. The first 
-version takes one sie value in micrometer units and applies this value 
-in x and y direction. The second version takes two values for x and y 
+Two versions are available: isotropic or anisotropic sizing. The first
+version takes one sie value in micrometer units and applies this value
+in x and y direction. The second version takes two values for x and y
 direction.
 
-The "size()" method will modify the layer object (in-place). A 
+The "size()" method will modify the layer object (in-place). A
 non-modifying version (out-of-place) is "sized".
 
 ```python
@@ -244,9 +261,10 @@ l1.size(0.3)
 metal = mask(l1).grow(0.3)
 ```
 
-### <tt>sized()</tt> method
+<tt>sized()</tt> method
+^^^^^^^^^^^^^^^^^^^^^^^
 
-Same as "size()", but returns a new layout data object rather than 
+Same as "size()", but returns a new layout data object rather than
 modifying it:
 
 ```python
@@ -256,9 +274,10 @@ metal = mask(l1_sized).grow(0.3)
 # l1 can still be used in the original form
 ```
 
-### <tt>invert()</tt> method
+<tt>invert()</tt> method
+^^^^^^^^^^^^^^^^^^^^^^^^
 
-Inverts a layer (creates layout where nothing is drawn and vice versa). 
+Inverts a layer (creates layout where nothing is drawn and vice versa).
 This method modifies the layout data object (in-place):
 
 ```python
@@ -269,9 +288,10 @@ metal = mask(l1).grow(0.3)
 
 A non-modifying version (out-of-place) is "inverted()".
 
-### <tt>inverted()</tt> method
+<tt>inverted()</tt> method
+^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Returns a new layout data object representing the inverted source 
+Returns a new layout data object representing the inverted source
 layout:
 
 ```python
@@ -281,9 +301,10 @@ metal = mask(l1_inv).grow(0.3)
 # l1 can still be used in the original form
 ```
 
-### <tt>or_()</tt>, <tt>and_()</tt>, <tt>xor</tt>, <tt>not_()</tt> methods
+<tt>or_()</tt>, <tt>and_()</tt>, <tt>xor</tt>, <tt>not_()</tt> methods
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-These methods perform boolean operations. Their notation is somewhat 
+These methods perform boolean operations. Their notation is somewhat
 unusual but follows the method notation of Python:
 
 ```python
@@ -302,7 +323,8 @@ Here is the output of the operations:
 | drawn | drawn | drawn | drawn | clear | clear |
 
 
-## Methods on mask data objects: grow() and etch()
+Methods on mask data objects: grow() and etch()
+-----------------------------------------------
 
 The following methods are available for mask data objects:
 
@@ -311,12 +333,14 @@ The following methods are available for mask data objects:
 | <tt>grow(<i>...</i>)</tt> | Deposition of material where this mask is present |
 | <tt>etch(<i>...</i>)</tt> | Removal of material where this mask is present |
 
-### <tt>grow()</tt> method
+<tt>grow()</tt> method
+^^^^^^^^^^^^^^^^^^^^^^
 
-This method is important and has a rich parameter set, so it is 
+This method is important and has a rich parameter set, so it is
 described in an individual document here: [Grow Method](DocGrow)
 
-### <tt>etch()</tt> method
+<tt>etch()</tt> method
+^^^^^^^^^^^^^^^^^^^^^^
 
-This method is important and has a rich parameter set, so it is 
+This method is important and has a rich parameter set, so it is
 described in an individual document here: [Etch Method](DocEtch)

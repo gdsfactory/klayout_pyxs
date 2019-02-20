@@ -1,4 +1,7 @@
-## The <tt>grow()</tt> Method
+.. _DocGrow:
+
+The <tt>grow()</tt> Method
+==========================
 
 The grow method is one of the basic methods for describing a process.
 It is called on a mask data object. The basic use case is:
@@ -37,7 +40,8 @@ There are several options:
 | through | To be used together with "into". Specifies a material or an array of materials to be used for selecting grow. Grow will happen starting on the interface of that material with air, pass through the "through" material (hence the name) and consume and convert the "into" material below. |
 | buried | Applies the conversion of material at the given depth below the mask level. This is intended to be used together with into and allows modeling of deep implants. The value is the depth below the surface. |
 
-## <tt>mode</tt>, <tt>taper</tt> and <tt>bias</tt>
+<tt>mode</tt>, <tt>taper</tt> and <tt>bias</tt>
+-----------------------------------------------
 
 The effect of the mode and bias interaction is best illustrated with
 some examples.
@@ -121,7 +125,8 @@ grow(0.3, taper=10, bias=-0.1)
 
 .. image:: ./img/g8_xs.png
 
-## Step coverage
+Step coverage
+-------------
 
 The following image shows the step coverage of a 30° slope and a
 vertical step by a material deposited in round mode with thickness of
@@ -135,7 +140,8 @@ grow(0.3, 0.1, mode='round')
 
 .. image:: ./img/g10_xs.png
 
-## <tt>on</tt> - growing on specific material
+<tt>on</tt> - growing on specific material
+------------------------------------------
 
 The on option allows to select growth on a material surface in
 addition to selection by a mask. To do so, specify the array of
@@ -172,7 +178,8 @@ And this is the result:
 .. image:: ./img/g12_xs.png
 
 
-## <tt>into</tt> - converting material
+<tt>into</tt> - converting material
+-----------------------------------
 
 With the "into" option it is possible to convert material below the
 mask rather than growing upwards. "into" specifies a single material
@@ -200,7 +207,8 @@ This script gives the following result:
 
 .. image:: ./img/g13_xs.png
 
-## <tt>through</tt> - selective conversion
+<tt>through</tt> - selective conversion
+---------------------------------------
 
 The same way that "on" will make the grow selective on the chosen
 materials, "through" will select seed materials for conversion with
@@ -234,13 +242,14 @@ This script gives the following result:
 
 .. image:: ./img/g14_xs.png
 
-## <tt>buried</tt> - applies a conversion in a region below the surface
+<tt>buried</tt> - applies a conversion in a region below the surface
+--------------------------------------------------------------------
 
 If that parameter is given, the process is not applied on the surface,
 but at the given depth below the surface. The main application is to
 model deep implants. In that case, "into" can be given to specify the
 material to convert and "buried" will specify the depth at which the
-material is converted. The region of cenversion extends below and above
+material is converted. The region of conversion extends below and above
 that depth:
 
 ```python

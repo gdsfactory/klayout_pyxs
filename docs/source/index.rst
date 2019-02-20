@@ -36,7 +36,7 @@ menu entry for quick access.
 
 An introduction into writing PYXS files can be found here: [Writing PYXS Files - an Introduction](DocIntro).
 
-A function reference is also available here: :ref:`DocReference`.
+A function reference is also available here: :doc:`DocReference`.
 
 Example
 -------
@@ -46,13 +46,11 @@ The following screenshot shows a sample cross section taken from the
 
 .. image:: ./img/xsection_70p.png
 
-
 .. toctree::
-   :maxdepth: 1
-   :caption: Contents:
-   :glob:
+   :caption: Contents
+   :maxdepth: 2
 
-    DocIntro
-    DocGrow
-    DocEtch
-    DocReference
+   DocIntro
+   DocGrow
+   DocEtch
+   DocReference

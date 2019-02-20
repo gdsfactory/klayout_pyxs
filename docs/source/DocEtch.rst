@@ -1,4 +1,7 @@
-# The <tt>etch()</tt> Method
+.. _DocEtch:
+
+The <tt>etch()</tt> Method
+==========================
 
 The etch method is one of the basic methods for describing a process.
 It is called on a mask data object. The basic use case is:
@@ -36,7 +39,8 @@ There are several options:
 | through | A material or an array of materials which form the selective material of the etch. The etch will happen only where this material interfaces with air and pass through this material (hence the name). |
 | buried | Applies the etching at the given depth below the surface. This option allows to create cavities. It specifies the vertical displacement of the etch seed and there may be more applications for this feature. |
 
-## <tt>mode</tt>, <tt>taper</tt> and <tt>bias</tt>
+<tt>mode</tt>, <tt>taper</tt> and <tt>bias</tt>
+-----------------------------------------------
 
 The effect of the mode and bias interaction is best illustrated with
 some examples.
@@ -120,7 +124,8 @@ etch(0.3, taper=10, bias=-0.1, into=substrate)
 
 .. image:: ./img/e8_xs.png
 
-## Step etch profile
+Step etch profile
+-----------------
 
 The following image shows the etch profile of a 30° slope and a
 vertical step by an etch in round mode with thickness of 0.3 um and
@@ -135,7 +140,8 @@ etch(0.3, 0.1, mode='round', into=substrate)
 
 .. image:: ./img/e10_xs.png
 
-## <tt>through</tt> - selective etch
+<tt>through</tt> - selective etch
+---------------------------------
 
 Normally the etch will happen only at the interface between air and
 the "into" material, as the following example demonstrates:
@@ -193,7 +199,8 @@ This script will produce the following result:
 
 .. image:: ./img/e13_xs.png
 
-## <tt>buried</tt> - vertically displaced etch
+<tt>buried</tt> - vertically displaced etch
+-------------------------------------------
 
 This option shifts the seed of the etch operation into the material.
 Without this option, the etch will start at the surface. If a positive
