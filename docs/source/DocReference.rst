@@ -29,42 +29,42 @@ The following standalone functions are available:
     * - Function
       - Description
     * - ``all()``
-      - A pseudo-mask, covering the whole wafer
+      - Return a pseudo-mask, covering the whole wafer
     * - ``below(b)``
-      - | Configures the lower height of the processing window for
+      - | Configure the lower height of the processing window for
         | backside processing (see below)
     * - ``bulk()``
-      - A pseudo-material describing the wafer body
+      - Return a pseudo-material describing the wafer body
     * - ``delta(d)``
-      - Configures the accuracy parameter (see ``below()``)
+      - Configure the accuracy parameter (see ``below()``)
     * - | ``deposit(...)``
-        | (synonyms:
-        | ``grow()``, ``diffuse()``)
-      - | Deposits material as a uniform sheet. Equivalent to
-        | ``all().grow(...)``. Gives a material data object
+        | ``grow()``
+        | ``diffuse()``
+      - | Deposit material as a uniform sheet. Equivalent to
+        | ``all().grow(...)``. Return a material data object
     * - ``depth(d)``
-      - | Configures the depth of the processing window or the wafer
+      - | Configure the depth of the processing window or the wafer
         | thickness for backside processing (see below)
     * - ``etch(...)``
       - Uniform etching. Equivalent to ``all.etch(...)``
     * - ``extend(x)``
-      - Configures the computation margin (see below)
+      - Configure the computation margin (see below)
     * - ``flip()``
-      - starts or ends backside processing
+      - Start or end backside processing
     * - ``height(h)``
-      - Configures the height of the processing window (see below)
+      - Configure the height of the processing window (see below)
     * - ``layer(layer_spec)``
-      - | Fetches an input layer from the original layout. Returns a
+      - | Fetche an input layer from the original layout. Return a
         | layer data object.
     * - ``layers_file(lyp_filename)``
-      - | Configures a ``.lyp`` layer properties file to be used on the
+      - | Configure a ``.lyp`` layer properties file to be used on the
         | cross-section layout
     * - ``mask(layout_data)``
-      - | Designates the layout_data object as a litho pattern (mask).
+      - | Designate the ``layout_data`` object as a litho pattern (mask).
         | This is the starting point for structured grow or etch
-        | operations. Gives a mask data object.
+        | operations. Return a mask data object.
     * - ``output(layer_spec, material)``
-      - Outputs a material object to the output layout
+      - Output a material object to the output layout
     * - ``planarize(...)``
       - Planarization
 

@@ -37,11 +37,11 @@ There are several options:
     * - Option
       - Value
     * - mode
-      - | The profile mode. Can be ``'round'``, ``'square'`` and ``'octagon'``.
-        | The default is 'square'.
+      - | The profile mode. Can be ``'square'`` (default), ``'round'``,
+        | and ``'octagon'``.
     * - taper
       - | The taper angle. This option specifies tapered mode and cannot be
-        | combined with 'mode'.
+        | combined with ``mode``.
     * - bias
       - | Adjusts the profile by shifting it to the interior of the figure.
         | Positive values will reduce the line width by twice the value.
@@ -88,9 +88,9 @@ of the main trench:
 
 .. image:: ./img/e2_xs.png
 
-In "round" mode, the material will be removed with an elliptical
+In ``'round'`` mode, the material will be removed with an elliptical
 profile. The vertical axis will be 0.3 um, the horizontal 0.1 um
-representing the laternal extension. The trench will become bigger
+representing the lateral extension. The trench will become bigger
 than the mask by the lateral extension at the bottom:
 
 .. code-block:: python
@@ -108,7 +108,7 @@ resulting in a alignment of patch and mask at the top:
 
 .. image:: ./img/e4_xs.png
 
-Another mode is "octagon" which is basically a coarse approximation
+Another mode is ``'octagon'`` which is basically a coarse approximation
 of the ellipse and computationally less expensive:
 
 .. code-block:: python
@@ -126,11 +126,11 @@ edge of the trench. A *positive* bias value will *shrink* the figure:
 
 .. image:: ./img/e6_xs.png
 
-A special profile can be specified with the "taper" option. This option
+A special profile can be specified with the ``taper`` option. This option
 specifies a taper angle and a conical trench will be created. The taper
 angle will be the sidewall angle of the trench. This option cannot be
-combined with "mode" and the lateral extension should be omitted. It can
-be combined with "bias" however:
+combined with ``mode`` and the lateral extension should be omitted. It can
+be combined with ``bias`` however:
 
 .. code-block:: python
 
@@ -164,7 +164,7 @@ The solid gray line shows the profile before the etch:
 ----------------------------
 
 Normally the etch will happen only at the interface between air and
-the "into" material, as the following example demonstrates:
+the ``into`` material, as the following example demonstrates:
 
 .. code-block:: python
 
@@ -193,8 +193,8 @@ This script will produce the following result:
 .. image:: ./img/e12_xs.png
 
 The blue material will prevent etching as it blocks the air/substrate
-interface. The "through" options reverses that scheme: giving this
-"stop" material as an argument to "through" will make the etch happen
+interface. The ``through`` option reverses that scheme: giving this
+``stop`` material as an argument to ``through`` will make the etch happen
 at places where this material interfaces with air:
 
 .. code-block:: python
