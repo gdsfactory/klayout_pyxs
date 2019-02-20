@@ -23,7 +23,7 @@ Functions
 The following standalone functions are available:
 
 .. list-table::
-    :widths: 15 60
+    :widths: 15 70
     :header-rows: 1
 
     * - Function
@@ -31,18 +31,20 @@ The following standalone functions are available:
     * - ``all()``
       - A pseudo-mask, covering the whole wafer
     * - ``below(b)``
-      - Configures the lower height of the processing window for
-        backside processing (see below)
+      - | Configures the lower height of the processing window for
+        | backside processing (see below)
     * - ``bulk()``
       - A pseudo-material describing the wafer body
     * - ``delta(d)``
       - Configures the accuracy parameter (see ``below()``)
-    * - ``deposit(...)`` (synonyms: grow(), diffuse())
-      - Deposits material as a uniform sheet. Equivalent to
-        ``all().grow(...)``. Gives a material data object
+    * - | ``deposit(...)``
+        | (synonyms:
+        | ``grow()``, ``diffuse()``)
+      - | Deposits material as a uniform sheet. Equivalent to
+        | ``all().grow(...)``. Gives a material data object
     * - ``depth(d)``
-      - Configures the depth of the processing window or the wafer
-        thickness for backside processing (see below)
+      - | Configures the depth of the processing window or the wafer
+        | thickness for backside processing (see below)
     * - ``etch(...)``
       - Uniform etching. Equivalent to ``all.etch(...)``
     * - ``extend(x)``
@@ -52,15 +54,15 @@ The following standalone functions are available:
     * - ``height(h)``
       - Configures the height of the processing window (see below)
     * - ``layer(layer_spec)``
-      - Fetches an input layer from the original layout. Returns a layer
-        data object.
+      - | Fetches an input layer from the original layout. Returns a
+        | layer data object.
     * - ``layers_file(lyp_filename)``
-      - Configures a ``.lyp`` layer properties file to be used on the
-        cross-section layout
+      - | Configures a ``.lyp`` layer properties file to be used on the
+        | cross-section layout
     * - ``mask(layout_data)``
-      - Designates the layout_data object as a litho pattern (mask).
-        This is the starting point for structured grow or etch
-        operations. Gives a mask data object.
+      - | Designates the layout_data object as a litho pattern (mask).
+        | This is the starting point for structured grow or etch
+        | operations. Gives a mask data object.
     * - ``output(layer_spec, material)``
       - Outputs a material object to the output layout
     * - ``planarize(...)``
@@ -239,27 +241,27 @@ The function takes a couple of keyword parameters in the Python notation
 The keyword parameters are:
 
 .. list-table::
-    :widths: 15 60
+    :widths: 10 70
     :header-rows: 1
 
     * - Name
       - Description
     * - ``into``
-      - (mandatory) A single material or an array or materials. The
-        planarization will remove these materials selectively.
+      - | (mandatory) A single material or an array or materials. The
+        | planarization will remove these materials selectively.
     * - ``downto``
-      - Value is a material. Planarization stops at the topmost point
-        of that material. Cannot be used together with ``less`` or ``to``.
+      - | Value is a material. Planarization stops at the topmost point
+        | of that material. Cannot be used together with ``less`` or ``to``.
     * - ``less``
-      - Value is a micrometer distance. Planarization will remove a
-        horizontal alice of the given material, stopping ``less``
-        micrometers measured from the topmost point of that material
-        before the planarization. Cannot be used together with ``downto``
-        or ``to``.
+      - | Value is a micrometer distance. Planarization will remove a
+        | horizontal alice of the given material, stopping ``less``
+        | micrometers measured from the topmost point of that material
+        | before the planarization. Cannot be used together with ``downto``
+        | or ``to``.
     * - ``to``
-      - Value is micrometer z value. Planarization stops when reaching
-        that value. The z value is measured from the initial wafer
-        surface. Cannot be used together with ``downto`` or ``less``.
+      - | Value is micrometer z value. Planarization stops when reaching
+        | that value. The z value is measured from the initial wafer
+        | surface. Cannot be used together with ``downto`` or ``less``.
 
 
 Methods on original layout layers or material data objects
