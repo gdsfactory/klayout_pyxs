@@ -25,6 +25,7 @@ The basic structure is:
  * `samples` Some sample files
  * `klayout_pyxs` The package sources
  * `tests` Test sources and golden data
+ * `xs2pyxs` xs to pyxs conversion scripts
 
 The `docs` folder contain the .rst files and images for the documentation 
 pages. See rendered version [here](https://klayout-pyxs.readthedocs.io/en/latest). 
@@ -49,3 +50,8 @@ or (from e.g. git bash console on Windows)
 $ cd tests
 $ bash run_tests_windows.sh
 ```
+
+The `xs2pyxs` folder contains a shell script which helps converting 
+Ruby-based .xs scripts to .pyxs scripts. It performs necessary but not
+sufficient string replacements. Depending on the .xs script complexity, 
+more changes are likely to be needed.
