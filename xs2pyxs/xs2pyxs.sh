@@ -1,14 +1,14 @@
 #!/bin/bash -e
 
 # This script contains replacement patterns to convert XS to PYXS
-# It implements some of the required changes, however more changes 
+# It implements some of the required changes, however more changes
 # might be needed.
 
 if [ "$1" == "" ]; then
-  all_xs=( *.xs )  # will test all .pyxs files in the folder
+  all_xs=( *.xs )  # will convers all .xs files in the folder
   xs_files=${all_xs[@]}
 else
-  xs_files=$*  # will test only specified file(s)
+  xs_files=$*  # will convert only specified file(s)
 fi
 
 for xs_file in $xs_files; do
