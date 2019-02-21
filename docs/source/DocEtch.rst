@@ -36,24 +36,24 @@ There are several options:
 
     * - Option
       - Value
-    * - mode
+    * - ``mode``
       - | The profile mode. Can be ``'square'`` (default), ``'round'``,
         | and ``'octagon'``.
-    * - taper
+    * - ``taper``
       - | The taper angle. This option specifies tapered mode and cannot be
         | combined with ``mode``.
-    * - bias
+    * - ``bias``
       - | Adjusts the profile by shifting it to the interior of the figure.
         | Positive values will reduce the line width by twice the value.
-    * - into
+    * - ``into``
       - | A material or an array of materials into which the etch is
         | performed. This specification is mandatory.
-    * - through
+    * - ``through``
       - | A material or an array of materials which form the selective
         | material of the etch. The etch will happen only where this
         | material interfaces with air and pass through this material
         | (hence the name).
-    * - buried
+    * - ``buried``
       - | Applies the etching at the given depth below the surface. This
         | option allows to create cavities. It specifies the vertical
         | displacement of the etch seed and there may be more applications
