@@ -47,5 +47,5 @@ or (from e.g. git bash console on Windows)
 
 ```bash
 $ cd tests
-$ ./run_tests_windows.sh
+$ bash run_tests_windows.sh
 ```
