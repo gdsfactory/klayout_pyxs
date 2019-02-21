@@ -9,36 +9,43 @@ supporting a wide range of technology options.
 
 ## User Documentation
 
-For the project description see [TODO: klayout-pyxs Project Home Page](https://klayoutmatthias.github.io/xsection).
+For the project description see [klayout_pyxs Project Home Page](https://github.com/dimapu/klayout_pyxs).
 
 For an introduction into writing PYXS files, see 
-[TODO: Writing XS Files - an Introduction](https://klayoutmatthias.github.io/xsection/DocIntro).
+[Writing PYXS Files - an Introduction](https://klayout-pyxs.readthedocs.io/en/latest/DocIntro.html).
 
 For a reference of the elements of the PYXS scripts, see 
-[TODO: XS File Reference](https://klayoutmatthias.github.io/xsection/DocIntro).
+[PYXS File Reference](https://klayout-pyxs.readthedocs.io/en/latest/DocReference.html).
 
 ## Project Files
 
 The basic structure is:
 
- * <tt>docs</tt> The documentation
- * <tt>samples</tt> Some sample files
- * <tt>klayout_pyxs</tt> The package sources
- * <tt>tests</tt> Test sources and golden data
+ * `docs` The documentation
+ * `samples` Some sample files
+ * `klayout_pyxs` The package sources
+ * `tests` Test sources and golden data
 
-The `docs` folder contain the MD file and images for the documentation pages.
+The `docs` folder contain the .rst files and images for the documentation 
+pages. See rendered version [here](https://klayout-pyxs.readthedocs.io/en/latest). 
 
 The `samples` folder holds a few files for playing around.
 
-TODO: The `klayout_pyxs` folder contains the package definition file 
-(`grain.xml`), the `macros` folder with the actual package code 
-(`xsection.lym`). The download URL for the package index is therefore the 
-pseudo-SVN URL TODO: `https://github.com/klayoutmatthias/xsection.git/tags/x.y/src`.
+The `klayout_pyxs` folder contains the python package, and `pymacros` 
+folder with the actual KLayout package code (`pyxs.lym`). 
 
-The <tt>tests</tt> folder contains some regression tests for the package. 
-To run the tests, make sure "klayout" is in your path and use
+The `tests` folder contains some regression tests for the package. 
+To run the tests, make sure "klayout" or "klayout_app" (in Windows) 
+is in your path and use
 
 ```sh
 $ cd tests
 $ ./run_tests.sh
+```
+
+or (from e.g. git bash console on Windows) 
+
+```bash
+$ cd tests
+$ ./run_tests_windows.sh
 ```
