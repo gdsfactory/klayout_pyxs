@@ -22,18 +22,22 @@ For a reference of the elements of the PYXS scripts, see
 The basic structure is:
 
  * `docs` The documentation
+ * `klayout_pyxs` The python package sources
+ * `pymacros` The python .lym macros files for KLayout 
  * `samples` Some sample files
- * `klayout_pyxs` The package sources
  * `tests` Test sources and golden data
  * `xs2pyxs` xs to pyxs conversion scripts
 
-The `docs` folder contain the .rst files and images for the documentation 
+The `docs` folder contains the .rst files and images for the documentation 
 pages. See rendered version [here](https://klayout-pyxs.readthedocs.io/en/latest). 
 
-The `samples` folder holds a few files for playing around.
+The `klayout_pyxs` folder contains the python package which includes 
+the cross-section generation engine. 
 
-The `klayout_pyxs` folder contains the python package, and `pymacros` 
-folder with the actual KLayout package code (`pyxs.lym`). 
+The `pymacros` folder contains with the actual KLayout macros code,
+`pyxs.lym`. 
+
+The `samples` folder holds a few files for playing around.
 
 The `tests` folder contains some regression tests for the package. 
 To run the tests, make sure "klayout" or "klayout_app" (in Windows) 
@@ -55,3 +59,48 @@ The `xs2pyxs` folder contains a shell script which helps converting
 Ruby-based .xs scripts to .pyxs scripts. It performs necessary but not
 sufficient string replacements. Depending on the .xs script complexity, 
 more changes are likely to be needed.
+
+## Installation
+
+### Windows
+
+To run .pyxs scripts from the KLayout menu, klayout_pyxs package and 
+python macros file have to be installed to the KLayout folders. 
+According to [KLayout documentaion](https://www.klayout.de/doc-qt4/about/macro_editor.html), 
+"pymacros" and "python "folders in KLayout's user specific application 
+folder. In Windows, it is $USERPROFILE/KLayout.
+
+In Windows, do the following (the commands should be run from e.g.
+git bash console). 
+
+0. Check if $USERPROFILE/KLayout exists and is used by the KLayout to 
+store macros. Run 
+
+    ```bash
+    $ ls $USERPROFILE/KLayout
+    ```
+
+    If no error reported, continue with 1. If there is an error, you need to 
+    find a location of KLayout's user specific application folder 
+    with pymacros, python folders and use it in further commands.
+
+1. Clone klayout_pyxs repository into any source folder:
+
+    ```bash
+    $ git clone https://github.com/dimapu/klayout_pyxs.git klayout_pyxs_repo
+    ```
+
+2. Copy klayout_pyxs_repo/pymacros/pyxs.lym to $USERPROFILE/KLayout/pymacros/pyxs.lym
+
+    ```bash
+    cp klayout_pyxs_repo/pymacros/pyxs.lym $USERPROFILE/KLayout/pymacros/pyxs.lym
+    ``` 
+
+3. Copy klayout_pyxs_repo/klayout_pyxs/*.* to $USERPROFILE/KLayout/python/klayout_pyxs
+
+    ```
+    mkdir $USERPROFILE/KLayout/python/klayout_pyxs
+    cp klayout_pyxs_repo/klayout_pyxs/*.py $USERPROFILE/KLayout/python/klayout_pyxs
+    ```
+
+Now, run Klayout. In the Tools menu, you should see pyxs > Load pyxs script. 
