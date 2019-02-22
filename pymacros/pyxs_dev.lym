@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<klayout-macro>
+ <description/>
+ <version/>
+ <category>pymacros</category>
+ <prolog/>
+ <epilog/>
+ <doc/>
+ <autorun>true</autorun>
+ <autorun-early>false</autorun-early>
+ <shortcut/>
+ <show-in-menu>false</show-in-menu>
+ <group-name/>
+ <menu-path/>
+ <interpreter>python</interpreter>
+ <dsl-interpreter-name/>
+ <text>import sys
+
+fpath = 'D:/Docs/TUe/Projects/!!python_projects/klayout_prj/klayout_pyxs_repo/'
+if not fpath in sys.path:
+    sys.path.insert(0, fpath)
+
+from pprint import pprint
+# pprint(sys.path)
+
+# import  klayout_pyxs.pyxs_lib as pyxs_lib
+
+from klayout_pyxs import XSectionScriptEnvironment
+
+# import importlib
+# importlib.reload(klayout.pyxs_lib)
+
+pyxs_processing_environment = XSectionScriptEnvironment()
+
+DEBUG = False
+
+if DEBUG:
+    print('xs_run:', xs_run)
+    print('xs_cut:', xs_cut)
+    print('xs_out:', xs_out)
+    print('RBA::LayoutView::current', pya.LayoutView.current())
+
+if pya.LayoutView.current() and xs_run and xs_cut and xs_out:
+    x1, x2 = xs_cut.split(';')[0].split(',')
+    x3, x4 = xs_cut.split(';')[1].split(',')
+
+    if DEBUG:
+        print(x1, x2, x3, x4)
+
+    p1 = pya.DPoint(float(x1), float(x2))
+    p2 = pya.DPoint(float(x3), float(x4))
+
+    print("Running pyxs script {} with {} to {} ...".format(xs_run, p1, p2))
+    target_view = pyxs_processing_environment.run_script(xs_run, p1, p2)[-1]
+
+    l = target_view.active_cellview().layout()
+
+    print("Writing {} ...".format(xs_out))
+    l.write(xs_out)
+
+</text>
+</klayout-macro>
