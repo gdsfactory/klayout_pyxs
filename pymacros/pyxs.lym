@@ -14,13 +14,13 @@
  <menu-path/>
  <interpreter>python</interpreter>
  <dsl-interpreter-name/>
- <text>import sys
+ <text># import sys
 
-fpath = 'D:/Docs/TUe/Projects/!!python_projects/klayout_prj/klayout_pyxs_repo/'
-if not fpath in sys.path:
-    sys.path.insert(0, fpath)
+# fpath = 'D:/Docs/TUe/Projects/!!python_projects/klayout_prj/klayout_pyxs_repo/'
+# if not fpath in sys.path:
+#     sys.path.insert(0, fpath)
 
-from pprint import pprint
+# from pprint import pprint
 # pprint(sys.path)
 
 # import  klayout_pyxs.pyxs_lib as pyxs_lib
