@@ -76,7 +76,7 @@ git bash console) Tested on KLayout 0.25.3 and 0.25.7.
 0. Check if $USERPROFILE/KLayout exists and is used by the KLayout to 
 store macros. Run 
 
-    ```sh
+    ```bash
     $ ls $USERPROFILE/KLayout
     ```
 
@@ -86,21 +86,21 @@ store macros. Run
 
 1. Clone klayout_pyxs repository into any source folder:
 
-    ```sh
+    ```bash
     $ git clone https://github.com/dimapu/klayout_pyxs.git klayout_pyxs_repo
     ```
 
 2. Copy klayout_pyxs_repo/pymacros/pyxs.lym to $USERPROFILE/KLayout/pymacros/pyxs.lym
 
-    ```sh
-    cp klayout_pyxs_repo/pymacros/pyxs.lym $USERPROFILE/KLayout/pymacros/pyxs.lym
+    ```bash
+    $ cp klayout_pyxs_repo/pymacros/pyxs.lym $USERPROFILE/KLayout/pymacros/pyxs.lym
     ``` 
 
 3. Copy klayout_pyxs_repo/klayout_pyxs/*.* to $USERPROFILE/KLayout/python/klayout_pyxs
 
-    ```
-    mkdir $USERPROFILE/KLayout/python/klayout_pyxs
-    cp klayout_pyxs_repo/klayout_pyxs/*.py $USERPROFILE/KLayout/python/klayout_pyxs
+    ```bash
+    $ mkdir $USERPROFILE/KLayout/python/klayout_pyxs
+    $ cp klayout_pyxs_repo/klayout_pyxs/*.py $USERPROFILE/KLayout/python/klayout_pyxs
     ```
 
 Now, run Klayout. In the Tools menu, you should see pyxs > Load pyxs script. 
