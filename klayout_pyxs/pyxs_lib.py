@@ -61,14 +61,14 @@ info('Module klayout_pyxs.pyxs_lib.py reloaded')
 class XSectionGenerator(object):
     """ The main class that creates a cross-section file
     """
-    def __init__(self, file_path):
+    def __init__(self, file_name):
         """
         Parameters
         ----------
-        file_path : str
+        file_name : str
         """
         # TODO: adjust this path:
-        self._file_path = file_path
+        self._file_path = file_name
         self._lyp_file = None
         self._ep = ep
         self._flipped = False
@@ -78,6 +78,8 @@ class XSectionGenerator(object):
         self._below = None
         self._depth = None
         self._height = None
+
+        self._is_target_layout_created = False
 
     def layer(self, layer_spec):
         """ Fetches an input layer from the original layout.
@@ -217,6 +219,9 @@ class XSectionGenerator(object):
                     "'output()': layer_data parameter must be "
                     "a geometry object. {} is given".format(type(layer_data)))
 
+        if not self._is_target_layout_created:
+            self._create_new_layout()
+
         ls = string_to_layer_info(layer_spec)
         li = self._target_layout.insert_layer(ls)
         shapes = self._target_layout.cell(self._target_cell).shapes(li)
@@ -254,7 +259,8 @@ class XSectionGenerator(object):
                 script_globals = {}
 
             if new_target_layout:
-                self._finalize_view()
+                if self._is_target_layout_created:
+                    self._finalize_view()
                 self._create_new_layout(cell_name_extension=step_name)
 
             for ls, ld in output_layers.items():
@@ -275,9 +281,9 @@ class XSectionGenerator(object):
                 else:
                     file_name = self._cell_file_name
 
-                self._target_view.save_image(file_name+'.png',
-                                             self._height/10,
-                                             self.background().width()/10,
+                self._target_view.save_image(file_name + '.png',
+                                             self._area.width()/100,
+                                             self._area.height()/100,
                                              )
             return None
 
@@ -464,6 +470,7 @@ class XSectionGenerator(object):
         self._delta = int_floor(x / self._dbu + 0.5)
         info('XSG._delta set to {}'.format(self._delta))
 
+    @print_info(False)
     def delta(self, x):
         self._delta = int_floor(x / self._dbu + 0.5)
         info('XSG._delta set to {}'.format(self._delta))
@@ -659,6 +666,7 @@ class XSectionGenerator(object):
         if self._lyp_file:
             self._target_view.load_layer_props(self._lyp_file)
         self._target_view.zoom_fit()
+        self._target_view.max_hier_levels = 1
 
     @print_info(False)
     def _xpoints_to_mask(self, iv):
@@ -785,8 +793,6 @@ class XSectionGenerator(object):
         p2_dbu = Point.from_dpoint(p2 * (1.0 / self._dbu))
         self._line_dbu = Edge(p1_dbu, p2_dbu)  # Edge describing the ruler
 
-        self._create_new_layout()
-
         # initialize height and depth
         self._extend = int_floor(2.0 / self._dbu + 0.5)  # 2 um in dbu
         self._delta = 10
@@ -821,12 +827,14 @@ class XSectionGenerator(object):
         self._target_layout.dbu = self._dbu
         self._target_cell = cell  # type: cell
 
+        self._is_target_layout_created = True
+
 
 # MENU AND ACTIONS
 # ----------------
 N_PYXS_SCRIPTS_MAX = 4
 
-pyxs_script_load_menuhandler = None
+# pyxs_script_load_menuhandler = None
 pyxs_scripts = None
 
 
@@ -886,10 +894,13 @@ class XSectionMRUAction(Action):
 class XSectionScriptEnvironment(object):
     """ The cross section script environment
     """
-    def __init__(self):
+    def __init__(self, menu_name='pyxs'):
+        self._menu_name = menu_name
+
         app = Application.instance()
         mw = app.main_window()
         if mw is None:
+            print('none')
             return
 
         def _on_triggered_callback():
@@ -924,26 +935,32 @@ class XSectionScriptEnvironment(object):
 
         # Create pyxs submenu in Tools
         menu = mw.menu()
-        if not menu.is_valid("tools_menu.pyxs_script_group"):
-            menu.insert_separator("tools_menu.end", "pyxs_script_group")
-            menu.insert_menu("tools_menu.end", "pyxs_script_submenu", "pyxs")
+
+        if not menu.is_valid("tools_menu.{}_script_group".format(self._menu_name)):
+            menu.insert_separator("tools_menu.end", "{}_script_group".format(self._menu_name))
+            menu.insert_menu("tools_menu.end",
+                             "{}_script_submenu".format(self._menu_name),
+                             self._menu_name)
 
         # Create Load XSection.py Script item in XSection (py)
-        global pyxs_script_load_menuhandler
+        # global pyxs_script_load_menuhandler
         pyxs_script_load_menuhandler = MenuHandler(
                 "Load pyxs script", _on_triggered_callback)
-        menu.insert_item("tools_menu.pyxs_script_submenu.end",
-                         "pyxs_script_load", pyxs_script_load_menuhandler)
-        menu.insert_separator("tools_menu.pyxs_script_submenu.end.end",
-                              "pyxs_script_mru_group")
+        menu.insert_item(
+            "tools_menu.{}_script_submenu.end".format(self._menu_name),
+            "{}_script_load".format(self._menu_name), pyxs_script_load_menuhandler)
+        menu.insert_separator(
+            "tools_menu.{}_script_submenu.end.end".format(self._menu_name),
+            "{}_script_mru_group".format(self._menu_name))
 
         # Create list of existing pyxs scripts item in pyxs
         self._mru_actions = []
         for i in range(N_PYXS_SCRIPTS_MAX):
             a = XSectionMRUAction(_XSectionMRUAction_callback)
             self._mru_actions.append(a)
-            menu.insert_item("tools_menu.pyxs_script_submenu.end",
-                             "pyxs_script_mru{}".format(i), a)
+            menu.insert_item(
+                "tools_menu.{}_script_submenu.end".format(self._menu_name),
+                "{}_script_mru{}".format(self._menu_name, i), a)
             a.script = None
 
         # try to save the MRU list to $HOME/.klayout-processing-mru

@@ -30,7 +30,7 @@ from klayout_pyxs import XSectionScriptEnvironment
 # import importlib
 # importlib.reload(klayout.pyxs_lib)
 
-pyxs_processing_environment = XSectionScriptEnvironment()
+pyxs_processing_environment = XSectionScriptEnvironment('pyxs_dev')
 
 DEBUG = False
 
@@ -57,6 +57,7 @@ if pya.LayoutView.current() and xs_run and xs_cut and xs_out:
 
     print("Writing {} ...".format(xs_out))
     l.write(xs_out)
+
 
 </text>
 </klayout-macro>

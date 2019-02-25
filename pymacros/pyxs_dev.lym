@@ -20,7 +20,7 @@ fpath = 'D:/Docs/TUe/Projects/!!python_projects/klayout_prj/klayout_pyxs_repo/'
 if not fpath in sys.path:
     sys.path.insert(0, fpath)
 
-from pprint import pprint
+# from pprint import pprint
 # pprint(sys.path)
 
 # import  klayout_pyxs.pyxs_lib as pyxs_lib
@@ -30,7 +30,7 @@ from klayout_pyxs import XSectionScriptEnvironment
 # import importlib
 # importlib.reload(klayout.pyxs_lib)
 
-pyxs_processing_environment = XSectionScriptEnvironment()
+pyxs_processing_environment_dev = XSectionScriptEnvironment('pyxs_dev')
 
 DEBUG = False
 
@@ -51,12 +51,13 @@ if pya.LayoutView.current() and xs_run and xs_cut and xs_out:
     p2 = pya.DPoint(float(x3), float(x4))
 
     print("Running pyxs script {} with {} to {} ...".format(xs_run, p1, p2))
-    target_view = pyxs_processing_environment.run_script(xs_run, p1, p2)[-1]
+    target_view = pyxs_processing_environment_dev.run_script(xs_run, p1, p2)[-1]
 
     l = target_view.active_cellview().layout()
 
     print("Writing {} ...".format(xs_out))
     l.write(xs_out)
+
 
 </text>
 </klayout-macro>
