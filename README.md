@@ -67,16 +67,16 @@ more changes are likely to be needed.
 To run .pyxs scripts from the KLayout menu, klayout_pyxs package and 
 python macros file have to be installed to the KLayout folders. 
 According to [KLayout documentaion](https://www.klayout.de/doc-qt4/about/macro_editor.html), 
-"pymacros" and "python "folders in KLayout's user specific application 
-folder. In Windows, it is $USERPROFILE/KLayout.
+they should go to the "pymacros" and "python" folders in KLayout's user 
+specific application folder. In Windows, it is $USERPROFILE/KLayout.
 
 In Windows, do the following (the commands should be run from e.g.
-git bash console). 
+git bash console) Tested on KLayout 0.25.3 and 0.25.7. 
 
 0. Check if $USERPROFILE/KLayout exists and is used by the KLayout to 
 store macros. Run 
 
-    ```bash
+    ```sh
     $ ls $USERPROFILE/KLayout
     ```
 
@@ -86,13 +86,13 @@ store macros. Run
 
 1. Clone klayout_pyxs repository into any source folder:
 
-    ```bash
+    ```sh
     $ git clone https://github.com/dimapu/klayout_pyxs.git klayout_pyxs_repo
     ```
 
 2. Copy klayout_pyxs_repo/pymacros/pyxs.lym to $USERPROFILE/KLayout/pymacros/pyxs.lym
 
-    ```bash
+    ```sh
     cp klayout_pyxs_repo/pymacros/pyxs.lym $USERPROFILE/KLayout/pymacros/pyxs.lym
     ``` 
 
