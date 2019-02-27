@@ -645,12 +645,20 @@ class XSectionGenerator(object):
         self._update_basic_regions()
 
         text = None
-        with open(self._file_path) as file:
-            text = file.read()
-
-        if not text:
+        try:
+            with open(self._file_name, 'r') as file:
+                text = file.read()
+        except Exception as e:
             MessageBox.critical("Error",
-                                "Error reading file #{self._file_path}",
+                                "Error reading file {}. \n\nError: {}"
+                                .format(self._file_name, e),
+                                MessageBox.b_ok())
+            return None
+
+        if text is None:
+            MessageBox.critical("Error",
+                                "Error reading file {}."
+                                .format(self._file_name),
                                 MessageBox.b_ok())
             return None
 
