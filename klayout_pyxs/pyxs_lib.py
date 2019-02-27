@@ -944,11 +944,11 @@ class XSectionScriptEnvironment(object):
 
         # Create Load XSection.py Script item in XSection (py)
         # global pyxs_script_load_menuhandler
-        pyxs_script_load_menuhandler = MenuHandler(
+        self.pyxs_script_load_menuhandler = MenuHandler(
                 "Load pyxs script", _on_triggered_callback)
         menu.insert_item(
             "tools_menu.{}_script_submenu.end".format(self._menu_name),
-            "{}_script_load".format(self._menu_name), pyxs_script_load_menuhandler)
+            "{}_script_load".format(self._menu_name), self.pyxs_script_load_menuhandler)
         menu.insert_separator(
             "tools_menu.{}_script_submenu.end.end".format(self._menu_name),
             "{}_script_mru_group".format(self._menu_name))
