@@ -963,7 +963,7 @@ class XSectionScriptEnvironment(object):
                 "{}_script_mru{}".format(self._menu_name, i), a)
             a.script = None
 
-        # try to save the MRU list to $HOME/.klayout-processing-mru
+        # try to save the MRU list to $HOME/.klayout-pyxs-scripts
         i = 0
         home = os.getenv("HOME", None) or os.getenv("HOMESHARE", None)
         global pyxs_scripts
@@ -972,7 +972,7 @@ class XSectionScriptEnvironment(object):
                 if i < len(self._mru_actions):
                     self._mru_actions[i].script = script
         elif home:
-            fn = home + "\\.klayout-pyxs-scripts"
+            fn = os.path.join(home, '/.klayout-pyxs-scripts')
             try:
                 with open(fn, "r") as file:
                     for line in file.readlines():
@@ -1070,10 +1070,10 @@ class XSectionScriptEnvironment(object):
         for i in range(len(self._mru_actions)):
             self._mru_actions[i].script = scripts[i]
 
-        # try to save the MRU list to $HOME/.klayout-xsection
+        # try to save the MRU list to $HOME/.klayout-pyxs-scripts
         home = os.getenv("HOME", None) or os.getenv("HOMESHARE", None)
         if home:
-            fn = home + "\\.klayout-pyxs-scripts"
+            fn = os.path.join(home, '/.klayout-pyxs-scripts')
             with open(fn, "w") as file:
                 file.write("<pyxs>\n")
                 for a in self._mru_actions:
