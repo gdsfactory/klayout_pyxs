@@ -30,7 +30,7 @@ from klayout_pyxs import XSectionScriptEnvironment
 # import importlib
 # importlib.reload(klayout.pyxs_lib)
 
-pyxs_processing_environment = XSectionScriptEnvironment('pyxs_dev')
+pyxs_processing_environment = XSectionScriptEnvironment('pyxs')
 
 DEBUG = False
 
