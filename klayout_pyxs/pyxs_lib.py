@@ -68,7 +68,8 @@ class XSectionGenerator(object):
         file_name : str
         """
         # TODO: adjust this path:
-        self._file_path = file_name
+        self._file_name = file_name
+        self._file_path = os.path.split(file_name)[0]
         self._lyp_file = None
         self._ep = ep
         self._flipped = False
@@ -80,6 +81,7 @@ class XSectionGenerator(object):
         self._height = None
 
         self._is_target_layout_created = False
+        self._hide_png_save_error = False
 
     def layer(self, layer_spec):
         """ Fetches an input layer from the original layout.
@@ -281,10 +283,21 @@ class XSectionGenerator(object):
                 else:
                     file_name = self._cell_file_name
 
-                self._target_view.save_image(file_name + '.png',
-                                             self._area.width()/100,
-                                             self._area.height()/100,
-                                             )
+                file_name = os.path.join(self._file_path, file_name) + '.png'
+                try:
+                    self._target_view.save_image(file_name,
+                                                 self._area.width()/100,
+                                                 self._area.height()/100,
+                                                 )
+                except Exception as e:
+                    if not self._hide_png_save_error:
+                        MessageBox.critical(
+                            "Error",
+                            "Error saving png file {}. \n\n Error: {}. \n\n"
+                            "Further error messages will not be displayed."
+                            .format(file_name, e),
+                            MessageBox.b_ok())
+                        self._hide_png_save_error = True
             return None
 
     def output_raw(self, layer_spec, d):
