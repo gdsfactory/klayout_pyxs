@@ -66,7 +66,7 @@ more changes are likely to be needed.
 
 To run .pyxs scripts from the KLayout menu, klayout_pyxs package and 
 python macros file have to be installed to the KLayout folders. 
-According to [KLayout documentaion](https://www.klayout.de/doc-qt4/about/macro_editor.html), 
+According to [KLayout documentation](https://www.klayout.de/doc-qt4/about/macro_editor.html), 
 they should go to the "pymacros" and "python" folders in KLayout's user 
 specific application folder. In Windows, it is $USERPROFILE/KLayout.
 
