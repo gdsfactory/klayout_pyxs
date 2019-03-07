@@ -60,7 +60,7 @@ class EdgeProcessor(EP_):
             The output polygons
 
         """
-        return super().boolean_p2p(pa, pb, mode, rh, mc)
+        return super(EdgeProcessor, self).boolean_p2p(pa, pb, mode, rh, mc)
 
     def safe_boolean_to_polygon(self, pa, pb, mode, rh=True, mc=True):
         """ Applies boolean operation to two lists of polygons.
@@ -111,7 +111,7 @@ class EdgeProcessor(EP_):
 
         Use of this method is deprecated. Use size_p2p instead
         """
-        return super().size_to_polygon(polygons, dx, dy, mode, rh, mc)
+        return super(EdgeProcessor, self).size_to_polygon(polygons, dx, dy, mode, rh, mc)
 
     @print_info(False)
     def size_p2p(self, polygons, dx, dy=0, mode=2, rh=True, mc=True):
@@ -141,7 +141,7 @@ class EdgeProcessor(EP_):
         """
         info('    polys  = {}'.format(polygons))
         info('    dx = {}, dy = {}'.format(dx, dy))
-        res = super().size_p2p(polygons, dx, dy, mode, rh, mc)
+        res = super(EdgeProcessor, self).size_p2p(polygons, dx, dy, mode, rh, mc)
         info('    EP.size_p2p().res = {}'.format(res))
         return res
 
@@ -558,7 +558,7 @@ class MaskData(LayoutData):
             the intrinsic height (required for mask data because there
             cannot be an infinitely small mask layer (in database units)
         """
-        super().__init__([], xs)  # LayoutData()
+        super(MaskData, self).__init__([], xs)  # LayoutData()
         self._air_polygons = air_polygons
         self._mask_polygons = mask_polygons
 
@@ -940,7 +940,7 @@ class MaskData(LayoutData):
 
 class MaterialData(LayoutData):
     def __init__(self, polygons, xs):
-        super().__init__(polygons, xs)
+        super(MaterialData, self).__init__(polygons, xs)
 
     def discard(self):
         self._xs.air().add(self)
