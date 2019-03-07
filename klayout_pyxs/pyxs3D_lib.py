@@ -19,7 +19,6 @@
 # TODO: the left and right areas are not treated correctly
 
 from __future__ import absolute_import
-from importlib import reload
 import math
 import os
 import re
@@ -27,12 +26,15 @@ import re
 import klayout_pyxs
 from six.moves import range
 from six.moves import zip
-try:
-    reload(klayout_pyxs.misc)
-    reload(klayout_pyxs.geometry_2d)
-    reload(klayout_pyxs.geometry_3d)
-except:
-    pass
+
+
+# from importlib import reload
+# try:
+#     reload(klayout_pyxs.misc)
+#     reload(klayout_pyxs.geometry_2d)
+#     reload(klayout_pyxs.geometry_3d)
+# except:
+#     pass
 
 from klayout_pyxs import Application
 from klayout_pyxs import MessageBox
