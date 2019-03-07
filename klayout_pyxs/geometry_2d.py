@@ -3,6 +3,7 @@
 
 (C) 2017-2019 Dima Pustakhod and contributors
 """
+from __future__ import absolute_import
 import math
 
 from klayout_pyxs import Box
@@ -16,6 +17,7 @@ from klayout_pyxs import SimplePolygon
 
 from klayout_pyxs.layer_parameters import string_to_layer_info
 from klayout_pyxs.utils import info, print_info, int_floor, make_iterable
+from six.moves import range
 
 
 class EdgeProcessor(EP_):
@@ -361,7 +363,7 @@ class LayoutData(object):
                 if shape.is_polygon() or shape.is_path() or shape.is_box():
                     self._polygons.append(
                             shape.polygon.transformed(shape_iter.itrans()))
-                shape_iter.next()
+                next(shape_iter)
 
         n_poly = self.n_poly
         info('    loaded polygon count: {}'.format(n_poly))
