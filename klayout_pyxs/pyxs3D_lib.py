@@ -18,18 +18,22 @@
 # the paths used for generating the masks are somewhat too thick
 # TODO: the left and right areas are not treated correctly
 
-from importlib import reload
+from __future__ import absolute_import
 import math
 import os
 import re
 
 import klayout_pyxs
-try:
-    reload(klayout_pyxs.misc)
-    reload(klayout_pyxs.geometry_2d)
-    reload(klayout_pyxs.geometry_3d)
-except:
-    pass
+from klayout_pyxs.compat import range
+from klayout_pyxs.compat import zip
+
+# from importlib import reload
+# try:
+#     reload(klayout_pyxs.misc)
+#     reload(klayout_pyxs.geometry_2d)
+#     reload(klayout_pyxs.geometry_3d)
+# except:
+#     pass
 
 from klayout_pyxs import Application
 from klayout_pyxs import MessageBox

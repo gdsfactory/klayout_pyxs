@@ -23,19 +23,23 @@
 # the paths used for generating the masks are somewhat too thick
 # TODO: the left and right areas are not treated correctly
 
-from importlib import reload
+from __future__ import absolute_import
+from __future__ import print_function
 import math
 import os
 import re
 
 import klayout_pyxs
+from klayout_pyxs.compat import range
+from klayout_pyxs.compat import zip
 
-try:
-    reload(klayout_pyxs)
-    reload(klayout_pyxs.utils)
-    reload(klayout_pyxs.geometry_2d)
-except:
-    pass
+# from importlib import reload
+# try:
+#     reload(klayout_pyxs)
+#     reload(klayout_pyxs.utils)
+#     reload(klayout_pyxs.geometry_2d)
+# except:
+#     pass
 
 from klayout_pyxs import HAS_PYA
 
@@ -267,7 +271,7 @@ class XSectionGenerator(object):
 
             for ls, ld in output_layers.items():
                 if isinstance(ld, str):
-                    if ld in script_globals.keys():
+                    if ld in list(script_globals.keys()):
                         self.output(layer_spec=ls,
                                     layer_data=script_globals[ld])
                     else:
@@ -931,7 +935,10 @@ class XSectionScriptEnvironment(object):
             """
             view = Application.instance().main_window().current_view()
             if not view:
-                raise UserWarning("No view open for running the pyxs script")
+                MessageBox.critical(
+                    "Error", "No view open for creating the cross-"
+                             "section from", MessageBox.b_ok())
+                return None
 
             filename = FileDialog.get_open_file_name(
                     "Select cross-section script", "",
@@ -993,7 +1000,7 @@ class XSectionScriptEnvironment(object):
                 if i < len(self._mru_actions):
                     self._mru_actions[i].script = script
         elif home:
-            fn = os.path.join(home, '/.klayout-pyxs-scripts')
+            fn = os.path.join(home, '.klayout-pyxs-scripts')
             try:
                 with open(fn, "r") as file:
                     for line in file.readlines():
@@ -1094,7 +1101,7 @@ class XSectionScriptEnvironment(object):
         # try to save the MRU list to $HOME/.klayout-pyxs-scripts
         home = os.getenv("HOME", None) or os.getenv("HOMESHARE", None)
         if home:
-            fn = os.path.join(home, '/.klayout-pyxs-scripts')
+            fn = os.path.join(home, '.klayout-pyxs-scripts')
             with open(fn, "w") as file:
                 file.write("<pyxs>\n")
                 for a in self._mru_actions:

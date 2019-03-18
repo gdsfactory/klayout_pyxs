@@ -12,6 +12,7 @@ Changelog
 2017.xx.xx
     Initial commit
 """
+from __future__ import absolute_import
 import re
 
 from klayout_pyxs import LayerInfo
