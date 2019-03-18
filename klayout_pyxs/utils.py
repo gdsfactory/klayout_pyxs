@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+from __future__ import print_function
 import math
 
 VERBOSE = True
@@ -13,7 +15,7 @@ def info(s):
         string to be printed
     """
     if VERBOSE:
-        print(' ' * OFFSET + s)
+        print((' ' * OFFSET + s))
 
 
 def print_info(v=True):

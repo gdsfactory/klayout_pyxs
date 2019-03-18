@@ -25,6 +25,8 @@
 
 # import  klayout_pyxs.pyxs_lib as pyxs_lib
 
+from __future__ import print_function
+from __future__ import absolute_import
 from klayout_pyxs import XSectionScriptEnvironment
 
 # import importlib
