@@ -24,9 +24,8 @@ import os
 import re
 
 import klayout_pyxs
-from six.moves import range
-from six.moves import zip
-
+from klayout_pyxs.compat import range
+from klayout_pyxs.compat import zip
 
 # from importlib import reload
 # try:

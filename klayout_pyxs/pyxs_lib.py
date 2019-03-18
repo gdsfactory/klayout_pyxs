@@ -30,8 +30,8 @@ import os
 import re
 
 import klayout_pyxs
-from six.moves import range
-from six.moves import zip
+from klayout_pyxs.compat import range
+from klayout_pyxs.compat import zip
 
 # from importlib import reload
 # try:
@@ -935,7 +935,10 @@ class XSectionScriptEnvironment(object):
             """
             view = Application.instance().main_window().current_view()
             if not view:
-                raise UserWarning("No view open for running the pyxs script")
+                MessageBox.critical(
+                    "Error", "No view open for creating the cross-"
+                             "section from", MessageBox.b_ok())
+                return None
 
             filename = FileDialog.get_open_file_name(
                     "Select cross-section script", "",

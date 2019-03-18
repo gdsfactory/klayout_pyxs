@@ -15,9 +15,9 @@ from klayout_pyxs import Edges
 from klayout_pyxs import Region
 from klayout_pyxs import SimplePolygon
 
+from klayout_pyxs.compat import range
 from klayout_pyxs.layer_parameters import string_to_layer_info
 from klayout_pyxs.utils import info, print_info, int_floor, make_iterable
-from six.moves import range
 
 
 class EdgeProcessor(EP_):
@@ -358,12 +358,13 @@ class LayoutData(object):
         if layer_index is not None:
             info("    iterations:")
             shape_iter = layout.begin_shapes_touching(cell, layer_index, box)
+
             while not shape_iter.at_end():
                 shape = shape_iter.shape()
                 if shape.is_polygon() or shape.is_path() or shape.is_box():
                     self._polygons.append(
                             shape.polygon.transformed(shape_iter.itrans()))
-                next(shape_iter)
+                shape_iter.next()
 
         n_poly = self.n_poly
         info('    loaded polygon count: {}'.format(n_poly))

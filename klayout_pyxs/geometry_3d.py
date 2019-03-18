@@ -6,10 +6,11 @@
 from __future__ import absolute_import
 from random import random
 
+from klayout_pyxs.compat import range
+from klayout_pyxs.compat import zip
+
 from klayout_pyxs.utils import print_info, info
 from klayout_pyxs.geometry_2d import EdgeProcessor, LayoutData
-from six.moves import range
-from six.moves import zip
 
 
 class LayerProcessor(EdgeProcessor):
