@@ -413,6 +413,8 @@ class LayoutData(object):
         return self.upcast(self._ep.boolean_p2p(
                 self._polygons, other_polygons, EP.ModeANotB))
 
+    __sub__ = not_
+
     def or_(self, other):
         """ Calculate sum with another list of polygons (OR).
         Parameters
@@ -426,6 +428,9 @@ class LayoutData(object):
         other_polygons = self._get_polygons(other)
         return self.upcast(self._ep.boolean_p2p(
                 self._polygons, other_polygons, EP.ModeOr))
+
+    __add__ = or_
+    __iadd__ = or_
 
     def size(self, dx, dy=None):
         """ Resize the layout mask.
