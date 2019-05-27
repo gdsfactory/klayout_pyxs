@@ -241,68 +241,68 @@ class XSectionGenerator(object):
     def output_all(self, output_layers, script_globals=None,
                    new_target_layout=True, step_name=None,
                    save_png=False, *args):
-            """Output a list of material objects to the output layout
+        """Output a list of material objects to the output layout
 
-            A list of materials is passed through an output_layers dictionary.
+        A list of materials is passed through an output_layers dictionary.
 
-            Parameters
-            ----------
-            output_layers :  Dict[str, LayoutData] or Dict[str, str]
-                key is the layer specification (see layer_spec in output()).
-                Value is either LayoutData instance, or a name of such instance
-                instance in script_globals.
-            script_globals : Dict[str, Any]
-                globals() dictionary
-            new_target_layout : bool
-                if True, a new target layout will be created
-            step_name : str
-                name extension for the newly created layout
-            save_png : bool
-                if True, the resulting view will be saved as an image in the
-                gds file folder
-            """
-            if script_globals is None:
-                script_globals = {}
+        Parameters
+        ----------
+        output_layers :  Dict[LayoutData, str] or Dict[str, str]
+            Key is either LayoutData instance, or a name of such instance
+            instance in script_globals.
+            Value is the layer specification (see layer_spec in output()).
+        script_globals : Dict[str, Any]
+            globals() dictionary
+        new_target_layout : bool
+            if True, a new target layout will be created
+        step_name : str
+            name extension for the newly created layout
+        save_png : bool
+            if True, the resulting view will be saved as an image in the
+            gds file folder
+        """
+        if script_globals is None:
+            script_globals = {}
 
-            if new_target_layout:
-                if self._is_target_layout_created:
-                    self._finalize_view()
-                self._create_new_layout(cell_name_extension=step_name)
-
-            for ls, ld in output_layers.items():
-                if isinstance(ld, str):
-                    if ld in list(script_globals.keys()):
-                        self.output(layer_spec=ls,
-                                    layer_data=script_globals[ld])
-                    else:
-                        # skip a non-existing (yet) material
-                        continue
-                else:
-                    self.output(layer_spec=ls, layer_data=ld)
-
-            if save_png:
+        if new_target_layout:
+            if self._is_target_layout_created:
                 self._finalize_view()
-                if step_name:
-                    file_name = '{} ({})'.format(self._cell_file_name, step_name)
-                else:
-                    file_name = self._cell_file_name
+            self._create_new_layout(cell_name_extension=step_name)
 
-                file_name = os.path.join(self._file_path, file_name) + '.png'
-                try:
-                    self._target_view.save_image(file_name,
-                                                 self._area.width()/100,
-                                                 self._area.height()/100,
-                                                 )
-                except Exception as e:
-                    if not self._hide_png_save_error:
-                        MessageBox.critical(
-                            "Error",
-                            "Error saving png file {}. \n\n Error: {}. \n\n"
-                            "Further error messages will not be displayed."
-                            .format(file_name, e),
-                            MessageBox.b_ok())
-                        self._hide_png_save_error = True
-            return None
+        for ld, ls in output_layers.items():
+            if isinstance(ld, str):
+                if ld in list(script_globals.keys()):
+                    self.output(layer_spec=ls,
+                                layer_data=script_globals[ld])
+                else:
+                    # skip a non-existing (yet) material
+                    continue
+            else:
+                self.output(layer_spec=ls, layer_data=ld)
+
+        if save_png:
+            self._finalize_view()
+            if step_name:
+                file_name = '{} ({})'.format(self._cell_file_name, step_name)
+            else:
+                file_name = self._cell_file_name
+
+            file_name = os.path.join(self._file_path, file_name) + '.png'
+            try:
+                self._target_view.save_image(file_name,
+                                             self._area.width()/100,
+                                             self._area.height()/100,
+                                             )
+            except Exception as e:
+                if not self._hide_png_save_error:
+                    MessageBox.critical(
+                        "Error",
+                        "Error saving png file {}. \n\n Error: {}. \n\n"
+                        "Further error messages will not be displayed."
+                        .format(file_name, e),
+                        MessageBox.b_ok())
+                    self._hide_png_save_error = True
+        return None
 
     def output_raw(self, layer_spec, d):
         """ For debugging only
