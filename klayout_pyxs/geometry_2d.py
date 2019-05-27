@@ -417,6 +417,7 @@ class LayoutData(object):
 
     def or_(self, other):
         """ Calculate sum with another list of polygons (OR).
+
         Parameters
         ----------
         other : LayoutData or list of Polygon
@@ -870,7 +871,7 @@ class MaskData(LayoutData):
             #     me = []
             # else:
             #     me += Edges(data)
-        info('type(me): {}'.format(type(me)))
+        info('type(me): {}'.format(type(me)))  # list of Edge
         info('me before operation: {}'.format(me))
 
         d = Region()
