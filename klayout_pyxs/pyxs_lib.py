@@ -688,10 +688,12 @@ class XSectionGenerator(object):
         return self._target_view
 
     def _finalize_view(self):
-        if self._lyp_file:
-            self._target_view.load_layer_props(self._lyp_file)
-        self._target_view.zoom_fit()
-        self._target_view.max_hier_levels = 1
+        if self._target_view:
+            if self._lyp_file:
+                self._target_view.load_layer_props(self._lyp_file)
+
+            self._target_view.zoom_fit()
+            self._target_view.max_hier_levels = 1
 
     @print_info(False)
     def _xpoints_to_mask(self, iv):
