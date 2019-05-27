@@ -221,9 +221,9 @@ class XSectionGenerator(object):
         """
         # process layer_spec / layer_data pair
         if not isinstance(layer_data, LayoutData):
-                raise TypeError(
-                    "'output()': layer_data parameter must be "
-                    "a geometry object. {} is given".format(type(layer_data)))
+            raise TypeError(
+                "'output()': layer_data parameter must be "
+                "a geometry object. {} is given".format(type(layer_data)))
 
         if not self._is_target_layout_created:
             self._create_new_layout()
