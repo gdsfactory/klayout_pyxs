@@ -4,9 +4,10 @@
 Copyright 2017-2019 Dima Pustakhod
 
 """
-
 from __future__ import absolute_import
 from __future__ import print_function
+
+from ._version import __version__
 
 
 DEBUG = False
@@ -93,4 +94,5 @@ from klayout_pyxs.pyxs_lib import XSectionScriptEnvironment
 
 __all__ = [
     'XSectionScriptEnvironment'
+    '__version__',
 ]
