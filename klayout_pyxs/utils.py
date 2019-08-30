@@ -6,7 +6,7 @@ VERBOSE = True
 OFFSET = 0
 
 
-def info(s):
+def info(*s):
     """ Print information with offset.
 
     Parameters
@@ -15,7 +15,7 @@ def info(s):
         string to be printed
     """
     if VERBOSE:
-        print((' ' * OFFSET + s))
+        print(' ' * OFFSET, *s)
 
 
 def print_info(v=True):
