@@ -65,6 +65,7 @@ info('Module klayout_pyxs.pyxs_lib.py reloaded')
 class XSectionGenerator(object):
     """ The main class that creates a cross-section file
     """
+
     def __init__(self, file_name):
         """
         Parameters
@@ -91,6 +92,7 @@ class XSectionGenerator(object):
         self._output_all_parameters = {
             'save_png': False,
             'output_layers': None,
+            'png_path': None,
         }
 
     def layer(self, layer_spec):
@@ -107,10 +109,12 @@ class XSectionGenerator(object):
         """
         ld = LayoutData([], self)  # empty
         # collect shapes from the corresponding layer into ld._polygons
-        ld.load(self._layout, self._cell,
-                self._line_dbu.bbox().enlarge(
-                    Point(self._extend, self._extend)),
-                layer_spec)
+        ld.load(
+            self._layout,
+            self._cell,
+            self._line_dbu.bbox().enlarge(Point(self._extend, self._extend)),
+            layer_spec,
+        )
         return ld
 
     @print_info(False)
@@ -140,29 +144,35 @@ class XSectionGenerator(object):
                 if self._line_dbu.crossed_by(edge_dbu):
                     info('        crosses!')
 
-                if (self._line_dbu.crossed_by(edge_dbu) and
-                        (self._line_dbu.side_of(edge_dbu.p1) > 0 or
-                         self._line_dbu.side_of(edge_dbu.p2) > 0)):
+                if self._line_dbu.crossed_by(edge_dbu) and (
+                    self._line_dbu.side_of(edge_dbu.p1) > 0
+                    or self._line_dbu.side_of(edge_dbu.p2) > 0
+                ):
                     info('        inside if')
                     # compute the crossing point of "edge" and "line" in
                     # database units
                     # confine the point to the length of the line
-                    z = (float(edge_dbu.dx()) * (edge_dbu.p1.y -
-                                                 self._line_dbu.p1.y) -
-                         float(edge_dbu.dy()) * (edge_dbu.p1.x -
-                                                 self._line_dbu.p1.x)) / \
-                        (float(edge_dbu.dx()) * (self._line_dbu.p2.y -
-                                                 self._line_dbu.p1.y) -
-                         float(edge_dbu.dy()) * (self._line_dbu.p2.x -
-                                                 self._line_dbu.p1.x))
+                    z = (
+                        float(edge_dbu.dx())
+                        * (edge_dbu.p1.y - self._line_dbu.p1.y)
+                        - float(edge_dbu.dy())
+                        * (edge_dbu.p1.x - self._line_dbu.p1.x)
+                    ) / (
+                        float(edge_dbu.dx())
+                        * (self._line_dbu.p2.y - self._line_dbu.p1.y)
+                        - float(edge_dbu.dy())
+                        * (self._line_dbu.p2.x - self._line_dbu.p1.x)
+                    )
                     z = math.floor(z * self._line_dbu.length() + 0.5)
                     if z < -self._extend:
                         z = -self._extend
                     elif z > self._line_dbu.length() + self._extend:
                         z = self._line_dbu.length() + self._extend
 
-                    v = (edge_dbu.dy() * self._line_dbu.dx() -
-                         edge_dbu.dx() * self._line_dbu.dy())
+                    v = (
+                        edge_dbu.dy() * self._line_dbu.dx()
+                        - edge_dbu.dx() * self._line_dbu.dy()
+                    )
                     if v < 0:
                         s = -1
                     elif v == 0:
@@ -236,7 +246,8 @@ class XSectionGenerator(object):
         if not isinstance(layer_data, LayoutData):
             raise TypeError(
                 "'output()': layer_data parameter must be "
-                "a geometry object. {} is given".format(type(layer_data)))
+                "a geometry object. {} is given".format(type(layer_data))
+            )
 
         if not self._is_target_layout_created:
             self._create_new_layout()
@@ -247,13 +258,19 @@ class XSectionGenerator(object):
 
         # confine the shapes to the region of interest
         for polygon in self._ep.boolean_to_polygon(
-                [Polygon(self._roi)], layer_data.data,
-                EP.ModeAnd, True, True):
+            [Polygon(self._roi)], layer_data.data, EP.ModeAnd, True, True
+        ):
             shapes.insert(polygon)
 
-    def output_all(self, output_layers=None, script_globals=None,
-                   new_target_layout=True, step_name=None,
-                   save_png=None, *args):
+    def output_all(
+        self,
+        output_layers=None,
+        script_globals=None,
+        new_target_layout=True,
+        step_name=None,
+        save_png=None,
+        *args
+    ):
         """Output a list of material objects to the output layout
 
         A list of materials is passed through an output_layers dictionary.
@@ -299,8 +316,7 @@ class XSectionGenerator(object):
                 #     self.output(layer_spec=ls,
                 #                 layer_data=globals[ld])
                 elif ld in list(script_globals.keys()):
-                    self.output(layer_spec=ls,
-                                layer_data=script_globals[ld])
+                    self.output(layer_spec=ls, layer_data=script_globals[ld])
                 else:
                     # skip a non-existing (yet) material
                     continue
@@ -315,24 +331,35 @@ class XSectionGenerator(object):
         if sp:
             self._finalize_view()
             if step_name:
-                file_name = '{} ({})'.format(self._cell_file_name, step_name)
+                file_name = '{} ({}).png'.format(
+                    self._cell_file_name, step_name
+                )
             else:
-                file_name = self._cell_file_name
+                file_name = '{}.png'.format(self._cell_file_name)
 
-            file_name = os.path.join(self._file_path, file_name) + '.png'
+            if self._output_all_parameters['png_path']:
+                file_name = os.path.join(
+                    self._output_all_parameters['png_path'], file_name
+                )
+            else:
+                file_name = os.path.join(self._file_path, file_name)
+
             try:
-                self._target_view.save_image(file_name,
-                                             self._area.width()/100,
-                                             self._area.height()/100,
-                                             )
+                self._target_view.save_image(
+                    file_name,
+                    self._area.width() / 100,
+                    self._area.height() / 100,
+                )
             except Exception as e:
                 if not self._hide_png_save_error:
                     MessageBox.critical(
                         "Error",
                         "Error saving png file {}. \n\n Error: {}. \n\n"
-                        "Further error messages will not be displayed."
-                        .format(file_name, e),
-                        MessageBox.b_ok())
+                        "Further error messages will not be displayed.".format(
+                            file_name, e
+                        ),
+                        MessageBox.b_ok(),
+                    )
                     self._hide_png_save_error = True
         return None
 
@@ -417,17 +444,21 @@ class XSectionGenerator(object):
                 downto = make_iterable(v)
                 for i in downto:
                     if not isinstance(i, MaterialData):
-                        raise TypeError("'planarize' method: 'downto' expects "
-                                        "a material parameter or an array "
-                                        "of such")
+                        raise TypeError(
+                            "'planarize' method: 'downto' expects "
+                            "a material parameter or an array "
+                            "of such"
+                        )
 
             elif k == 'into':
                 into = make_iterable(v)
                 for i in into:
                     if not isinstance(i, MaterialData):
-                        raise TypeError("'planarize' method: 'into' expects "
-                                        "a material parameter or an array "
-                                        "of such")
+                        raise TypeError(
+                            "'planarize' method: 'into' expects "
+                            "a material parameter or an array "
+                            "of such"
+                        )
             elif k == 'less':
                 less = int_floor(0.5 + float(v) / self.dbu)
             elif k == 'to':
@@ -451,8 +482,8 @@ class XSectionGenerator(object):
                         downto_data = i.data
                     else:
                         downto_data = self._ep.boolean_p2p(
-                                i.data, downto_data,
-                                EP.ModeOr)
+                            i.data, downto_data, EP.ModeOr
+                        )
 
             # determine upper bound of material
             if downto_data:
@@ -483,15 +514,19 @@ class XSectionGenerator(object):
             info('    to is true')
             less = less or 0
             if self._flipped:
-                removed_box = Box(-self._extend,
-                                  -self.depth_dbu - self.below_dbu,
-                                  self._line_dbu.length() + self._extend,
-                                  to + less)
+                removed_box = Box(
+                    -self._extend,
+                    -self.depth_dbu - self.below_dbu,
+                    self._line_dbu.length() + self._extend,
+                    to + less,
+                )
             else:
-                removed_box = Box(-self._extend,
-                                  to - less,
-                                  self._line_dbu.length() + self._extend,
-                                  self.height_dbu)
+                removed_box = Box(
+                    -self._extend,
+                    to - less,
+                    self._line_dbu.length() + self._extend,
+                    self.height_dbu,
+                )
 
             rem = LayoutData([], self)
             for i in into:
@@ -509,7 +544,9 @@ class XSectionGenerator(object):
         """
         self._thickness_scale_factor = factor
 
-    def set_output_all_parameters(self, save_png=None, output_layers=None):
+    def set_output_all_parameters(
+        self, save_png=None, output_layers=None, png_path=None
+    ):
         assert save_png is None or isinstance(save_png, bool)
         assert output_layers is None or isinstance(output_layers, dict)
 
@@ -519,6 +556,10 @@ class XSectionGenerator(object):
         if output_layers:
             self._output_all_parameters['output_layers'] = output_layers
 
+        if png_path:
+            if not os.path.exists(png_path):
+                os.makedirs(png_path)
+            self._output_all_parameters['png_path'] = png_path
 
     @print_info(False)
     def set_delta(self, x):
@@ -560,7 +601,7 @@ class XSectionGenerator(object):
 
     @print_info(False)
     def depth(self, x):
-        """ Configures the depth of the processing window
+        """Set the depth of the processing window
         or the wafer thickness for backside processing (see below)
 
         """
@@ -570,7 +611,7 @@ class XSectionGenerator(object):
 
     @print_info(False)
     def set_depth(self, x):
-        """ Configures the depth of the processing window
+        """Set the depth of the processing window
         or the wafer thickness for backside processing (see below)
 
         """
@@ -584,7 +625,7 @@ class XSectionGenerator(object):
 
     @print_info(False)
     def below(self, x):
-        """ Configures the lower height of the processing window for backside processing
+        """Set the lower height of the processing window for backside processing
 
         Parameters
         ----------
@@ -598,7 +639,7 @@ class XSectionGenerator(object):
 
     @print_info(False)
     def set_below(self, x):
-        """ Configures the lower height of the processing window for backside processing
+        """Set the lower height of the processing window for backside processing
 
         Parameters
         ----------
@@ -654,15 +695,17 @@ class XSectionGenerator(object):
         y1 -= self._extend
         x2 += self._extend
         y2 += self._extend
-        return Box(Point(x1 - self._delta * 5, y1 - self._delta * 5),
-                   Point(x2 + self._delta * 5, y2 + self._delta * 5))
+        return Box(
+            Point(x1 - self._delta * 5, y1 - self._delta * 5),
+            Point(x2 + self._delta * 5, y2 + self._delta * 5),
+        )
 
     @property
     def dbu(self):
         return self._dbu
 
     def layers_file(self, lyp_file):
-        """Configures a .lyp layer properties file to be used on the cross-section layout
+        """Set a .lyp layer properties file to be used on the cross-section layout
 
         """
         self._lyp_file = lyp_file
@@ -681,8 +724,12 @@ class XSectionGenerator(object):
         LayoutView
         """
         self._target_view = None
-        self._target_cell_name = "PYXS: " + ruler_text if ruler_text else "XSECTION"
-        self._cell_file_name = "PYXS_" + ruler_text if ruler_text else "XSECTION"
+        self._target_cell_name = (
+            "PYXS: " + ruler_text if ruler_text else "XSECTION"
+        )
+        self._cell_file_name = (
+            "PYXS_" + ruler_text if ruler_text else "XSECTION"
+        )
 
         self._setup(p1, p2)
 
@@ -693,17 +740,21 @@ class XSectionGenerator(object):
             with open(self._file_name, 'r') as file:
                 text = file.read()
         except Exception as e:
-            MessageBox.critical("Error",
-                                "Error reading file {}. \n\nError: {}"
-                                .format(self._file_name, e),
-                                MessageBox.b_ok())
+            MessageBox.critical(
+                "Error",
+                "Error reading file {}. \n\nError: {}".format(
+                    self._file_name, e
+                ),
+                MessageBox.b_ok(),
+            )
             return None
 
         if text is None:
-            MessageBox.critical("Error",
-                                "Error reading file {}."
-                                .format(self._file_name),
-                                MessageBox.b_ok())
+            MessageBox.critical(
+                "Error",
+                "Error reading file {}.".format(self._file_name),
+                MessageBox.b_ok(),
+            )
             return None
 
         # prepare variables to be visible in the script
@@ -764,8 +815,9 @@ class XSectionGenerator(object):
                 p1 = z
             elif last_s > 0 >= s:  # s decreased and became < 0
                 p2 = z
-                poly = Polygon(Box(p1, -self._depth - self._below,
-                                   p2, self._height))
+                poly = Polygon(
+                    Box(p1, -self._depth - self._below, p2, self._height)
+                )
                 info('        Appending poly {}'.format(poly))
                 mask_polygons.append(poly)
             last_s = s
@@ -809,13 +861,14 @@ class XSectionGenerator(object):
         w = self._line_dbu.length()  # length of the ruler
         e = self._extend  # extend to the sides
 
-        self._area = Box(-e, -(d+b), w+e, h)
+        self._area = Box(-e, -(d + b), w + e, h)
         self._air = MaterialData([Polygon(Box(-e, 0, w + e, h))], self)
-        self._air_below = MaterialData([Polygon(Box(-e, -(d+b), w+e, -d))],
-                                       self)
+        self._air_below = MaterialData(
+            [Polygon(Box(-e, -(d + b), w + e, -d))], self
+        )
 
-        self._bulk = MaterialData([Polygon(Box(-e, -d, w+e, 0))], self)
-        self._roi = Box(0, -(d+b), w, h)
+        self._bulk = MaterialData([Polygon(Box(-e, -d, w + e, 0))], self)
+        self._roi = Box(0, -(d + b), w, h)
 
         info('    XSG._area:      {}'.format(self._area))
         info('    XSG._roi:       {}'.format(self._roi))
@@ -839,15 +892,17 @@ class XSectionGenerator(object):
         view = app.main_window().current_view()  # LayoutView
         if not view:
             MessageBox.critical(
-                    "Error", "No view open for creating the cross-"
-                    "section from", MessageBox.b_ok())
+                "Error",
+                "No view open for creating the cross-" "section from",
+                MessageBox.b_ok(),
+            )
             return False
 
         cv = view.cellview(view.active_cellview_index())  # CellView
         if not cv.is_valid():
-            MessageBox.critical("Error",
-                                "The selected layout is not valid",
-                                MessageBox.b_ok())
+            MessageBox.critical(
+                "Error", "The selected layout is not valid", MessageBox.b_ok()
+            )
             return False
 
         self._cv = cv  # CellView
@@ -879,7 +934,8 @@ class XSectionGenerator(object):
     def _create_new_layout(self, cell_name_extension=None):
         if cell_name_extension:
             cell_name = '{} ({})'.format(
-                self._target_cell_name, cell_name_extension)
+                self._target_cell_name, cell_name_extension
+            )
         else:
             cell_name = self._target_cell_name
 
@@ -908,6 +964,7 @@ pyxs_scripts = None
 class MenuHandler(Action):
     """ Handler for the load .xs file action
     """
+
     def __init__(self, title, action, shortcut=None, icon=None):
         """
         Parameters
@@ -953,7 +1010,7 @@ class XSectionMRUAction(Action):
     @script.setter
     def script(self, s):
         self._script = s
-        self.visible = (s is not None)
+        self.visible = s is not None
         if s:
             self.title = os.path.basename(s)
 
@@ -961,6 +1018,7 @@ class XSectionMRUAction(Action):
 class XSectionScriptEnvironment(object):
     """ The cross section script environment
     """
+
     def __init__(self, menu_name='pyxs'):
         self._menu_name = menu_name
 
@@ -978,13 +1036,17 @@ class XSectionScriptEnvironment(object):
             view = Application.instance().main_window().current_view()
             if not view:
                 MessageBox.critical(
-                    "Error", "No view open for creating the cross-"
-                             "section from", MessageBox.b_ok())
+                    "Error",
+                    "No view open for creating the cross-" "section from",
+                    MessageBox.b_ok(),
+                )
                 return None
 
             filename = FileDialog.get_open_file_name(
-                    "Select cross-section script", "",
-                    "XSection Scripts (*.pyxs);;All Files (*)")
+                "Select cross-section script",
+                "",
+                "XSection Scripts (*.pyxs);;All Files (*)",
+            )
 
             # run the script and save it
             if filename.has_value():
@@ -1006,22 +1068,32 @@ class XSectionScriptEnvironment(object):
         # Create pyxs submenu in Tools
         menu = mw.menu()
 
-        if not menu.is_valid("tools_menu.{}_script_group".format(self._menu_name)):
-            menu.insert_separator("tools_menu.end", "{}_script_group".format(self._menu_name))
-            menu.insert_menu("tools_menu.end",
-                             "{}_script_submenu".format(self._menu_name),
-                             self._menu_name)
+        if not menu.is_valid(
+            "tools_menu.{}_script_group".format(self._menu_name)
+        ):
+            menu.insert_separator(
+                "tools_menu.end", "{}_script_group".format(self._menu_name)
+            )
+            menu.insert_menu(
+                "tools_menu.end",
+                "{}_script_submenu".format(self._menu_name),
+                self._menu_name,
+            )
 
         # Create Load XSection.py Script item in XSection (py)
         # global pyxs_script_load_menuhandler
         self.pyxs_script_load_menuhandler = MenuHandler(
-                "Load pyxs script", _on_triggered_callback)
+            "Load pyxs script", _on_triggered_callback
+        )
         menu.insert_item(
             "tools_menu.{}_script_submenu.end".format(self._menu_name),
-            "{}_script_load".format(self._menu_name), self.pyxs_script_load_menuhandler)
+            "{}_script_load".format(self._menu_name),
+            self.pyxs_script_load_menuhandler,
+        )
         menu.insert_separator(
             "tools_menu.{}_script_submenu.end.end".format(self._menu_name),
-            "{}_script_mru_group".format(self._menu_name))
+            "{}_script_mru_group".format(self._menu_name),
+        )
 
         # Create list of existing pyxs scripts item in pyxs
         self._mru_actions = []
@@ -1030,7 +1102,9 @@ class XSectionScriptEnvironment(object):
             self._mru_actions.append(a)
             menu.insert_item(
                 "tools_menu.{}_script_submenu.end".format(self._menu_name),
-                "{}_script_mru{}".format(self._menu_name, i), a)
+                "{}_script_mru{}".format(self._menu_name, i),
+                a,
+            )
             a.script = None
 
         # try to save the MRU list to $HOME/.klayout-pyxs-scripts
@@ -1070,8 +1144,10 @@ class XSectionScriptEnvironment(object):
             scr_view_idx = app.main_window().current_view_index
             if not scr_view:
                 MessageBox.critical(
-                    "Error", "No view open for creating the cross-"
-                             "section from", MessageBox.b_ok())
+                    "Error",
+                    "No view open for creating the cross-" "section from",
+                    MessageBox.b_ok(),
+                )
                 return False
 
             rulers = []
@@ -1080,9 +1156,11 @@ class XSectionScriptEnvironment(object):
                 rulers.append(a)
 
             if len(rulers) == 0:
-                MessageBox.critical("Error",
-                                    "No ruler present for the cross "
-                                    "section line", MessageBox.b_ok())
+                MessageBox.critical(
+                    "Error",
+                    "No ruler present for the cross " "section line",
+                    MessageBox.b_ok(),
+                )
                 return None
 
             p1_arr, p2_arr, ruler_text_arr = [], [], []
@@ -1154,4 +1232,5 @@ class XSectionScriptEnvironment(object):
 
 if __name__ == '__main__':
     import doctest
+
     doctest.testmod()
