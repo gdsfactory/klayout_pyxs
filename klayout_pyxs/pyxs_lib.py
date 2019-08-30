@@ -88,6 +88,11 @@ class XSectionGenerator(object):
         self._is_target_layout_created = False
         self._hide_png_save_error = False
 
+        self._output_all_parameters = {
+            'save_png': False,
+            'output_layers': None,
+        }
+
     def layer(self, layer_spec):
         """ Fetches an input layer from the original layout.
 
@@ -246,9 +251,9 @@ class XSectionGenerator(object):
                 EP.ModeAnd, True, True):
             shapes.insert(polygon)
 
-    def output_all(self, output_layers, script_globals=None,
+    def output_all(self, output_layers=None, script_globals=None,
                    new_target_layout=True, step_name=None,
-                   save_png=False, *args):
+                   save_png=None, *args):
         """Output a list of material objects to the output layout
 
         A list of materials is passed through an output_layers dictionary.
@@ -277,20 +282,23 @@ class XSectionGenerator(object):
                 self._finalize_view()
             self._create_new_layout(cell_name_extension=step_name)
 
-        for ld, ls in output_layers.items():
+        if output_layers:
+            ol = output_layers
+        elif self._output_all_parameters['output_layers']:
+            ol = self._output_all_parameters['output_layers']
+        else:
+            return None
+
+        for ld, ls in ol.items():
             if isinstance(ld, str):
                 if ld == 'air':
-                    print('saving air')
                     a = self.air()
-                    print(a.n_poly)
-                    print(a.data)
                     self.output(layer_spec=ls, layer_data=a)
                 # elif ld in list(globals.keys()):
                 #     print('yes', ld, 'in globals')
                 #     self.output(layer_spec=ls,
                 #                 layer_data=globals[ld])
                 elif ld in list(script_globals.keys()):
-                    print('oops')
                     self.output(layer_spec=ls,
                                 layer_data=script_globals[ld])
                 else:
@@ -299,7 +307,12 @@ class XSectionGenerator(object):
             else:
                 self.output(layer_spec=ls, layer_data=ld)
 
-        if save_png:
+        if save_png is not None:
+            sp = save_png
+        else:
+            sp = self._output_all_parameters['save_png']
+
+        if sp:
             self._finalize_view()
             if step_name:
                 file_name = '{} ({})'.format(self._cell_file_name, step_name)
@@ -496,8 +509,16 @@ class XSectionGenerator(object):
         """
         self._thickness_scale_factor = factor
 
-    def set_output_parameters(self, filename=None, format=None):
-        print('set_output_parameters() has no effect in pyxs.')
+    def set_output_all_parameters(self, save_png=None, output_layers=None):
+        assert save_png is None or isinstance(save_png, bool)
+        assert output_layers is None or isinstance(output_layers, dict)
+
+        if save_png:
+            self._output_all_parameters['save_png'] = save_png
+
+        if output_layers:
+            self._output_all_parameters['output_layers'] = output_layers
+
 
     @print_info(False)
     def set_delta(self, x):
