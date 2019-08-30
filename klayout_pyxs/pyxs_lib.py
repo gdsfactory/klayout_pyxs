@@ -77,7 +77,8 @@ class XSectionGenerator(object):
         self._lyp_file = None
         self._ep = ep
         self._flipped = False
-        self._air, self._air_below = None, None
+        self._air = None  # type: MaterialData
+        self._air_below = None  # type: MaterialData
         self._delta = None
         self._extend = None
         self._below = None
@@ -193,7 +194,14 @@ class XSectionGenerator(object):
 
     # @property
     def air(self):
-        return self._air
+        """
+
+        Returns
+        -------
+        MaterialData
+        """
+        a = self._air
+        return a
 
     # @property
     def bulk(self):
@@ -271,7 +279,18 @@ class XSectionGenerator(object):
 
         for ld, ls in output_layers.items():
             if isinstance(ld, str):
-                if ld in list(script_globals.keys()):
+                if ld == 'air':
+                    print('saving air')
+                    a = self.air()
+                    print(a.n_poly)
+                    print(a.data)
+                    self.output(layer_spec=ls, layer_data=a)
+                # elif ld in list(globals.keys()):
+                #     print('yes', ld, 'in globals')
+                #     self.output(layer_spec=ls,
+                #                 layer_data=globals[ld])
+                elif ld in list(script_globals.keys()):
+                    print('oops')
                     self.output(layer_spec=ls,
                                 layer_data=script_globals[ld])
                 else:
