@@ -292,17 +292,13 @@ class XSectionGenerator(object):
         for ld, ls in ol.items():
             if isinstance(ld, str):
                 if ld == 'air':
-                    print('saving air')
                     a = self.air()
-                    print(a.n_poly)
-                    print(a.data)
                     self.output(layer_spec=ls, layer_data=a)
                 # elif ld in list(globals.keys()):
                 #     print('yes', ld, 'in globals')
                 #     self.output(layer_spec=ls,
                 #                 layer_data=globals[ld])
                 elif ld in list(script_globals.keys()):
-                    print('oops')
                     self.output(layer_spec=ls,
                                 layer_data=script_globals[ld])
                 else:
