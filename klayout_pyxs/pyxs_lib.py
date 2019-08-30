@@ -310,7 +310,7 @@ class XSectionGenerator(object):
         if save_png is not None:
             sp = save_png
         else:
-            sp = self._output_all_parameters['output_layers']
+            sp = self._output_all_parameters['save_png']
 
         if sp:
             self._finalize_view()
