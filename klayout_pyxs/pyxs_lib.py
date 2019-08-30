@@ -91,6 +91,7 @@ class XSectionGenerator(object):
         self._output_all_parameters = {
             'save_png': False,
             'output_layers': None,
+            'png_path': None
         }
 
     def layer(self, layer_spec):
@@ -315,11 +316,18 @@ class XSectionGenerator(object):
         if sp:
             self._finalize_view()
             if step_name:
-                file_name = '{} ({})'.format(self._cell_file_name, step_name)
+                file_name = '{} ({}).png'.format(self._cell_file_name, step_name)
             else:
-                file_name = self._cell_file_name
+                file_name = '{}.png'.format(self._cell_file_name)
 
-            file_name = os.path.join(self._file_path, file_name) + '.png'
+            if self._output_all_parameters['png_path']:
+                file_name = os.path.join(
+                    self._output_all_parameters['png_path'],
+                    file_name
+                )
+            else:
+                file_name = os.path.join(self._file_path, file_name)
+
             try:
                 self._target_view.save_image(file_name,
                                              self._area.width()/100,
@@ -509,7 +517,8 @@ class XSectionGenerator(object):
         """
         self._thickness_scale_factor = factor
 
-    def set_output_all_parameters(self, save_png=None, output_layers=None):
+    def set_output_all_parameters(self, save_png=None, output_layers=None,
+                                  png_path=None):
         assert save_png is None or isinstance(save_png, bool)
         assert output_layers is None or isinstance(output_layers, dict)
 
@@ -518,6 +527,12 @@ class XSectionGenerator(object):
 
         if output_layers:
             self._output_all_parameters['output_layers'] = output_layers
+
+        if png_path:
+            if not os.path.exists(png_path):
+                os.makedirs(png_path)
+            self._output_all_parameters['png_path'] = png_path
+
 
 
     @print_info(False)
