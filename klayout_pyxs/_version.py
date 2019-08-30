@@ -9,4 +9,4 @@ Changelog
 2019.06.15
     Initial commit
 """
-__version__ = '0.1.4'
+__version__ = '0.1.5'
