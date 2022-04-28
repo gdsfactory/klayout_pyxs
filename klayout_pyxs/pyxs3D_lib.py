@@ -83,8 +83,7 @@ class MaterialData3D(object):
     def __str__(self):
         n_layers = self.n_layers
 
-        s = 'MaterialData3D (n_layers = {}, delta = {})'.format(
-            n_layers, self._delta)
+        s = f'MaterialData3D (n_layers = {n_layers}, delta = {self._delta})'
 
         if n_layers > 0:
             s += ':'
@@ -113,9 +112,10 @@ class MaterialData3D(object):
         """
         for la, lb in zip(layers[:-1], layers[1:]):
             if la.top > lb.bottom:
-                raise ValueError('layers must be a sorted list of non-'
-                                 'overlapping layers. layers {} and {} are not '
-                                 'sorted and/or overlap.'.format(la, lb))
+                raise ValueError(
+                    f'layers must be a sorted list of non-overlapping layers. layers {la} and {lb} are not sorted and/or overlap.'
+                )
+
         self._layers = layers
 
     def add(self, other):
@@ -479,7 +479,7 @@ class MaterialData3D(object):
         if into:
             into_layers = []
             for i in into:
-                info('    i = {}'.format(i))
+                info(f'    i = {i}')
                 if len(into_layers) == 0:
                     into_layers = i.data
                 else:
@@ -489,7 +489,7 @@ class MaterialData3D(object):
             # when deposit or grow is selected, into_layers is self._xs.air()
             into_layers = self._xs.air().data
 
-        info('    into_layers = {}'.format(into_layers))
+        info(f'    into_layers = {into_layers}')
 
         # determine the "through" material by joining the layers of all
         # "through" materials
@@ -502,7 +502,7 @@ class MaterialData3D(object):
                 else:
                     thru_layers = self._lp.boolean_l2l(
                         t.data, thru_layers, LP.ModeOr)
-            info('    thru_layers = {}'.format(thru_layers))
+            info(f'    thru_layers = {thru_layers}')
 
         # determine the "on" material by joining the data of all "on" materials
         # Finally we get an on_layers : list of MaterialLayer
@@ -514,11 +514,11 @@ class MaterialData3D(object):
                 else:
                     on_layers = self._lp.boolean_l2l(
                         o.data, on_layers, LP.ModeOr)
-            info('    on_layers = {}'.format(on_layers))
+            info(f'    on_layers = {on_layers}')
 
         offset = self._delta
         layers = self._layers
-        info('    Seed material to be grown: {}'.format(self))
+        info(f'    Seed material to be grown: {self}')
 
         '''
         if abs(buried or 0.0) > 1e-6:
@@ -541,30 +541,17 @@ class MaterialData3D(object):
                 layers = self._lp.boolean_l2l(layers, thru_layers, EP.ModeAnd)
             else:
                 layers = self._lp.boolean_l2l(layers, into_layers, EP.ModeAnd)
-        info('    overlap layers = {}'.format(layers))
+        info(f'    overlap layers = {layers}')
 
         pi = int_floor(prebias / self._xs.dbu + 0.5)
-        info('    pi = {}'.format(pi))
+        info(f'    pi = {pi}')
         if pi < 0:
             layers = self._lp.size_l2l(layers, -pi, dy=-pi, dz=0)
         elif pi > 0:
             raise NotImplementedError('pi > 0 not implemented yet')
-            # apply a positive prebias by filtering with a sized box
-            dd = []
-            for p in d:
-                box = p.bbox()
-                if box.width > 2 * pi:
-                    box = Box(box.left + pi, box.bottom,
-                                  box.right - pi, box.top)
-
-                    for pp in self._ep.boolean_p2p([Polygon(box)], [p],
-                                                   EP.ModeAnd):
-                        dd.append(pp)
-            d = dd
-
         xyi = int_floor(xy / self._xs.dbu + 0.5)  # size change in [dbu]
         zi = int_floor(z / self._xs.dbu + 0.5) - offset  # height in [dbu]
-        info('    xyi = {}, zi = {}'.format(xyi, zi))
+        info(f'    xyi = {xyi}, zi = {zi}')
 
         if taper:
             raise NotImplementedError('taper option is not supported yet')
@@ -572,7 +559,7 @@ class MaterialData3D(object):
         elif xyi <= 0:
             layers = self._lp.size_l2l(layers, 0, dy=0, dz=zi)
             # d = self._ep.size_p2p(d, 0, zi)
-        elif mode == 'round':
+        elif mode in ['round', 'square']:
             # same as square for now
             layers = self._lp.size_l2l(layers, xyi, dy=xyi, dz=zi)
 
@@ -581,8 +568,6 @@ class MaterialData3D(object):
             # d = self._ep.size_p2p(d, xyi / 3, zi / 3, 1)
             # d = self._ep.size_p2p(d, xyi / 3, zi / 3, 0)
             # d = self._ep.size_p2p(d, xyi - 2 * (xyi / 3), zi - 2 * (zi / 3), 0)
-        elif mode == 'square':
-            layers = self._lp.size_l2l(layers, xyi, dy=xyi, dz=zi)
         elif mode == 'octagon':
             raise NotImplementedError('octagon option is not supported yet')
             # d = self._ep.size_p2p(d, xyi, zi, 1)
@@ -594,18 +579,7 @@ class MaterialData3D(object):
         layers = self._lp.boolean_l2l(layers, into_layers, LP.ModeAnd)
         info('    layers after and with into:'.format(layers))
 
-        info('    final layers = {}'.format(layers))
-        if None:
-            # remove small features
-            # Hint: this is done separately in x and y direction since that is
-            # more robust against snapping distortions
-            layers = self._lp.size_p2p(layers, 0, self._xs.delta_dbu / 2)
-            layers = self._lp.size_p2p(layers, 0, -self._xs.delta_dbu)
-            layers = self._lp.size_p2p(layers, 0, self._xs.delta_dbu / 2)
-            layers = self._lp.size_p2p(layers, self._xs.delta_dbu / 2, 0)
-            layers = self._lp.size_p2p(layers, -self._xs.delta_dbu, 0)
-            layers = self._lp.size_p2p(layers, self._xs.delta_dbu / 2, 0)
-
+        info(f'    final layers = {layers}')
         return layers
 
     @staticmethod
@@ -615,9 +589,9 @@ class MaterialData3D(object):
         elif isinstance(m, (tuple, list)):
             return m
         else:
-            raise TypeError('m should be either an instance of MaterialData3D'
-                            ' or a list of MaterialLayer. {} is given.'
-                            .format(type(m)))
+            raise TypeError(
+                f'm should be either an instance of MaterialData3D or a list of MaterialLayer. {type(m)} is given.'
+            )
 
 
 class XSectionGenerator(object):
@@ -685,9 +659,9 @@ class XSectionGenerator(object):
         -------
         MaskData
         """
-        info('    layer_data = {}'.format(layer_data))
+        info(f'    layer_data = {layer_data}')
         mask = layer_data.and_([Polygon(self._box_dbu)])
-        info('    mask = {}'.format(mask))
+        info(f'    mask = {mask}')
         return self._mask_to_seed_material(mask)
 
     # @property
@@ -721,20 +695,21 @@ class XSectionGenerator(object):
         material : MaterialData3D
         """
         if not isinstance(material, MaterialData3D):
-            raise TypeError("'output' method: second parameter must be "
-                            "a material object (MaterialData3D). {} is given"
-                            .format(type(material)))
+            raise TypeError(
+                f"'output' method: second parameter must be a material object (MaterialData3D). {type(material)} is given"
+            )
+
 
         # confine the shapes to the region of interest
         # info('    roi = {}'.format(self._roi))
         # info('    material = {}'.format(material))
         export_layers = self._lp.boolean_l2l(self._roi, material.data,
                                              LP.ModeAnd)
-        info('    layers to export = {}'.format(export_layers))
+        info(f'    layers to export = {export_layers}')
         l, data_type, name = string_to_layer_info_params(layer_spec, True)
         # info('{}, {}, {}'.format(l, data_type, name))
 
-        name = name if name else ''
+        name = name or ''
 
         for i, layer in enumerate(export_layers):
             layer_not_empty = False
@@ -742,8 +717,7 @@ class XSectionGenerator(object):
             if layer.thickness < MIN_EXPORT_LAYER_THICKNESS:
                 continue  # next layer in the material
 
-            ls = LayerInfo(layer_no, data_type, '{} ({}-{})'
-                           .format(name, layer.bottom, layer.top))
+            ls = LayerInfo(layer_no, data_type, f'{name} ({layer.bottom}-{layer.top})')
             li = self._target_layout.insert_layer(ls)
             shapes = self._target_layout.cell(self._target_cell).shapes(li)
             for polygon in layer.mask.data:
@@ -769,7 +743,7 @@ class XSectionGenerator(object):
         """
         res = self._mask_to_seed_material(
             LayoutData([Polygon(self._box_dbu)], self))
-        info('    result: {}'.format(res))
+        info(f'    result: {res}')
         return res
 
     def flip(self):
@@ -849,29 +823,8 @@ class XSectionGenerator(object):
             # determine upper bound of material
             if downto_data:
                 raise NotImplementedError('downto not implemented yet')
-                for p in downto_data:
-                    yt = p.bbox().top
-                    yb = p.bbox().bottom
-                    to = to or yt
-                    if not self._flipped:
-                        to = max([to, yt, yb])
-                    else:
-                        to = min([to, yt, yb])
-
         elif into and not to:
             raise NotImplementedError('into and not to not implemented yet')
-            # determine upper bound of our material
-            for i in into:
-
-                for p in i.data:
-                    yt = p.bbox().top
-                    yb = p.bbox().bottom
-                    to = to or yt
-                    if not self._flipped:
-                        to = max([to, yt, yb])
-                    else:
-                        to = min([to, yt, yb])
-
         if to:
             less = less or 0
             if self._flipped:
@@ -909,13 +862,13 @@ class XSectionGenerator(object):
     def set_output_parameters(self, filename=None, format=None):
         if filename:
             self._target_gds_file_name = filename
-            self._target_tech_file_name = filename + "_tech"
+            self._target_tech_file_name = f"{filename}_tech"
 
     def set_delta(self, x):
         """Configures the accuracy parameter
         """
         self._delta = int_floor(x / self._dbu + 0.5)
-        info('XSG._delta set to {}'.format(self._delta))
+        info(f'XSG._delta set to {self._delta}')
 
     @property
     def delta_dbu(self):
@@ -931,7 +884,7 @@ class XSectionGenerator(object):
 
         """
         self._height = int_floor(x / self._dbu + 0.5)
-        info('XSG._height set to {}'.format(self._height))
+        info(f'XSG._height set to {self._height}')
         self._update_basic_regions()
 
     @property
@@ -948,7 +901,7 @@ class XSectionGenerator(object):
             depth of the wafer in [um]
         """
         self._depth = int_floor(x / self._dbu + 0.5)
-        info('XSG._depth set to {}'.format(self._depth))
+        info(f'XSG._depth set to {self._depth}')
         self._update_basic_regions()
 
     @property
@@ -965,7 +918,7 @@ class XSectionGenerator(object):
 
         """
         self._below = int_floor(x / self._dbu + 0.5)
-        info('XSG._below set to {}'.format(self._below))
+        info(f'XSG._below set to {self._below}')
         self._update_basic_regions()
 
     @property

@@ -83,7 +83,7 @@ def _poly_repr(self):
 
     This is useful when printing a list of Polygons
     """
-    return '{} pts: '.format(self.num_points()) + self.__str__()
+    return f'{self.num_points()} pts: ' + self.__str__()
 
 
 Polygon.__repr__ = _poly_repr
