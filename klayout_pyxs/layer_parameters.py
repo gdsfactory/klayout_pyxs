@@ -44,13 +44,13 @@ def string_to_layer_info_params(layer_spec, return_None=False):
     """
     if re.match(r'^(\d+)$', layer_spec):
         match = re.match(r'^(\d+)$', layer_spec)
-        ls = (int(match.group(0)), 0)
+        ls = int(match[0]), 0
     elif re.match(r'^(\d+)/(\d+)$', layer_spec):
         match = re.match(r'^(\d+)/(\d+)$', layer_spec)
-        ls = (int(match.group(1)), int(match.group(2)))
+        ls = int(match[1]), int(match[2])
     elif re.match(r'^(.*)\s*\((\d+)/(\d+)\)$', layer_spec):
         match = re.match(r'^(.*)\s*\((\d+)/(\d+)\)$', layer_spec)
-        ls = (int(match.group(2)), int(match.group(3)), match.group(1))
+        ls = int(match[2]), int(match[3]), match[1]
     else:
         ls = (layer_spec, )
 
@@ -88,8 +88,7 @@ def string_to_layer_info(layer_spec):
     a
     """
     ls_param = string_to_layer_info_params(layer_spec)
-    ls = LayerInfo(*ls_param)
-    return ls
+    return LayerInfo(*ls_param)
 
 
 def main():

@@ -133,14 +133,14 @@ class XSectionGenerator(object):
         """
         crossing_points = []
 
-        info('    layer_data: {}'.format(layer_data))
+        info(f'    layer_data: {layer_data}')
 
-        info('    n polygons in layer_data: {}'.format(layer_data.n_poly))
+        info(f'    n polygons in layer_data: {layer_data.n_poly}')
 
         for polygon in layer_data.data:
-            info('    polygon: {}'.format(polygon))
+            info(f'    polygon: {polygon}')
             for edge_dbu in polygon.each_edge():
-                info('        edge: {}'.format(edge_dbu))
+                info(f'        edge: {edge_dbu}')
                 if self._line_dbu.crossed_by(edge_dbu):
                     info('        crosses!')
 
@@ -182,7 +182,7 @@ class XSectionGenerator(object):
 
                     # store that along with the orientation of the edge
                     # (+1: "enter geometry", -1: "leave geometry")
-                    info('        appending x-point [{}, {}]'.format(z, s))
+                    info(f'        appending x-point [{z}, {s}]')
                     crossing_points.append([z, s])
 
         # compress the crossing points by collecting all of those which
@@ -215,8 +215,7 @@ class XSectionGenerator(object):
         -------
         MaterialData
         """
-        a = self._air
-        return a
+        return self._air
 
     # @property
     def bulk(self):
@@ -245,9 +244,9 @@ class XSectionGenerator(object):
         # process layer_spec / layer_data pair
         if not isinstance(layer_data, LayoutData):
             raise TypeError(
-                "'output()': layer_data parameter must be "
-                "a geometry object. {} is given".format(type(layer_data))
+                f"'output()': layer_data parameter must be a geometry object. {type(layer_data)} is given"
             )
+
 
         if not self._is_target_layout_created:
             self._create_new_layout()
@@ -323,19 +322,13 @@ class XSectionGenerator(object):
             else:
                 self.output(layer_spec=ls, layer_data=ld)
 
-        if save_png is not None:
-            sp = save_png
-        else:
-            sp = self._output_all_parameters['save_png']
-
+        sp = self._output_all_parameters['save_png'] if save_png is None else save_png
         if sp:
             self._finalize_view()
             if step_name:
-                file_name = '{} ({}).png'.format(
-                    self._cell_file_name, step_name
-                )
+                file_name = f'{self._cell_file_name} ({step_name}).png'
             else:
-                file_name = '{}.png'.format(self._cell_file_name)
+                file_name = f'{self._cell_file_name}.png'
 
             if self._output_all_parameters['png_path']:
                 file_name = os.path.join(
@@ -381,14 +374,14 @@ class XSectionGenerator(object):
         res : MaterialData
         """
         e = self._extend
-        info('e = {}'.format(e))
+        info(f'e = {e}')
 
         line_dbu = self._line_dbu
-        info('line_dbu = {}'.format(line_dbu))
+        info(f'line_dbu = {line_dbu}')
 
         res = self._xpoints_to_mask([[-e, 1], [line_dbu.length() + e, -1]])
 
-        info('    all().res = {}'.format(res))
+        info(f'    all().res = {res}')
         return res
 
     def flip(self):
@@ -467,10 +460,10 @@ class XSectionGenerator(object):
         if not into:
             raise ValueError("'planarize' requires an 'into' argument")
 
-        info('   downto = {}'.format(downto))
-        info('   less = {}'.format(less))
-        info('   to = {}'.format(to))
-        info('   into = {}'.format(into))
+        info(f'   downto = {downto}')
+        info(f'   less = {less}')
+        info(f'   to = {to}')
+        info(f'   into = {into}')
 
         if downto:
             downto_data = None
@@ -491,11 +484,8 @@ class XSectionGenerator(object):
                     yt = p.bbox().top
                     yb = p.bbox().bottom
                     to = to or yt
-                    if not self._flipped:
-                        to = max([to, yt, yb])
-                    else:
-                        to = min([to, yt, yb])
-                info('    to = {}'.format(to))
+                    to = min([to, yt, yb]) if self._flipped else max([to, yt, yb])
+                info(f'    to = {to}')
 
         elif into and not to:
 
@@ -505,11 +495,7 @@ class XSectionGenerator(object):
                     yt = p.bbox().top
                     yb = p.bbox().bottom
                     to = to or yt
-                    if not self._flipped:
-                        to = max([to, yt, yb])
-                    else:
-                        to = min([to, yt, yb])
-
+                    to = min([to, yt, yb]) if self._flipped else max([to, yt, yb])
         if to is not None:
             info('    to is true')
             less = less or 0
@@ -566,12 +552,12 @@ class XSectionGenerator(object):
         """Configures the accuracy parameter
         """
         self._delta = int_floor(x / self._dbu + 0.5)
-        info('XSG._delta set to {}'.format(self._delta))
+        info(f'XSG._delta set to {self._delta}')
 
     @print_info(False)
     def delta(self, x):
         self._delta = int_floor(x / self._dbu + 0.5)
-        info('XSG._delta set to {}'.format(self._delta))
+        info(f'XSG._delta set to {self._delta}')
 
     @property
     def delta_dbu(self):
@@ -583,7 +569,7 @@ class XSectionGenerator(object):
 
         """
         self._height = int_floor(x / self._dbu + 0.5)
-        info('XSG._height set to {}'.format(self._height))
+        info(f'XSG._height set to {self._height}')
         self._update_basic_regions()
 
     @print_info(False)
@@ -592,7 +578,7 @@ class XSectionGenerator(object):
 
         """
         self._height = int_floor(x / self._dbu + 0.5)
-        info('XSG._height set to {}'.format(self._height))
+        info(f'XSG._height set to {self._height}')
         self._update_basic_regions()
 
     @property
@@ -606,7 +592,7 @@ class XSectionGenerator(object):
 
         """
         self._depth = int_floor(x / self._dbu + 0.5)
-        info('XSG._depth set to {}'.format(self._depth))
+        info(f'XSG._depth set to {self._depth}')
         self._update_basic_regions()
 
     @print_info(False)
@@ -616,7 +602,7 @@ class XSectionGenerator(object):
 
         """
         self._depth = int_floor(x / self._dbu + 0.5)
-        info('XSG._depth set to {}'.format(self._depth))
+        info(f'XSG._depth set to {self._depth}')
         self._update_basic_regions()
 
     @property
@@ -634,7 +620,7 @@ class XSectionGenerator(object):
 
         """
         self._below = int_floor(x / self._dbu + 0.5)
-        info('XSG._below set to {}'.format(self._below))
+        info(f'XSG._below set to {self._below}')
         self._update_basic_regions()
 
     @print_info(False)
@@ -648,7 +634,7 @@ class XSectionGenerator(object):
 
         """
         self._below = int_floor(x / self._dbu + 0.5)
-        info('XSG._below set to {}'.format(self._below))
+        info(f'XSG._below set to {self._below}')
         self._update_basic_regions()
 
     @property
@@ -724,12 +710,8 @@ class XSectionGenerator(object):
         LayoutView
         """
         self._target_view = None
-        self._target_cell_name = (
-            "PYXS: " + ruler_text if ruler_text else "XSECTION"
-        )
-        self._cell_file_name = (
-            "PYXS_" + ruler_text if ruler_text else "XSECTION"
-        )
+        self._target_cell_name = f"PYXS: {ruler_text}" if ruler_text else "XSECTION"
+        self._cell_file_name = f"PYXS_{ruler_text}" if ruler_text else "XSECTION"
 
         self._setup(p1, p2)
 
@@ -752,18 +734,15 @@ class XSectionGenerator(object):
         if text is None:
             MessageBox.critical(
                 "Error",
-                "Error reading file {}.".format(self._file_name),
+                f"Error reading file {self._file_name}.",
                 MessageBox.b_ok(),
             )
+
             return None
 
         # prepare variables to be visible in the script
         locals_ = dir(self)
-        locals_dict = {}
-        for attr in locals_:
-            if attr[0] != '_':
-                locals_dict.update({attr: getattr(self, attr)})
-
+        locals_dict = {attr: getattr(self, attr) for attr in locals_ if attr[0] != '_'}
         try:
             exec(text, locals_dict)
         except Exception as e:
@@ -800,7 +779,7 @@ class XSectionGenerator(object):
         res : MaterialData
             Top ot the surface for deposition
         """
-        info('    iv = {})'.format(iv))
+        info(f'    iv = {iv})')
         s = 0
         last_s = 0
         p1 = 0
@@ -818,11 +797,11 @@ class XSectionGenerator(object):
                 poly = Polygon(
                     Box(p1, -self._depth - self._below, p2, self._height)
                 )
-                info('        Appending poly {}'.format(poly))
+                info(f'        Appending poly {poly}')
                 mask_polygons.append(poly)
             last_s = s
 
-        info('    mask_polys = {}'.format(mask_polygons))
+        info(f'    mask_polys = {mask_polygons}')
 
         '''
         air = self._air.data
@@ -848,7 +827,7 @@ class XSectionGenerator(object):
         '''
         info('Before MaskData creation')
         res = MaskData(self._air.data, mask_polygons, self)
-        info('res = {}'.format(res))
+        info(f'res = {res}')
         return res
 
     @print_info(False)
@@ -870,11 +849,11 @@ class XSectionGenerator(object):
         self._bulk = MaterialData([Polygon(Box(-e, -d, w + e, 0))], self)
         self._roi = Box(0, -(d + b), w, h)
 
-        info('    XSG._area:      {}'.format(self._area))
-        info('    XSG._roi:       {}'.format(self._roi))
-        info('    XSG._air:       {}'.format(self._air))
-        info('    XSG._bulk:      {}'.format(self._bulk))
-        info('    XSG._air_below: {}'.format(self._air_below))
+        info(f'    XSG._area:      {self._area}')
+        info(f'    XSG._roi:       {self._roi}')
+        info(f'    XSG._air:       {self._air}')
+        info(f'    XSG._bulk:      {self._bulk}')
+        info(f'    XSG._air_below: {self._air_below}')
 
     @print_info(False)
     def _setup(self, p1, p2):
@@ -922,20 +901,18 @@ class XSectionGenerator(object):
         self._depth = int_floor(2.0 / self._dbu + 0.5)  # 2 um in dbu
         self._below = int_floor(2.0 / self._dbu + 0.5)  # 2 um in dbu
 
-        info('    XSG._dbu is:    {}'.format(self._dbu))
-        info('    XSG._extend is: {}'.format(self._extend))
-        info('    XSG._delta is:  {}'.format(self._delta))
-        info('    XSG._height is: {}'.format(self._height))
-        info('    XSG._depth is:  {}'.format(self._depth))
-        info('    XSG._below is:  {}'.format(self._below))
+        info(f'    XSG._dbu is:    {self._dbu}')
+        info(f'    XSG._extend is: {self._extend}')
+        info(f'    XSG._delta is:  {self._delta}')
+        info(f'    XSG._height is: {self._height}')
+        info(f'    XSG._depth is:  {self._depth}')
+        info(f'    XSG._below is:  {self._below}')
 
         return True
 
     def _create_new_layout(self, cell_name_extension=None):
         if cell_name_extension:
-            cell_name = '{} ({})'.format(
-                self._target_cell_name, cell_name_extension
-            )
+            cell_name = f'{self._target_cell_name} ({cell_name_extension})'
         else:
             cell_name = self._target_cell_name
 
@@ -1150,12 +1127,9 @@ class XSectionScriptEnvironment(object):
                 )
                 return False
 
-            rulers = []
+            rulers = list(scr_view.each_annotation())
 
-            for a in scr_view.each_annotation():
-                rulers.append(a)
-
-            if len(rulers) == 0:
+            if not rulers:
                 MessageBox.critical(
                     "Error",
                     "No ruler present for the cross " "section line",
@@ -1218,9 +1192,7 @@ class XSectionScriptEnvironment(object):
         for i in range(len(self._mru_actions)):
             self._mru_actions[i].script = scripts[i]
 
-        # try to save the MRU list to $HOME/.klayout-pyxs-scripts
-        home = os.getenv("HOME", None) or os.getenv("HOMESHARE", None)
-        if home:
+        if home := os.getenv("HOME", None) or os.getenv("HOMESHARE", None):
             fn = os.path.join(home, '.klayout-pyxs-scripts')
             with open(fn, "w") as file:
                 file.write("<pyxs>\n")

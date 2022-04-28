@@ -48,20 +48,20 @@ class LayerProcessor(EdgeProcessor):
         res : list of MaterialLayer
             a sorted list of non-overlapping layers
         """
-        info('    layers = {}'.format(layers))
+        info(f'    layers = {layers}')
         _check_layer_list_sorted(layers)
 
         res = []
 
         while layers:
             la = layers.pop(0)  # first element is the lowest in z
-            info('    la = {}'.format(la))
+            info(f'    la = {la}')
             if not layers:  # la was the only element
                 res += [la]
                 continue
 
             lb = layers.pop(0)  # take next element
-            info('    lb = {}'.format(lb))
+            info(f'    lb = {lb}')
             if la.is_lower(lb, levela='top', levelb='bottom'):
                 # a is lower or touching
                 # layers is sorted, la will not overlap with other lb
@@ -106,7 +106,7 @@ class LayerProcessor(EdgeProcessor):
                 res.append(la_split[0])
                 layers = la_split[1:] + [lb] + layers
 
-        info('    res = {}'.format(res))
+        info(f'    res = {res}')
         return res
 
     @print_info(False)
@@ -130,32 +130,31 @@ class LayerProcessor(EdgeProcessor):
         """
         n_la, n_lb = len(la), len(lb)  # number of polygons in pa and pb
 
-        info('    n_la = {}, n_lb = {}, mode = {}'.format(n_la, n_lb, mode))
+        info(f'    n_la = {n_la}, n_lb = {n_lb}, mode = {mode}')
 
         ia, ib = 0, 0
         a = la[ia] if la else None
         b = lb[ib] if lb else None
         la_res, lb_res, oa, ob = [], [], [], []
         while a and b:
-            info('    a = {}'.format(a))
-            info('    b = {}'.format(b))
+            info(f'    a = {a}')
+            info(f'    b = {b}')
             if a.is_lower_s(b, 'bottom'):
                 info('    a bottom is lower')
                 top = min(a.top, b.bottom)
-                info('    top = {}'.format(top))
+                info(f'    top = {top}')
                 if top == a.top:  # no overlap
                     info('    a top is lower than b bottom, no overlap')
                     la_res += [a]
                     ia += 1
                     a = None if ia >= len(la) else la[ia]
-                    continue
                 else:
                     info('    a top is higher than b bottom, overlap')
                     # use part of a from a.bottom to top
                     la_res += [MaterialLayer(a.mask, a.bottom, top-a.bottom)]
                     # overlapping candidate a is a from top to a.top
                     a = MaterialLayer(a.mask, top, a.top-top)
-                    continue
+                continue
             elif b.is_lower_s(a, 'bottom'):
                 info('    b is lower')
                 top = min(b.top, a.bottom)
@@ -163,13 +162,12 @@ class LayerProcessor(EdgeProcessor):
                     lb_res += [b]
                     ib += 1
                     b = None if ib >= len(lb) else lb[ib]
-                    continue
                 else:
                     # use part of b from b.bottom to top
                     lb_res += [MaterialLayer(b.mask, b.bottom, top-b.bottom)]
                     # overlapping candidate b is b from top to b.top
                     b = MaterialLayer(b.mask, top, b.top-top)
-                    continue
+                continue
             else:
                 assert a.bottom == b.bottom, 'bottoms must be equal here'
                 info('    same bottom')
@@ -218,20 +216,20 @@ class LayerProcessor(EdgeProcessor):
 
         lo_res = []
         for a, b in zip(oa, ob):
-            o_polygons = self.boolean_p2p(a.mask.data, b.mask.data,
-                                          mode, rh, mc)
-            if o_polygons:
+            if o_polygons := self.boolean_p2p(
+                a.mask.data, b.mask.data, mode, rh, mc
+            ):
                 lo_res += [MaterialLayer(LayoutData(o_polygons, a.mask._xs),
                     a.bottom, a.top-a.bottom)]
 
-        info('    la_res = {}'.format(la_res))
-        info('    lb_res = {}'.format(lb_res))
-        info('    lo_res = {}'.format(lo_res))
+        info(f'    la_res = {la_res}')
+        info(f'    lb_res = {lb_res}')
+        info(f'    lo_res = {lo_res}')
 
         if mode == self.ModeAnd:  # either la and lb is empty, mode AND
             info('    mode AND')
             res = lo_res  # will be empty
-        elif mode == self.ModeOr or mode == self.ModeXor:
+        elif mode in [self.ModeOr, self.ModeXor]:
             info('    mode OR/XOR')
             res = la_res + lo_res + lb_res
         elif mode == self.ModeANotB:
@@ -247,7 +245,7 @@ class LayerProcessor(EdgeProcessor):
         # res = self.merge_layers_same_z(res)
         # res = self.merge_layers_same_mask(res)
         # res.sort()
-        info('    boolean_l2l().res = {}'.format(res))
+        info(f'    boolean_l2l().res = {res}')
         return res
 
     def split_layers_z(self, a, b):
@@ -332,9 +330,9 @@ class LayerProcessor(EdgeProcessor):
                                      l.bottom - dz, l.thickness + 2 * dz))
 
         # Join overlapping layers
-        info('    res before normalize = {}'.format(res))
+        info(f'    res before normalize = {res}')
         res = self.normalize(res)
-        info('    res after normalize = {}'.format(res))
+        info(f'    res after normalize = {res}')
 
         return res
 
@@ -362,8 +360,7 @@ class LayerProcessor(EdgeProcessor):
                     merged = MaterialLayer(merged.mask.or_(lj.mask),
                                            merged.bottom,
                                            merged.thickness)
-                    info('    Merged layers b = {}, t = {}'
-                         .format(merged.bottom, merged.top))
+                    info(f'    Merged layers b = {merged.bottom}, t = {merged.top}')
             res_merged.append(merged)
         return res_merged
 
@@ -391,8 +388,7 @@ class LayerProcessor(EdgeProcessor):
                     if la.mask.data == lb.mask.data:
                         la = MaterialLayer(la.mask, la.bottom,
                                            lb.top - la.bottom)
-                        info('    Merged layers ({},{}) and ({}, {})'
-                             .format(la.bottom, la.top, lb.bottom, lb.top))
+                        info(f'    Merged layers ({la.bottom},{la.top}) and ({lb.bottom}, {lb.top})')
                         layers.pop(ib)
                 elif la.top < lb.bottom:
                     # all following lb will be higher
@@ -434,26 +430,12 @@ class MaterialLayer(object):
             return self._top < other.top
 
     def __str__(self):
-        n_edges = ''
-        for poly in self.mask.data:
-            n_edges += '{}, '.format(poly.num_points())
-
-        s = '<MatLayer (n_polys={}, n_edges=({}), ' \
-            'btm = {}, top = {})>'.format(self.mask.n_poly, n_edges[:-2],
-                                          self._bottom, self._top)
-
-        return s
+        n_edges = ''.join(f'{poly.num_points()}, ' for poly in self.mask.data)
+        return f'<MatLayer (n_polys={self.mask.n_poly}, n_edges=({n_edges[:-2]}), btm = {self._bottom}, top = {self._top})>'
 
     def __repr__(self):
-        n_edges = ''
-        for poly in self.mask.data:
-            n_edges += '{}, '.format(poly.num_points())
-
-        s = '<MatLayer (n_polys={}, n_edges=({}), ' \
-            'btm = {}, top = {})>'.format(self.mask.n_poly, n_edges[:-2],
-                                          self._bottom, self._top)
-
-        return s
+        n_edges = ''.join(f'{poly.num_points()}, ' for poly in self.mask.data)
+        return f'<MatLayer (n_polys={self.mask.n_poly}, n_edges=({n_edges[:-2]}), btm = {self._bottom}, top = {self._top})>'
 
     @property
     def bottom(self):
@@ -476,8 +458,7 @@ class MaterialLayer(object):
             thickness in [dbu]
         """
         if t <= 0:
-            raise ValueError('Material layer thickness must be positive. '
-                             '{} is given.'.format(t))
+            raise ValueError(f'Material layer thickness must be positive. {t} is given.')
         else:
             self._top = self._bottom + t
 
@@ -493,12 +474,11 @@ class MaterialLayer(object):
         -------
         bool
         """
-        info('   self.b, self.t, other.b, other.t = {} {} {} {}'
-             .format(self.bottom, self.top, other.bottom, other.top))
-        if (self._top <= other.bottom) or (self._bottom >= other.top):
-            return False
-        else:
-            return True
+        info(
+            f'   self.b, self.t, other.b, other.t = {self.bottom} {self.top} {other.bottom} {other.top}'
+        )
+
+        return self._top > other.bottom and self._bottom < other.top
 
     def is_z_same(self, other):
         return self._bottom == other.bottom and self._top == other.top
@@ -515,12 +495,10 @@ class MaterialLayer(object):
         res : list of MaterialLayer
         """
         z_coords_all = [self.bottom] + z_coords + [self.top]
-        res = []
-
-        for b, t in zip(z_coords_all[:-1], z_coords_all[1:]):
-            res += [MaterialLayer(self.mask, b, t-b)]
-
-        return res
+        return [
+            MaterialLayer(self.mask, b, t - b)
+            for b, t in zip(z_coords_all[:-1], z_coords_all[1:])
+        ]
 
     def split_by_layer(self, other):
 
@@ -570,10 +548,7 @@ class MaterialLayer(object):
         if not levelb:
             levelb = levela
 
-        if getattr(self, levela) < getattr(other, levelb):
-            return True
-        else:
-            return False
+        return getattr(self, levela) < getattr(other, levelb)
 
     def is_lower(self, other, levela='bottom', levelb=None):
         """ Compares the location of two layers nonstrictly.
@@ -593,10 +568,7 @@ class MaterialLayer(object):
         if not levelb:
             levelb = levela
 
-        if getattr(self, levela) <= getattr(other, levelb):
-            return True
-        else:
-            return False
+        return getattr(self, levela) <= getattr(other, levelb)
 
     def is_higher(self, other, levela='bottom', levelb=None):
         """ Compares the tops of two layers strictly.
@@ -612,19 +584,16 @@ class MaterialLayer(object):
         if not levelb:
             levelb = levela
 
-        if getattr(self, levela) > getattr(other, levelb):
-            return True
-        else:
-            return False
+        return getattr(self, levela) > getattr(other, levelb)
 
 
 def _check_layer_list_sorted(layers):
     for la, lb in zip(layers[:-1], layers[1:]):
         if (la.bottom > lb.bottom) or (
                     (la.bottom == lb.bottom) and (la.top > lb.top)):
-            raise ValueError('layers must be a sorted list of '
-                             'MaterialLayer. Layers {} and {} are not '
-                             'sorted.'.format(la, lb))
+            raise ValueError(
+                f'layers must be a sorted list of MaterialLayer. Layers {la} and {lb} are not sorted.'
+            )
 
 
 @print_info(False)
@@ -658,11 +627,7 @@ def layer_to_tech_str(layer_no_gds, layer, name='', color=None, filter=0.0,
         A layer record for the tech file of GDS3D software.
 
     """
-    if name:
-        name = '{} ({})'.format(name, layer_no_gds)
-    else:
-        name = '-- ({})'.format(layer_no_gds)
-
+    name = f'{name} ({layer_no_gds})' if name else f'-- ({layer_no_gds})'
     if (color is None) or (len(color) not in (3, 4)):
         r, g, b = random(), random(), random()
         a = filter
@@ -673,15 +638,18 @@ def layer_to_tech_str(layer_no_gds, layer, name='', color=None, filter=0.0,
         r, g, b, a = color
 
     if not(0 <= r <= 1 and 0 <= g <= 1 and 0 <= b <= 1):
-        raise ValueError('Color components must be from 0 to 1. ({}, {}, {})'
-                         ' is given'.format(r, g, b))
+        raise ValueError(
+            f'Color components must be from 0 to 1. ({r}, {g}, {b}) is given'
+        )
+
 
     if not(0 <= a <= 1):
-        raise ValueError('Filter / transparency value must be from 0 to 1. '
-                         '{} is given'.format(a))
+        raise ValueError(
+            f'Filter / transparency value must be from 0 to 1. {a} is given'
+        )
 
-    s = ''
-    s += 'LayerStart: {}\n'.format(name)
+
+    s = '' + 'LayerStart: {}\n'.format(name)
     s += 'Layer: {}\n'.format(layer_no_gds)
     s += 'Height: {}\n'.format(layer.bottom)
     s += 'Thickness: {}\n'.format(layer.thickness)
