@@ -26,4 +26,6 @@ jobs:
           cache: 'pip'
       - name: run tests
         run: |
+          pip install -e .
+          sudo apt install klayout
           bash tests/run_tests.sh
