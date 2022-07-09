@@ -1725,7 +1725,7 @@ puts "Screenshot written to #{fn}"
 
 
 # -------------------------------------------------------------------
-#  Doc grow sample 9 
+#  Doc grow sample 9
 
 if false # does not work as expected yet
 
@@ -4589,4 +4589,3 @@ view.update_content
 
 view.save_image(fn, screenshot_width, screenshot_height)
 puts "Screenshot written to #{fn}"
-

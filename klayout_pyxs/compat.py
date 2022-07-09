@@ -1,4 +1,3 @@
-# coding: utf-8
 """klayout_pyxs.compat.py
 
 This module imports functions necessary to ensure compatibility with
@@ -12,15 +11,15 @@ import sys
 major, middle, minor, _, _ = sys.version_info
 
 if major == 2:
-    from six.moves import range
     from six.moces import zip
+    from six.moves import range
 elif major == 3:
     range = range
     zip = zip
 else:
-    raise EnvironmentError('Unsupported python version')
+    raise OSError("Unsupported python version")
 
 __all__ = [
-    'range',
-    'zip',
+    "range",
+    "zip",
 ]

@@ -9,23 +9,30 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
-
 # A feasibility study for a cross section generation using
 # boolean operations. See "cmos.pyxs" for a brief description of the
 # commands available and some examples.
-
 # TODO: use a much smaller dbu for the simulation to have a really small delta
 # the paths used for generating the masks are somewhat too thick
 # TODO: the left and right areas are not treated correctly
-
-from __future__ import absolute_import
-import math
 import os
 import re
 
-import klayout_pyxs
-from klayout_pyxs.compat import range
-from klayout_pyxs.compat import zip
+from klayout_pyxs import (
+    Action,
+    Application,
+    Box,
+    FileDialog,
+    LayerInfo,
+    MessageBox,
+    Point,
+    Polygon,
+)
+from klayout_pyxs.compat import range, zip
+from klayout_pyxs.geometry_2d import EP, LayoutData, parse_grow_etch_args
+from klayout_pyxs.geometry_3d import LP, MaterialLayer, layer_to_tech_str, lp
+from klayout_pyxs.layer_parameters import string_to_layer_info_params
+from klayout_pyxs.utils import info, int_floor, make_iterable, print_info
 
 # from importlib import reload
 # try:
@@ -35,34 +42,19 @@ from klayout_pyxs.compat import zip
 # except:
 #     pass
 
-from klayout_pyxs import Application
-from klayout_pyxs import MessageBox
-from klayout_pyxs import Action
-from klayout_pyxs import FileDialog
 
-from klayout_pyxs import Box
-from klayout_pyxs import LayerInfo
-from klayout_pyxs import Point
-from klayout_pyxs import Polygon
-from klayout_pyxs import Trans
-
-from klayout_pyxs.utils import print_info, int_floor, make_iterable, info
-from klayout_pyxs.geometry_2d import EP, LayoutData, parse_grow_etch_args
-from klayout_pyxs.layer_parameters import string_to_layer_info_params
-from klayout_pyxs.layer_parameters import string_to_layer_info
-from klayout_pyxs.geometry_3d import MaterialLayer, LP, lp, layer_to_tech_str
-
-info('Module pyxs3D_lib.py reloaded')
+info("Module pyxs3D_lib.py reloaded")
 MIN_EXPORT_LAYER_THICKNESS = 5
 
 
-class MaterialData3D(object):
-    """ Class to operate 3D materials.
+class MaterialData3D:
+    """Class to operate 3D materials.
 
     3D material is described by its top view (mask), vertical
     position (elevation), and thickness.
 
     """
+
     def __init__(self, layers, xs, delta):
         """
         Parameters
@@ -75,7 +67,7 @@ class MaterialData3D(object):
             cannot be an infinitely small mask layer (in database units)
         """
         self._layers = []
-        self.data= layers
+        self.data = layers
         self._delta = delta
         self._xs = xs
         self._lp = lp
@@ -83,13 +75,13 @@ class MaterialData3D(object):
     def __str__(self):
         n_layers = self.n_layers
 
-        s = f'MaterialData3D (n_layers = {n_layers}, delta = {self._delta})'
+        s = f"MaterialData3D (n_layers = {n_layers}, delta = {self._delta})"
 
         if n_layers > 0:
-            s += ':'
+            s += ":"
 
         for li in range(min(5, n_layers)):
-            s += '\n    {}'.format(str(self._layers[li]))
+            s += f"\n    {str(self._layers[li])}"
         return s
 
     @property
@@ -113,13 +105,13 @@ class MaterialData3D(object):
         for la, lb in zip(layers[:-1], layers[1:]):
             if la.top > lb.bottom:
                 raise ValueError(
-                    f'layers must be a sorted list of non-overlapping layers. layers {la} and {lb} are not sorted and/or overlap.'
+                    f"layers must be a sorted list of non-overlapping layers. layers {la} and {lb} are not sorted and/or overlap."
                 )
 
         self._layers = layers
 
     def add(self, other):
-        """ Add more material layers to the current one (OR).
+        """Add more material layers to the current one (OR).
 
         Parameters
         ----------
@@ -127,11 +119,10 @@ class MaterialData3D(object):
 
         """
         other_layers = self._get_layers(other)
-        self._layers = self._lp.boolean_l2l(
-            self._layers, other_layers, LP.ModeOr)
+        self._layers = self._lp.boolean_l2l(self._layers, other_layers, LP.ModeOr)
 
     def and_(self, other):
-        """ Calculate overlap of the material with another material (AND).
+        """Calculate overlap of the material with another material (AND).
 
         Parameters
         ----------
@@ -142,12 +133,14 @@ class MaterialData3D(object):
         res : MaterialData33D
         """
         other_layers = self._get_layers(other)
-        return MaterialData3D(self._lp.boolean_l2l(
-            self._layers, other_layers, LP.ModeAnd),
-            self._xs, self._delta)
+        return MaterialData3D(
+            self._lp.boolean_l2l(self._layers, other_layers, LP.ModeAnd),
+            self._xs,
+            self._delta,
+        )
 
     def inverted(self):
-        """ Calculate inversion of the material.
+        """Calculate inversion of the material.
 
         Total region is determined by self._xs.background().
 
@@ -155,17 +148,24 @@ class MaterialData3D(object):
         -------
         res : MaterialData3D
         """
-        return MaterialData3D(self._lp.boolean_l2l(
-            self._layers,
-            [MaterialLayer(
-                LayoutData([Polygon(self._xs.background())], self._xs),
-                - (self._xs.depth_dbu + self._xs.below_dbu),
-                self._xs.depth_dbu + self._xs.below_dbu + self._xs.height_dbu)],
-            EP.ModeXor),
-            self._xs, self._delta)
+        return MaterialData3D(
+            self._lp.boolean_l2l(
+                self._layers,
+                [
+                    MaterialLayer(
+                        LayoutData([Polygon(self._xs.background())], self._xs),
+                        -(self._xs.depth_dbu + self._xs.below_dbu),
+                        self._xs.depth_dbu + self._xs.below_dbu + self._xs.height_dbu,
+                    )
+                ],
+                EP.ModeXor,
+            ),
+            self._xs,
+            self._delta,
+        )
 
     def mask(self, other):
-        """ Mask material with another material (AND).
+        """Mask material with another material (AND).
 
         Parameters
         ----------
@@ -173,8 +173,7 @@ class MaterialData3D(object):
 
         """
         other_layers = self._get_layers(other)
-        self._layers = self._lp.boolean_l2l(
-            self._layers, other_layers, LP.ModeAnd)
+        self._layers = self._lp.boolean_l2l(self._layers, other_layers, LP.ModeAnd)
 
     @property
     def n_layers(self):
@@ -188,7 +187,7 @@ class MaterialData3D(object):
         return len(self._layers)
 
     def not_(self, other):
-        """ Calculate difference with another material.
+        """Calculate difference with another material.
 
         Parameters
         ----------
@@ -199,11 +198,14 @@ class MaterialData3D(object):
         res : MaterialData3D
         """
         other_layers = self._get_layers(other)
-        return MaterialData3D(self._lp.boolean_l2l(
-            self._layers, other_layers, LP.ModeANotB), self._xs, self._delta)
+        return MaterialData3D(
+            self._lp.boolean_l2l(self._layers, other_layers, LP.ModeANotB),
+            self._xs,
+            self._delta,
+        )
 
     def or_(self, other):
-        """ Calculate sum with another material (OR).
+        """Calculate sum with another material (OR).
 
         Parameters
         ----------
@@ -214,11 +216,14 @@ class MaterialData3D(object):
         res : MaterialData3D
         """
         other_layers = self._get_layers(other)
-        return MaterialData3D(self._lp.boolean_l2l(
-            self._layers, other_layers, LP.ModeOr), self._xs, self._delta)
+        return MaterialData3D(
+            self._lp.boolean_l2l(self._layers, other_layers, LP.ModeOr),
+            self._xs,
+            self._delta,
+        )
 
     def sized(self, dx, dy=None):
-        """ Calculate material with a sized masks.
+        """Calculate material with a sized masks.
 
         Parameters
         ----------
@@ -241,7 +246,7 @@ class MaterialData3D(object):
         return MaterialData3D(new_layers, self._xs, self._delta)
 
     def sub(self, other):
-        """ Substract another material.
+        """Subtract another material.
 
         Parameters
         ----------
@@ -249,11 +254,10 @@ class MaterialData3D(object):
 
         """
         other_layers = self._get_layers(other)
-        self._layers = self._lp.boolean_l2l(
-            self._layers, other_layers, LP.ModeANotB)
+        self._layers = self._lp.boolean_l2l(self._layers, other_layers, LP.ModeANotB)
 
     def transform(self, t):
-        """ Transform material masks with a transformation.
+        """Transform material masks with a transformation.
 
         Parameters
         ----------
@@ -264,7 +268,7 @@ class MaterialData3D(object):
             l.mask.data = [p.transformed(t) for p in l.mask.data]
 
     def xor(self, other):
-        """ Calculate XOR with another material.
+        """Calculate XOR with another material.
 
         Parameters
         ----------
@@ -275,11 +279,14 @@ class MaterialData3D(object):
         res : MaterialData3D
         """
         other_layers = self._get_layers(other)
-        return MaterialData3D(self._lp.boolean_l2l(
-            self._layers, other_layers, LP.ModeXor), self._xs, self._delta)
+        return MaterialData3D(
+            self._lp.boolean_l2l(self._layers, other_layers, LP.ModeXor),
+            self._xs,
+            self._delta,
+        )
 
     def close_gaps(self):
-        """ Close gaps in the polygons of the masks.
+        """Close gaps in the polygons of the masks.
 
         Increase size of all polygons by 1 dbu in all directions.
         """
@@ -294,8 +301,7 @@ class MaterialData3D(object):
             l.mask.data = d
 
     def remove_slivers(self):
-        """ Remove slivers in the polygons of the masks.
-        """
+        """Remove slivers in the polygons of the masks."""
         sz = 1
         for l in self._layers:
             d = l.mask.data
@@ -305,8 +311,18 @@ class MaterialData3D(object):
             d = self._lp.size_p2p(d, sz, 0)
             l.mask.data = d
 
-    def grow(self, z, xy=0.0, into=[], on=[], through=[],
-             mode='square', buried=None, taper=None, bias=None):
+    def grow(
+        self,
+        z,
+        xy=0.0,
+        into=[],
+        on=[],
+        through=[],
+        mode="square",
+        buried=None,
+        taper=None,
+        bias=None,
+    ):
         """
         Parameters
         ----------
@@ -351,13 +367,13 @@ class MaterialData3D(object):
 
         # parse the arguments
         into, through, on, mode = parse_grow_etch_args(
-            'grow', MaterialData3D,
-            into=into, on=on, through=through, mode=mode)
+            "grow", MaterialData3D, into=into, on=on, through=through, mode=mode
+        )
 
         # produce the geometry of the new material
-        layers = self.produce_geom('grow', xy, z,
-                                   into, through, on,
-                                   taper, bias, mode, buried)
+        layers = self.produce_geom(
+            "grow", xy, z, into, through, on, taper, bias, mode, buried
+        )
 
         # prepare the result
         res = MaterialData3D(layers, self._xs, self._delta)
@@ -372,8 +388,17 @@ class MaterialData3D(object):
             self._xs.air().remove_slivers()
         return res
 
-    def etch(self, z, xy=0.0, into=[], through=[], mode='square',
-             taper=None, bias=None, buried=None):
+    def etch(
+        self,
+        z,
+        xy=0.0,
+        into=[],
+        through=[],
+        mode="square",
+        taper=None,
+        bias=None,
+        buried=None,
+    ):
         """
 
         Parameters
@@ -408,16 +433,16 @@ class MaterialData3D(object):
         """
         # parse the arguments
         into, through, on, mode = parse_grow_etch_args(
-            'etch', MaterialData3D,
-            into=into, through=through, on=None, mode=mode)
+            "etch", MaterialData3D, into=into, through=through, on=None, mode=mode
+        )
 
         if not into:
             raise ValueError("'etch' method: requires an 'into' specification")
 
         # prepare the result
-        layers = self.produce_geom('etch', xy, z,
-                                   into, through, on,
-                                   taper, bias, mode, buried)
+        layers = self.produce_geom(
+            "etch", xy, z, into, through, on, taper, bias, mode, buried
+        )
 
         # produce the geometry of the etched material
         res = MaterialData3D(layers, self._xs, self._delta)
@@ -432,9 +457,7 @@ class MaterialData3D(object):
         self._xs.air().close_gaps()
 
     @print_info(True)
-    def produce_geom(self, method, xy, z,
-                     into, through, on,
-                     taper, bias, mode, buried):
+    def produce_geom(self, method, xy, z, into, through, on, taper, bias, mode, buried):
         """
 
         method : str
@@ -455,11 +478,13 @@ class MaterialData3D(object):
         -------
         layers : list of MaterialLayer
         """
-        info('    method={}, xy={}, z={}, \n'
-             '    into={}, through={}, on={}, \n'
-             '    taper={}, bias={}, mode={}, buried={})'
-             .format(method, xy, z, into, through, on, taper, bias, mode,
-                     buried))
+        info(
+            "    method={}, xy={}, z={}, \n"
+            "    into={}, through={}, on={}, \n"
+            "    taper={}, bias={}, mode={}, buried={})".format(
+                method, xy, z, into, through, on, taper, bias, mode, buried
+            )
+        )
 
         prebias = bias or 0.0
 
@@ -467,29 +492,28 @@ class MaterialData3D(object):
             xy = -xy
             prebias += xy
 
-        '''
+        """
         if taper:
             d = z * math.tan(math.pi / 180.0 * taper)
             prebias += d - xy
             xy = d
-        '''
+        """
         # determine the "into" material by joining the layers of all "into"
         # materials or taking air's layers if required.
         # Finally we get a into_layers : list of MaterialLayer
         if into:
             into_layers = []
             for i in into:
-                info(f'    i = {i}')
+                info(f"    i = {i}")
                 if len(into_layers) == 0:
                     into_layers = i.data
                 else:
-                    into_layers = self._lp.boolean_l2l(
-                        i.data, into_layers, LP.ModeOr)
+                    into_layers = self._lp.boolean_l2l(i.data, into_layers, LP.ModeOr)
         else:
             # when deposit or grow is selected, into_layers is self._xs.air()
             into_layers = self._xs.air().data
 
-        info(f'    into_layers = {into_layers}')
+        info(f"    into_layers = {into_layers}")
 
         # determine the "through" material by joining the layers of all
         # "through" materials
@@ -500,9 +524,8 @@ class MaterialData3D(object):
                 if len(thru_layers) == 0:
                     thru_layers = t.data
                 else:
-                    thru_layers = self._lp.boolean_l2l(
-                        t.data, thru_layers, LP.ModeOr)
-            info(f'    thru_layers = {thru_layers}')
+                    thru_layers = self._lp.boolean_l2l(t.data, thru_layers, LP.ModeOr)
+            info(f"    thru_layers = {thru_layers}")
 
         # determine the "on" material by joining the data of all "on" materials
         # Finally we get an on_layers : list of MaterialLayer
@@ -512,20 +535,19 @@ class MaterialData3D(object):
                 if len(on_layers) == 0:
                     on_layers = o.data
                 else:
-                    on_layers = self._lp.boolean_l2l(
-                        o.data, on_layers, LP.ModeOr)
-            info(f'    on_layers = {on_layers}')
+                    on_layers = self._lp.boolean_l2l(o.data, on_layers, LP.ModeOr)
+            info(f"    on_layers = {on_layers}")
 
         offset = self._delta
         layers = self._layers
-        info(f'    Seed material to be grown: {self}')
+        info(f"    Seed material to be grown: {self}")
 
-        '''
+        """
         if abs(buried or 0.0) > 1e-6:
             t = Trans(Point(
                     0, -_int_floor(buried / self._xs.dbu + 0.5)))
             d = [p.transformed(t) for p in d]
-        '''
+        """
 
         # in the "into" case determine the interface region between
         # self and into
@@ -541,25 +563,25 @@ class MaterialData3D(object):
                 layers = self._lp.boolean_l2l(layers, thru_layers, EP.ModeAnd)
             else:
                 layers = self._lp.boolean_l2l(layers, into_layers, EP.ModeAnd)
-        info(f'    overlap layers = {layers}')
+        info(f"    overlap layers = {layers}")
 
         pi = int_floor(prebias / self._xs.dbu + 0.5)
-        info(f'    pi = {pi}')
+        info(f"    pi = {pi}")
         if pi < 0:
             layers = self._lp.size_l2l(layers, -pi, dy=-pi, dz=0)
         elif pi > 0:
-            raise NotImplementedError('pi > 0 not implemented yet')
+            raise NotImplementedError("pi > 0 not implemented yet")
         xyi = int_floor(xy / self._xs.dbu + 0.5)  # size change in [dbu]
         zi = int_floor(z / self._xs.dbu + 0.5) - offset  # height in [dbu]
-        info(f'    xyi = {xyi}, zi = {zi}')
+        info(f"    xyi = {xyi}, zi = {zi}")
 
         if taper:
-            raise NotImplementedError('taper option is not supported yet')
+            raise NotImplementedError("taper option is not supported yet")
             # d = self._ep.size_p2p(d, xyi, zi, 0)
         elif xyi <= 0:
             layers = self._lp.size_l2l(layers, 0, dy=0, dz=zi)
             # d = self._ep.size_p2p(d, 0, zi)
-        elif mode in ['round', 'square']:
+        elif mode in ["round", "square"]:
             # same as square for now
             layers = self._lp.size_l2l(layers, xyi, dy=xyi, dz=zi)
 
@@ -568,18 +590,18 @@ class MaterialData3D(object):
             # d = self._ep.size_p2p(d, xyi / 3, zi / 3, 1)
             # d = self._ep.size_p2p(d, xyi / 3, zi / 3, 0)
             # d = self._ep.size_p2p(d, xyi - 2 * (xyi / 3), zi - 2 * (zi / 3), 0)
-        elif mode == 'octagon':
-            raise NotImplementedError('octagon option is not supported yet')
+        elif mode == "octagon":
+            raise NotImplementedError("octagon option is not supported yet")
             # d = self._ep.size_p2p(d, xyi, zi, 1)
 
         if through:
             layers = self._lp.boolean_l2l(layers, thru_layers, LP.ModeANotB)
 
-        info('    layers before and with into:'.format(layers))
+        info(f"    layers before and with into:")
         layers = self._lp.boolean_l2l(layers, into_layers, LP.ModeAnd)
-        info('    layers after and with into:'.format(layers))
+        info(f"    layers after and with into:")
 
-        info(f'    final layers = {layers}')
+        info(f"    final layers = {layers}")
         return layers
 
     @staticmethod
@@ -590,18 +612,19 @@ class MaterialData3D(object):
             return m
         else:
             raise TypeError(
-                f'm should be either an instance of MaterialData3D or a list of MaterialLayer. {type(m)} is given.'
+                f"m should be either an instance of MaterialData3D or a list of MaterialLayer. {type(m)} is given."
             )
 
 
-class XSectionGenerator(object):
-    """ The main class that creates a cross-section file
+class XSectionGenerator:
+    """The main class that creates a cross-section file
 
     Attributes
     ----------
     _lp : LayerProcessor
 
     """
+
     def __init__(self, file_path):
         """
         Parameters
@@ -618,14 +641,14 @@ class XSectionGenerator(object):
         self._delta, self._extend = 1, None
         self._height, self._depth, self._below = None, None, None
         self._thickness_scale_factor = 1
-        self._target_gds_file_name = ''
-        self._target_tech_file_name = ''
-        self._tech_str = ''
+        self._target_gds_file_name = ""
+        self._target_tech_file_name = ""
+        self._tech_str = ""
 
         self.set_output_parameters(filename="3d_xs.gds")
 
     def layer(self, layer_spec):
-        """ Fetches an input layer from the original layout.
+        """Fetches an input layer from the original layout.
 
         Parameters
         ----------
@@ -639,15 +662,18 @@ class XSectionGenerator(object):
 
         # collect shapes from the corresponding layer touching
         # extended self._box_dbu into ld._polygons
-        ld.load(self._layout, self._cell,
-                self._box_dbu.enlarged(Point(self._extend, self._extend)),
-                layer_spec)
+        ld.load(
+            self._layout,
+            self._cell,
+            self._box_dbu.enlarged(Point(self._extend, self._extend)),
+            layer_spec,
+        )
 
         return ld
 
     @print_info(True)
     def mask(self, layer_data):
-        """ Designates the layout_data object as a litho pattern (mask).
+        """Designates the layout_data object as a litho pattern (mask).
 
         This is the starting point for structured grow or etch operations.
 
@@ -659,14 +685,14 @@ class XSectionGenerator(object):
         -------
         MaskData
         """
-        info(f'    layer_data = {layer_data}')
+        info(f"    layer_data = {layer_data}")
         mask = layer_data.and_([Polygon(self._box_dbu)])
-        info(f'    mask = {mask}')
+        info(f"    mask = {mask}")
         return self._mask_to_seed_material(mask)
 
     # @property
     def air(self):
-        """ Return a material describing the air above
+        """Return a material describing the air above
 
         Return
         ------
@@ -676,7 +702,7 @@ class XSectionGenerator(object):
 
     # @property
     def bulk(self):
-        """ Return a material describing the wafer body
+        """Return a material describing the wafer body
 
         Return
         ------
@@ -686,7 +712,7 @@ class XSectionGenerator(object):
 
     @print_info(True)
     def output(self, layer_spec, material, color=None):
-        """ Outputs a material object to the output layout
+        """Outputs a material object to the output layout
 
         Parameters
         ----------
@@ -699,17 +725,15 @@ class XSectionGenerator(object):
                 f"'output' method: second parameter must be a material object (MaterialData3D). {type(material)} is given"
             )
 
-
         # confine the shapes to the region of interest
         # info('    roi = {}'.format(self._roi))
         # info('    material = {}'.format(material))
-        export_layers = self._lp.boolean_l2l(self._roi, material.data,
-                                             LP.ModeAnd)
-        info(f'    layers to export = {export_layers}')
+        export_layers = self._lp.boolean_l2l(self._roi, material.data, LP.ModeAnd)
+        info(f"    layers to export = {export_layers}")
         l, data_type, name = string_to_layer_info_params(layer_spec, True)
         # info('{}, {}, {}'.format(l, data_type, name))
 
-        name = name or ''
+        name = name or ""
 
         for i, layer in enumerate(export_layers):
             layer_not_empty = False
@@ -717,7 +741,7 @@ class XSectionGenerator(object):
             if layer.thickness < MIN_EXPORT_LAYER_THICKNESS:
                 continue  # next layer in the material
 
-            ls = LayerInfo(layer_no, data_type, f'{name} ({layer.bottom}-{layer.top})')
+            ls = LayerInfo(layer_no, data_type, f"{name} ({layer.bottom}-{layer.top})")
             li = self._target_layout.insert_layer(ls)
             shapes = self._target_layout.cell(self._target_cell).shapes(li)
             for polygon in layer.mask.data:
@@ -728,38 +752,35 @@ class XSectionGenerator(object):
                     shapes.insert(polygon)
 
             if layer_not_empty:
-                self._tech_str += layer_to_tech_str(layer_no, layer,
-                                                    name=name, color=color)
+                self._tech_str += layer_to_tech_str(
+                    layer_no, layer, name=name, color=color
+                )
 
         # info('    {}'.format(self._tech_str[0:150]))
 
     @print_info(True)
     def all(self):
-        """ A pseudo-mask, covering the whole wafer
+        """A pseudo-mask, covering the whole wafer
 
         Return
         ------
         res : MaterialData3D
         """
-        res = self._mask_to_seed_material(
-            LayoutData([Polygon(self._box_dbu)], self))
-        info(f'    result: {res}')
+        res = self._mask_to_seed_material(LayoutData([Polygon(self._box_dbu)], self))
+        info(f"    result: {res}")
         return res
 
     def flip(self):
-        """ Start or end backside processing
-
-        """
+        """Start or end backside processing"""
         self._air, self._air_below = self._air_below, self._air
         self._flipped = not self._flipped
 
     def diffuse(self, *args, **kwargs):
-        """ Same as deposit()
-        """
+        """Same as deposit()"""
         return self.all().grow(*args, **kwargs)
 
     def deposit(self, *args, **kwargs):
-        """ Deposits material as a uniform sheet.
+        """Deposits material as a uniform sheet.
 
         Equivalent to all.grow(...)
 
@@ -770,12 +791,11 @@ class XSectionGenerator(object):
         return self.all().grow(*args, **kwargs)
 
     def grow(self, *args, **kwargs):
-        """ Same as deposit()
-        """
+        """Same as deposit()"""
         return self.all().grow(*args, **kwargs)
 
     def etch(self, *args, **kwargs):
-        """ Uniform etching
+        """Uniform etching
 
         Equivalent to all.etch(...)
 
@@ -783,8 +803,7 @@ class XSectionGenerator(object):
         return self.all().etch(*args, **kwargs)
 
     def planarize(self, into=[], downto=[], less=None, to=None, **kwargs):
-        """Planarization
-        """
+        """Planarization"""
 
         if not into:
             raise ValueError("'planarize' requires an 'into' argument")
@@ -793,17 +812,21 @@ class XSectionGenerator(object):
         for i in into:
             # should be MaterialData @@@
             if not isinstance(i, MaterialData3D):
-                raise TypeError("'planarize' method: 'into' expects "
-                                "a material parameter or an array "
-                                "of such")
+                raise TypeError(
+                    "'planarize' method: 'into' expects "
+                    "a material parameter or an array "
+                    "of such"
+                )
 
         downto = make_iterable(downto)
         for i in downto:
             # should be MaterialData @@@
             if not isinstance(i, MaterialData3D):
-                raise TypeError("'planarize' method: 'downto' expects "
-                                "a material parameter or an array "
-                                "of such")
+                raise TypeError(
+                    "'planarize' method: 'downto' expects "
+                    "a material parameter or an array "
+                    "of such"
+                )
 
         if less is not None:
             less = int_floor(0.5 + float(less) / self.dbu)
@@ -817,30 +840,46 @@ class XSectionGenerator(object):
                 if len(downto_data) == 0:
                     downto_data = d.data
                 else:
-                    downto_data = self._lp.boolean_p2p(
-                            d.data, downto_data, LP.ModeOr)
+                    downto_data = self._lp.boolean_p2p(d.data, downto_data, LP.ModeOr)
 
             # determine upper bound of material
             if downto_data:
-                raise NotImplementedError('downto not implemented yet')
+                raise NotImplementedError("downto not implemented yet")
         elif into and not to:
-            raise NotImplementedError('into and not to not implemented yet')
+            raise NotImplementedError("into and not to not implemented yet")
         if to:
             less = less or 0
             if self._flipped:
                 removed_box = MaterialLayer(
                     LayoutData(
-                        [Polygon(self._box_dbu.enlarged(Point(self._extend,
-                                                     self._extend)))], self),
-                    - (self.depth_dbu + self.below_dbu),
-                    (to + less) + self.depth_dbu + self.below_dbu)
+                        [
+                            Polygon(
+                                self._box_dbu.enlarged(
+                                    Point(self._extend, self._extend)
+                                )
+                            )
+                        ],
+                        self,
+                    ),
+                    -(self.depth_dbu + self.below_dbu),
+                    (to + less) + self.depth_dbu + self.below_dbu,
+                )
 
             else:
                 removed_box = MaterialLayer(
                     LayoutData(
-                        [Polygon(self._box_dbu.enlarged(Point(self._extend,
-                                                     self._extend)))], self),
-                    to - less, self.height_dbu - (to - less))
+                        [
+                            Polygon(
+                                self._box_dbu.enlarged(
+                                    Point(self._extend, self._extend)
+                                )
+                            )
+                        ],
+                        self,
+                    ),
+                    to - less,
+                    self.height_dbu - (to - less),
+                )
 
             rem = MaterialData3D([], self, self._delta)
             for i in into:
@@ -865,17 +904,16 @@ class XSectionGenerator(object):
             self._target_tech_file_name = f"{filename}_tech"
 
     def set_delta(self, x):
-        """Configures the accuracy parameter
-        """
+        """Configures the accuracy parameter"""
         self._delta = int_floor(x / self._dbu + 0.5)
-        info(f'XSG._delta set to {self._delta}')
+        info(f"XSG._delta set to {self._delta}")
 
     @property
     def delta_dbu(self):
         return self._delta
 
     def set_height(self, x):
-        """ Configures the height of the processing window
+        """Configures the height of the processing window
 
         Parameters
         ----------
@@ -884,7 +922,7 @@ class XSectionGenerator(object):
 
         """
         self._height = int_floor(x / self._dbu + 0.5)
-        info(f'XSG._height set to {self._height}')
+        info(f"XSG._height set to {self._height}")
         self._update_basic_regions()
 
     @property
@@ -892,7 +930,7 @@ class XSectionGenerator(object):
         return self._height
 
     def set_depth(self, x):
-        """ Configures the depth of the processing window
+        """Configures the depth of the processing window
         or the wafer thickness for backside processing (see `below`)
 
         Parameters
@@ -901,7 +939,7 @@ class XSectionGenerator(object):
             depth of the wafer in [um]
         """
         self._depth = int_floor(x / self._dbu + 0.5)
-        info(f'XSG._depth set to {self._depth}')
+        info(f"XSG._depth set to {self._depth}")
         self._update_basic_regions()
 
     @property
@@ -909,7 +947,7 @@ class XSectionGenerator(object):
         return self._depth
 
     def set_below(self, x):
-        """ Configures the lower height of the processing window for backside processing
+        """Configures the lower height of the processing window for backside processing
 
         Parameters
         ----------
@@ -918,7 +956,7 @@ class XSectionGenerator(object):
 
         """
         self._below = int_floor(x / self._dbu + 0.5)
-        info(f'XSG._below set to {self._below}')
+        info(f"XSG._below set to {self._below}")
         self._update_basic_regions()
 
     @property
@@ -926,7 +964,7 @@ class XSectionGenerator(object):
         return self._below
 
     def set_extend(self, x):
-        """ Set the extend of the computation region
+        """Set the extend of the computation region
 
         Parameters
         ----------
@@ -942,7 +980,7 @@ class XSectionGenerator(object):
 
     @property
     def width_dbu(self):
-        """ Box size along the major flat (x-direction).
+        """Box size along the major flat (x-direction).
 
         Returns
         -------
@@ -952,7 +990,7 @@ class XSectionGenerator(object):
 
     @property
     def breadth_dbu(self):
-        """ Box size perpendicular to major flat (y-direction)
+        """Box size perpendicular to major flat (y-direction)
 
         Returns
         -------
@@ -961,7 +999,7 @@ class XSectionGenerator(object):
         return self._box_dbu.height()
 
     def background(self):
-        """ This is used in inverted() method.
+        """This is used in inverted() method.
 
         Returns
         -------
@@ -1010,8 +1048,7 @@ class XSectionGenerator(object):
 
     @print_info(False)
     def run(self):
-        """ The basic generation method
-        """
+        """The basic generation method"""
 
         if not self._setup():
             return None
@@ -1023,16 +1060,16 @@ class XSectionGenerator(object):
             text = file.read()
 
         if not text:
-            MessageBox.critical("Error",
-                                "Error reading file #{self._file_path}",
-                                MessageBox.b_ok())
+            MessageBox.critical(
+                "Error", "Error reading file #{self._file_path}", MessageBox.b_ok()
+            )
             return None
 
         # prepare variables to be visible in the script
         locals_ = dir(self)
         locals_dict = {}
         for attr in locals_:
-            if attr[0] != '_':
+            if attr[0] != "_":
                 locals_dict.update({attr: getattr(self, attr)})
 
         try:
@@ -1051,18 +1088,20 @@ class XSectionGenerator(object):
         self._target_view.zoom_fit()
         self._target_layout.write(self._target_gds_file_name)
 
-        info('    len(bulk.data) = {}'.format(len(self._bulk.data)))
-        self._tech_str = '# This file was generated automatically by pyxs.\n\n'\
-                         + layer_to_tech_str(255, self._bulk.data[0],
-                                             'Substrate') + self._tech_str
-        with open(self._target_tech_file_name, 'w') as f:
+        info(f"    len(bulk.data) = {len(self._bulk.data)}")
+        self._tech_str = (
+            "# This file was generated automatically by pyxs.\n\n"
+            + layer_to_tech_str(255, self._bulk.data[0], "Substrate")
+            + self._tech_str
+        )
+        with open(self._target_tech_file_name, "w") as f:
             f.write(self._tech_str)
 
         return None
 
     @print_info(True)
     def _mask_to_seed_material(self, mask):
-        """ Convert mask to a seed material for growth / etch operations.
+        """Convert mask to a seed material for growth / etch operations.
 
         Parameters
         ----------
@@ -1074,27 +1113,31 @@ class XSectionGenerator(object):
         seed : MaterialData3D
             Thin seed material to be used in geometry generation.
         """
-        info('    mask = {}'.format(mask))
+        info(f"    mask = {mask}")
 
-        mask_material = [MaterialLayer(mask, -(self._depth + self._below),
-                                       self._depth + self._below + self._height)]
-        info('    mask material = {}'.format(mask))
+        mask_material = [
+            MaterialLayer(
+                mask,
+                -(self._depth + self._below),
+                self._depth + self._below + self._height,
+            )
+        ]
+        info(f"    mask material = {mask}")
 
         air = self._air.data
-        info('    air =        {}'.format(air))
+        info(f"    air =        {air}")
 
         air_sized = self._lp.size_l2l(air, 0, 0, self._delta)
-        info('    air sized =  {}'.format(air_sized))
+        info(f"    air sized =  {air_sized}")
 
         # extended air minus air
         air_border = self._lp.boolean_l2l(air_sized, air, LP.ModeANotB)
-        info('    air_border = {}'.format(air_border))
+        info(f"    air_border = {air_border}")
 
         # overlap of air border and mask layer
-        seed_layers = self._lp.boolean_l2l(air_border, mask_material,
-                                           EP.ModeAnd)
+        seed_layers = self._lp.boolean_l2l(air_border, mask_material, EP.ModeAnd)
 
-        info('    seed_layers= {}'.format(seed_layers))
+        info(f"    seed_layers= {seed_layers}")
 
         seed = MaterialData3D(seed_layers, self, self._delta)
 
@@ -1111,28 +1154,35 @@ class XSectionGenerator(object):
         e = self._extend  # extend to the sides
 
         # TODO: add extend to the basic regions
-        self._area = [MaterialLayer(LayoutData([Polygon(self._box_dbu)], self),
-                                   -(b+d), (b+d+h))]  # Box(-e, -(d+b), w+e, h)
-        self._roi = [MaterialLayer(LayoutData([Polygon(self._box_dbu)], self),
-                                   -(b+d), (b+d+h))]  # Box(0, -(d + b), w, h)
+        self._area = [
+            MaterialLayer(
+                LayoutData([Polygon(self._box_dbu)], self), -(b + d), (b + d + h)
+            )
+        ]  # Box(-e, -(d+b), w+e, h)
+        self._roi = [
+            MaterialLayer(
+                LayoutData([Polygon(self._box_dbu)], self), -(b + d), (b + d + h)
+            )
+        ]  # Box(0, -(d + b), w, h)
 
         self._air = MaterialData3D(
-            [MaterialLayer(LayoutData([Polygon(self._box_dbu)], self), 0, h)],
-            self, 0)
+            [MaterialLayer(LayoutData([Polygon(self._box_dbu)], self), 0, h)], self, 0
+        )
         self._air_below = MaterialData3D(
-            [MaterialLayer(LayoutData([Polygon(self._box_dbu)], self),
-                           -(d + b), b)],
-            self, 0)
+            [MaterialLayer(LayoutData([Polygon(self._box_dbu)], self), -(d + b), b)],
+            self,
+            0,
+        )
 
         self._bulk = MaterialData3D(
-            [MaterialLayer(LayoutData([Polygon(self._box_dbu)], self), -d, d)],
-            self, 0)
+            [MaterialLayer(LayoutData([Polygon(self._box_dbu)], self), -d, d)], self, 0
+        )
 
-        info('    XSG._area:      {}'.format(self._area))
-        info('    XSG._roi:       {}'.format(self._roi))
-        info('    XSG._air:       {}'.format(self._air))
-        info('    XSG._bulk:      {}'.format(self._bulk))
-        info('    XSG._air_below: {}'.format(self._air_below))
+        info(f"    XSG._area:      {self._area}")
+        info(f"    XSG._roi:       {self._roi}")
+        info(f"    XSG._air:       {self._air}")
+        info(f"    XSG._bulk:      {self._bulk}")
+        info(f"    XSG._air_below: {self._air_below}")
 
     @print_info(True)
     def _setup(self):
@@ -1142,8 +1192,10 @@ class XSectionGenerator(object):
         view = app.main_window().current_view()  # LayoutView
         if not view:
             MessageBox.critical(
-                    "Error", "No view open for creating the cross "
-                    "section from", MessageBox.b_ok())
+                "Error",
+                "No view open for creating the cross " "section from",
+                MessageBox.b_ok(),
+            )
             return False
 
         # locate the (single) ruler
@@ -1171,9 +1223,9 @@ class XSectionGenerator(object):
 
         cv = view.cellview(view.active_cellview_index())  # CellView
         if not cv.is_valid():
-            MessageBox.critical("Error",
-                                "The selected layout is not valid",
-                                MessageBox.b_ok())
+            MessageBox.critical(
+                "Error", "The selected layout is not valid", MessageBox.b_ok()
+            )
             return False
 
         self._cv = cv  # CellView
@@ -1195,7 +1247,7 @@ class XSectionGenerator(object):
             p2_dbu = top_cell.bbox().p2.dup()
             self._box_dbu = Box(p1_dbu, p2_dbu)  # box describing the top cell
 
-        info('XSG._box_dbu to be used is: {}'.format(self._box_dbu))
+        info(f"XSG._box_dbu to be used is: {self._box_dbu}")
 
         # create a new layout for the output
         cv = app.main_window().create_layout(1)
@@ -1213,12 +1265,12 @@ class XSectionGenerator(object):
         self._depth = int_floor(2.0 / self._dbu + 0.5)  # 2 um in dbu
         self._below = int_floor(2.0 / self._dbu + 0.5)  # 2 um in dbu
 
-        info('    XSG._dbu is:    {}'.format(self._dbu))
-        info('    XSG._extend is: {}'.format(self._extend))
-        info('    XSG._delta is:  {}'.format(self._delta))
-        info('    XSG._height is: {}'.format(self._height))
-        info('    XSG._depth is:  {}'.format(self._depth))
-        info('    XSG._below is:  {}'.format(self._below))
+        info(f"    XSG._dbu is:    {self._dbu}")
+        info(f"    XSG._extend is: {self._extend}")
+        info(f"    XSG._delta is:  {self._delta}")
+        info(f"    XSG._height is: {self._height}")
+        info(f"    XSG._depth is:  {self._depth}")
+        info(f"    XSG._below is:  {self._below}")
 
         return True
 
@@ -1232,8 +1284,8 @@ pyxs_scripts = None
 
 
 class MenuHandler(Action):
-    """ Handler for the load .xs file action
-    """
+    """Handler for the load .xs file action"""
+
     def __init__(self, title, action, shortcut=None, icon=None):
         """
         Parameters
@@ -1255,8 +1307,7 @@ class MenuHandler(Action):
 
 
 class XSectionMRUAction(Action):
-    """ A special action to implement the cross section MRU menu item
-    """
+    """A special action to implement the cross section MRU menu item"""
 
     def __init__(self, action):
         """
@@ -1277,20 +1328,20 @@ class XSectionMRUAction(Action):
     @script.setter
     def script(self, s):
         self._script = s
-        self.visible = (s is not None)
+        self.visible = s is not None
         if s:
             self.title = os.path.basename(s)
 
 
-class XSectionScriptEnvironment(object):
-    """ The cross section script environment
-    """
+class XSectionScriptEnvironment:
+    """The cross section script environment"""
+
     def __init__(self):
         app = Application.instance()
         mw = app.main_window()
 
         def _on_triggered_callback():
-            """ Load pyxs script menu action.
+            """Load pyxs script menu action.
 
             Load new .pyxs file and run it.
             """
@@ -1299,8 +1350,10 @@ class XSectionScriptEnvironment(object):
                 raise UserWarning("No view open for running the pyxs script")
 
             filename = FileDialog.get_open_file_name(
-                    "Select cross-section script", "",
-                    "XSection Scripts (*.pyxs);;All Files (*)")
+                "Select cross-section script",
+                "",
+                "XSection Scripts (*.pyxs);;All Files (*)",
+            )
 
             # run the script and save it
             if filename.has_value():
@@ -1308,7 +1361,7 @@ class XSectionScriptEnvironment(object):
                 self.make_mru(filename.value())
 
         def _XSectionMRUAction_callback(script):
-            """ *.pyxs menu action
+            """*.pyxs menu action
 
             Load selected .pyxs file and run it.
 
@@ -1328,19 +1381,27 @@ class XSectionScriptEnvironment(object):
         # Create Load XSectionpy Script item in XSection (py)
         global pyxs_script_load_menuhandler
         pyxs_script_load_menuhandler = MenuHandler(
-                "Load pyxs script", _on_triggered_callback)
-        menu.insert_item("tools_menu.pyxs3D_script_submenu.end",
-                         "pyxs3D_script_load", pyxs_script_load_menuhandler)
-        menu.insert_separator("tools_menu.pyxs3D_script_submenu.end.end",
-                              "pyxs3D_script_mru_group")
+            "Load pyxs script", _on_triggered_callback
+        )
+        menu.insert_item(
+            "tools_menu.pyxs3D_script_submenu.end",
+            "pyxs3D_script_load",
+            pyxs_script_load_menuhandler,
+        )
+        menu.insert_separator(
+            "tools_menu.pyxs3D_script_submenu.end.end", "pyxs3D_script_mru_group"
+        )
 
         # Create list of existing pyxs scripts item in pyxs
         self._mru_actions = []
         for i in range(N_PYXS_SCRIPTS_MAX):
             a = XSectionMRUAction(_XSectionMRUAction_callback)
             self._mru_actions.append(a)
-            menu.insert_item("tools_menu.pyxs3D_script_submenu.end",
-                             "pyxs3D_script_mru{}".format(i), a)
+            menu.insert_item(
+                "tools_menu.pyxs3D_script_submenu.end",
+                f"pyxs3D_script_mru{i}",
+                a,
+            )
             a.script = None
 
         # try to save the MRU list to $HOME/.klayout-processing-mru
@@ -1354,9 +1415,9 @@ class XSectionScriptEnvironment(object):
         elif home:
             fn = home + "\\.klayout-pyxs-scripts"
             try:
-                with open(fn, "r") as file:
+                with open(fn) as file:
                     for line in file.readlines():
-                        match = re.match('<mru>(.*)<\/mru>', line)
+                        match = re.match(r"<mru>(.*)<\/mru>", line)
                         if match:
                             if i < len(self._mru_actions):
                                 self._mru_actions[i].script = match.group(1)
@@ -1365,7 +1426,7 @@ class XSectionScriptEnvironment(object):
                 pass
 
     def run_script(self, filename):
-        """ Run .pyxs script
+        """Run .pyxs script
 
         filename : str
             path to the .pyxs script
@@ -1385,7 +1446,7 @@ class XSectionScriptEnvironment(object):
         #                             MessageBox.b_ok())
 
     def make_mru(self, script):
-        """ Save list of scripts
+        """Save list of scripts
 
         script : str
             path to the script to be saved
@@ -1418,10 +1479,11 @@ class XSectionScriptEnvironment(object):
                 file.write("<pyxs>\n")
                 for a in self._mru_actions:
                     if a.script:
-                        file.write("<mru>{}</mru>\n".format(a.script))
+                        file.write(f"<mru>{a.script}</mru>\n")
                 file.write("</pyxs>\n")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     import doctest
+
     doctest.testmod()

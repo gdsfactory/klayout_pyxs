@@ -23,10 +23,10 @@ repos:
     hooks:
       - id: black
 
-  - repo: https://gitlab.com/pycqa/flake8
-    rev: "21d3c70d676007470908d39b73f0521d39b3b997"
-    hooks:
-      - id: flake8
+  # - repo: https://gitlab.com/pycqa/flake8
+  #   rev: "21d3c70d676007470908d39b73f0521d39b3b997"
+  #   hooks:
+  #     - id: flake8
 
   - repo: https://github.com/kynan/nbstripout
     rev: 8cafdcc393232045208137698dbeb42d6e0dd9e8
@@ -46,15 +46,15 @@ repos:
       - id: codespell
         args: ["-L TE,TE/TM,te,ba,FPR,fpr_spacing,ro"]
 
-  - repo: https://github.com/shellcheck-py/shellcheck-py
-    rev: f87a493c6596a5338d69395905a4e13ed65584f6
-    hooks:
-      - id: shellcheck
+  # - repo: https://github.com/shellcheck-py/shellcheck-py
+  #   rev: f87a493c6596a5338d69395905a4e13ed65584f6
+  #   hooks:
+  #     - id: shellcheck
 
-  - repo: https://github.com/pre-commit/pygrep-hooks
-    rev: 8e68d79b05355c9e107f81fc267f2bfc3e9e5a04 # Use the ref you want to point at
-    hooks:
-      - id: python-use-type-annotations
+  # - repo: https://github.com/pre-commit/pygrep-hooks
+  #   rev: 8e68d79b05355c9e107f81fc267f2bfc3e9e5a04 # Use the ref you want to point at
+  #   hooks:
+  #     - id: python-use-type-annotations
 
   - repo: https://github.com/PyCQA/bandit
     rev: 44c05fcac53de3a39589173177c931b38de5bb0f
@@ -63,26 +63,26 @@ repos:
         args: [--exit-zero]
         # ignore all tests, not just tests data
         exclude: ^tests/
-  - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: "214c33306afe17f1cc7d2d55e4da705b6ebe0627"
-    hooks:
-      - id: mypy
-        exclude: ^(docs/|example-plugin/|tests/fixtures)
-        additional_dependencies:
-          - "pydantic"
-  - repo: https://github.com/terrencepreilly/darglint
-    rev: master
-    hooks:
-      - id: darglint
+  # - repo: https://github.com/pre-commit/mirrors-mypy
+  #   rev: "214c33306afe17f1cc7d2d55e4da705b6ebe0627"
+  #   hooks:
+  #     - id: mypy
+  #       exclude: ^(docs/|example-plugin/|tests/fixtures)
+  #       additional_dependencies:
+  #         - "pydantic"
 
-  - repo: https://github.com/pycqa/pydocstyle
-    rev: ""
-    hooks:
-      - id: pydocstyle
-  - repo: https://github.com/asottile/reorder_python_imports
-    rev: 2b2f0c74acdb3de316e23ceb7dd0d7945c354050
-    hooks:
-      - id: reorder-python-imports
+  # - repo: https://github.com/pycqa/pydocstyle
+  #   rev: ""
+  #   hooks:
+  #     - id: pydocstyle
+  # - repo: https://github.com/asottile/reorder_python_imports
+  #   rev: 2b2f0c74acdb3de316e23ceb7dd0d7945c354050
+  #   hooks:
+  #     - id: reorder-python-imports
+  # - repo: https://github.com/terrencepreilly/darglint
+  #   rev: master
+  #   hooks:
+  #     - id: darglint
   # - repo: https://github.com/PyCQA/pylint
   #   rev: v2.14.1
   #   hooks:

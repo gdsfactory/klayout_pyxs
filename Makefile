@@ -20,7 +20,7 @@ upload-twine: build
 	twine upload dist/*
 
 lint:
-	flake8 
+	flake8
 
 pylint:
 	pylint --rcfile .pylintrc klayout_pyxs/
