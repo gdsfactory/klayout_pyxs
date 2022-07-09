@@ -63,22 +63,22 @@ repos:
         args: [--exit-zero]
         # ignore all tests, not just tests data
         exclude: ^tests/
-   - repo: https://github.com/pre-commit/mirrors-mypy
-     rev: "214c33306afe17f1cc7d2d55e4da705b6ebe0627"
-     hooks:
-       - id: mypy
-         exclude: ^(docs/|example-plugin/|tests/fixtures)
-         additional_dependencies:
-           - "pydantic"
-   - repo: https://github.com/terrencepreilly/darglint
-     rev: master
-     hooks:
-         - id: darglint
-  
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: "214c33306afe17f1cc7d2d55e4da705b6ebe0627"
+    hooks:
+      - id: mypy
+        exclude: ^(docs/|example-plugin/|tests/fixtures)
+        additional_dependencies:
+          - "pydantic"
+  - repo: https://github.com/terrencepreilly/darglint
+    rev: master
+    hooks:
+      - id: darglint
+
   - repo: https://github.com/pycqa/pydocstyle
     rev: ""
     hooks:
-        - id: pydocstyle
+      - id: pydocstyle
   - repo: https://github.com/asottile/reorder_python_imports
     rev: 2b2f0c74acdb3de316e23ceb7dd0d7945c354050
     hooks:
