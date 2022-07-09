@@ -24,9 +24,6 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           cache: 'pip'
-      - name: Install dependencies
+      - name: run tests
         run: |
           bash tests/run_tests.sh
-      - name: Lint with flake8
-        run: |
-          flake8 .
