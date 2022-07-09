@@ -11,7 +11,7 @@ mkdir -p run_dir
 
 failed=""
 
-bin=../klayout_pyxs/pymacros/pyxs.lym
+bin=../pymacros/pyxs.lym
 
 if [ "$1" == "" ]; then
   all_xs=( *.pyxs )
