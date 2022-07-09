@@ -35,7 +35,7 @@ def print_info(v=True):
             VERBOSE = v
             if v:
                 OFFSET += 4
-            info('{}():'.format(f.__name__))
+            info(f'{f.__name__}():')
             res = f(*args, **kwargs)
             info('end of {}()\n'.format(f.__name__))
             if v:
@@ -81,14 +81,11 @@ def _check_type(instance, typ, caller=''):
         caller name. Used for more informative error messages.
     """
 
-    if caller != '':
-        caller_str = "'{}': ".format(caller)
-    else:
-        caller_str = ""
-
     if not isinstance(instance, typ):
-        raise TypeError("{}Argument must be an instance of {}. {} is given"
-                        .format(caller_str, typ, type(instance)))
+        caller_str = f"'{caller}': " if caller != '' else ""
+        raise TypeError(
+            f"{caller_str}Argument must be an instance of {typ}. {type(instance)} is given"
+        )
 
 
 def make_iterable(v):

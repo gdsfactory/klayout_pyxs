@@ -90,15 +90,9 @@ class EdgeProcessor(EP_):
         elif mode == self.ModeAnd:  # either pa and pb is empty, mode AND
             return []  # will be empty
         elif mode == self.ModeOr:
-            if n_pa > 0:
-                return pa
-            else:
-                return pb
+            return pa if n_pa > 0 else pb
         elif mode == self.ModeXor:
-            if n_pa > 0:
-                return pa
-            else:
-                return pb
+            return pa if n_pa > 0 else pb
         elif mode == self.ModeANotB:
             return pa
         elif mode == self.ModeBNotA:
@@ -139,10 +133,10 @@ class EdgeProcessor(EP_):
             The output polygons
 
         """
-        info('    polys  = {}'.format(polygons))
-        info('    dx = {}, dy = {}'.format(dx, dy))
+        info(f'    polys  = {polygons}')
+        info(f'    dx = {dx}, dy = {dy}')
         res = super(EdgeProcessor, self).size_p2p(polygons, dx, dy, mode, rh, mc)
-        info('    EP.size_p2p().res = {}'.format(res))
+        info(f'    EP.size_p2p().res = {res}')
         return res
 
 
@@ -181,31 +175,38 @@ def parse_grow_etch_args(method, material_cls, into=(), through=(), on=(),
         for i in into:
             # should be MaterialData @@@
             if not isinstance(i, material_cls):
-                raise TypeError("'{}' method: 'into' expects a material "
-                                "parameter or an array of such. {} is given"
-                                .format(method, type(i)))
+                raise TypeError(
+                    f"'{method}' method: 'into' expects a material parameter or an array of such. {type(i)} is given"
+                )
+
     if on:
         on = make_iterable(on)
         for i in on:
             # should be MaterialData @@@
             if not isinstance(i, material_cls):
-                raise TypeError("'{}' method: 'on' expects a material "
-                                "parameter or an array of such".format(method))
+                raise TypeError(
+                    f"'{method}' method: 'on' expects a material parameter or an array of such"
+                )
+
     if through:
         through = make_iterable(through)
         for i in through:
             # should be MaterialData @@@
             if not isinstance(i, material_cls):
-                raise TypeError("'{}' method: 'through' expects a material "
-                                "parameter or an array of such".format(method))
+                raise TypeError(
+                    f"'{method}' method: 'through' expects a material parameter or an array of such"
+                )
+
 
     if on and (through or into):
         raise ValueError("'on' option cannot be combined with 'into' or "
                          "'through' option")
 
     if mode not in ('round', 'square', 'octagon'):
-        raise ValueError("'{}' method: 'mode' should be 'round', 'square' or "
-                         "'octagon'".format(method))
+        raise ValueError(
+            f"'{method}' method: 'mode' should be 'round', 'square' or 'octagon'"
+        )
+
 
     return into, through, on, mode
 
@@ -244,7 +245,7 @@ class LayoutData(object):
     def __str__(self):
         n_poly = self.n_poly
 
-        s = 'LayoutData (n_polygons = {})'.format(n_poly)
+        s = f'LayoutData (n_polygons = {n_poly})'
 
         if n_poly > 0:
             s += ':'
@@ -254,8 +255,7 @@ class LayoutData(object):
         return s
 
     def __repr__(self):
-        s = '<LayoutData (n_polygons = {})>'.format(self.n_poly)
-        return s
+        return f'<LayoutData (n_polygons = {self.n_poly})>'
 
     @property
     def data(self):
@@ -340,16 +340,16 @@ class LayoutData(object):
         layer_spec : str
             layer to be used
         """
-        info('LD.load(..., box={}, layer_spec={})'.format(box, layer_spec))
+        info(f'LD.load(..., box={box}, layer_spec={layer_spec})')
 
         ls = string_to_layer_info(layer_spec)
 
         # look up the layer index with a given layer_spec in the current layout
         layer_index = None
         for li in layout.layer_indices():
-            info("    li = {}".format(li))
+            info(f"    li = {li}")
             if layout.get_info(li).is_equivalent(ls):
-                info("        layer_index = {}".format(li))
+                info(f"        layer_index = {li}")
                 layer_index = li
                 break
 
@@ -367,11 +367,11 @@ class LayoutData(object):
                 shape_iter.next()
 
         n_poly = self.n_poly
-        info('    loaded polygon count: {}'.format(n_poly))
+        info(f'    loaded polygon count: {n_poly}')
         if n_poly > 0:
             info('    loaded polygons:')
         for pi in range(min(2, n_poly)):
-            info('        {}'.format(self._polygons[pi]))
+            info(f'        {self._polygons[pi]}')
 
         info('LD.load()\n')
 
@@ -465,11 +465,13 @@ class LayoutData(object):
         ld : LayoutData
         """
         dy = dx if dy is None else dy
-        ld = self.upcast(self._ep.size_p2p(self._polygons,
-                                           int_floor(dx / self._xs.dbu + 0.5),
-                                           int_floor(dy / self._xs.dbu + 0.5)
-                                           ))
-        return ld
+        return self.upcast(
+            self._ep.size_p2p(
+                self._polygons,
+                int_floor(dx / self._xs.dbu + 0.5),
+                int_floor(dy / self._xs.dbu + 0.5),
+            )
+        )
 
     def sub(self, other):
         """ Substract another list of polygons.
@@ -539,9 +541,9 @@ class LayoutData(object):
         elif isinstance(l, (tuple, list)):
             return l
         else:
-            raise TypeError('l should be either an instance of LayoutData or '
-                            'a list of Polygon. {} is given.'
-                            .format(type(l)))
+            raise TypeError(
+                f'l should be either an instance of LayoutData or a list of Polygon. {type(l)} is given.'
+            )
 
 
 class MaskData(LayoutData):
@@ -569,8 +571,8 @@ class MaskData(LayoutData):
         self._air_polygons = air_polygons
         self._mask_polygons = mask_polygons
 
-        info('air_polygons = {}'.format(air_polygons))
-        info('mask_polygons = {}'.format(mask_polygons))
+        info(f'air_polygons = {air_polygons}')
+        info(f'mask_polygons = {mask_polygons}')
         info('Success!')
 
     def upcast(self, polygons):
@@ -583,8 +585,8 @@ class MaskData(LayoutData):
         n_air_poly = self.n_air_poly
         n_mask_poly = self.n_mask_poly
 
-        s = '{} (n_air_polygons={}, n_mask_polygons={})'.format(
-            self.__class__.__name__, n_air_poly, n_mask_poly)
+        s = f'{self.__class__.__name__} (n_air_polygons={n_air_poly}, n_mask_polygons={n_mask_poly})'
+
 
         if n_mask_poly > 0:
             s += ':'
@@ -616,9 +618,7 @@ class MaskData(LayoutData):
         return len(self._mask_polygons)
 
     def __repr__(self):
-        s = '<MaskData (delta={}, n_air_polygons={}, n_mask_polygons={})>' \
-            .format(self._delta, self.n_air_poly, self.n_mask_poly)
-        return s
+        return f'<MaskData (delta={self._delta}, n_air_polygons={self.n_air_poly}, n_mask_polygons={self.n_mask_poly})>'
 
     @print_info(False)
     def grow(self, z, xy=0.0, into=(), through=(), on=(), mode='square',
@@ -661,11 +661,11 @@ class MaskData(LayoutData):
 
         """
         # parse the arguments
-        info('    into={}'.format(into))
+        info(f'    into={into}')
         into, through, on, mode = parse_grow_etch_args(
             'grow', MaterialData, into=into, through=through, on=on, mode=mode)
 
-        info('    into={}'.format(into))
+        info(f'    into={into}')
         # produce the geometry of the new material
         d = self.produce_geom('grow', xy, z,
                               into, through, on,
