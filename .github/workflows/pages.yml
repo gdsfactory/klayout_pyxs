@@ -28,6 +28,7 @@ jobs:
         shell: bash -l {0}
         run: |
           pip install -e .
+          pip install -r requirements_dev.txt
           sudo wget https://github.com/jgm/pandoc/releases/download/1.16.0.2/pandoc-1.16.0.2-1-amd64.deb
           sudo dpkg -i pandoc-1.16.0.2-1-amd64.deb
           #sudo apt install pandoc
