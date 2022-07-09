@@ -347,12 +347,10 @@ class XSectionGenerator(object):
                 if not self._hide_png_save_error:
                     MessageBox.critical(
                         "Error",
-                        "Error saving png file {}. \n\n Error: {}. \n\n"
-                        "Further error messages will not be displayed.".format(
-                            file_name, e
-                        ),
+                        f"Error saving png file {file_name}. \n\n Error: {e}. \n\nFurther error messages will not be displayed.",
                         MessageBox.b_ok(),
                     )
+
                     self._hide_png_save_error = True
         return None
 
@@ -724,11 +722,10 @@ class XSectionGenerator(object):
         except Exception as e:
             MessageBox.critical(
                 "Error",
-                "Error reading file {}. \n\nError: {}".format(
-                    self._file_name, e
-                ),
+                f"Error reading file {self._file_name}. \n\nError: {e}",
                 MessageBox.b_ok(),
             )
+
             return None
 
         if text is None:
@@ -1198,7 +1195,7 @@ class XSectionScriptEnvironment(object):
                 file.write("<pyxs>\n")
                 for a in self._mru_actions:
                     if a.script:
-                        file.write("<mru>{}</mru>\n".format(a.script))
+                        file.write(f"<mru>{a.script}</mru>\n")
                 file.write("</pyxs>\n")
 
 

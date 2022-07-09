@@ -251,7 +251,7 @@ class LayoutData(object):
             s += ':'
 
         for pi in range(min(2, n_poly)):
-            s += '\n    {}'.format(self._polygons[pi])
+            s += f'\n    {self._polygons[pi]}'
         return s
 
     def __repr__(self):
@@ -592,7 +592,7 @@ class MaskData(LayoutData):
             s += ':'
 
         for pi in range(min(2, n_mask_poly)):
-            s += '\n    {}'.format(self._mask_polygons[pi])
+            s += f'\n    {self._mask_polygons[pi]}'
         return s
 
     @property

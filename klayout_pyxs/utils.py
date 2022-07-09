@@ -37,7 +37,7 @@ def print_info(v=True):
                 OFFSET += 4
             info(f'{f.__name__}():')
             res = f(*args, **kwargs)
-            info('end of {}()\n'.format(f.__name__))
+            info(f'end of {f.__name__}()\n')
             if v:
                 OFFSET -= 4
             VERBOSE = old_v

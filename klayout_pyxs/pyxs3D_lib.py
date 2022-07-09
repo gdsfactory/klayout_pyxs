@@ -89,7 +89,7 @@ class MaterialData3D(object):
             s += ':'
 
         for li in range(min(5, n_layers)):
-            s += '\n    {}'.format(str(self._layers[li]))
+            s += f'\n    {str(self._layers[li])}'
         return s
 
     @property
@@ -455,11 +455,10 @@ class MaterialData3D(object):
         -------
         layers : list of MaterialLayer
         """
-        info('    method={}, xy={}, z={}, \n'
-             '    into={}, through={}, on={}, \n'
-             '    taper={}, bias={}, mode={}, buried={})'
-             .format(method, xy, z, into, through, on, taper, bias, mode,
-                     buried))
+        info(
+            f'    method={method}, xy={xy}, z={z}, \n    into={into}, through={through}, on={on}, \n    taper={taper}, bias={bias}, mode={mode}, buried={buried})'
+        )
+
 
         prebias = bias or 0.0
 
@@ -1030,11 +1029,7 @@ class XSectionGenerator(object):
 
         # prepare variables to be visible in the script
         locals_ = dir(self)
-        locals_dict = {}
-        for attr in locals_:
-            if attr[0] != '_':
-                locals_dict.update({attr: getattr(self, attr)})
-
+        locals_dict = {attr: getattr(self, attr) for attr in locals_ if attr[0] != '_'}
         try:
             exec(text, locals_dict)
         except Exception as e:
@@ -1051,7 +1046,7 @@ class XSectionGenerator(object):
         self._target_view.zoom_fit()
         self._target_layout.write(self._target_gds_file_name)
 
-        info('    len(bulk.data) = {}'.format(len(self._bulk.data)))
+        info(f'    len(bulk.data) = {len(self._bulk.data)}')
         self._tech_str = '# This file was generated automatically by pyxs.\n\n'\
                          + layer_to_tech_str(255, self._bulk.data[0],
                                              'Substrate') + self._tech_str
@@ -1074,31 +1069,29 @@ class XSectionGenerator(object):
         seed : MaterialData3D
             Thin seed material to be used in geometry generation.
         """
-        info('    mask = {}'.format(mask))
+        info(f'    mask = {mask}')
 
         mask_material = [MaterialLayer(mask, -(self._depth + self._below),
                                        self._depth + self._below + self._height)]
-        info('    mask material = {}'.format(mask))
+        info(f'    mask material = {mask}')
 
         air = self._air.data
-        info('    air =        {}'.format(air))
+        info(f'    air =        {air}')
 
         air_sized = self._lp.size_l2l(air, 0, 0, self._delta)
-        info('    air sized =  {}'.format(air_sized))
+        info(f'    air sized =  {air_sized}')
 
         # extended air minus air
         air_border = self._lp.boolean_l2l(air_sized, air, LP.ModeANotB)
-        info('    air_border = {}'.format(air_border))
+        info(f'    air_border = {air_border}')
 
         # overlap of air border and mask layer
         seed_layers = self._lp.boolean_l2l(air_border, mask_material,
                                            EP.ModeAnd)
 
-        info('    seed_layers= {}'.format(seed_layers))
+        info(f'    seed_layers= {seed_layers}')
 
-        seed = MaterialData3D(seed_layers, self, self._delta)
-
-        return seed
+        return MaterialData3D(seed_layers, self, self._delta)
 
     @print_info(False)
     def _update_basic_regions(self):
@@ -1128,11 +1121,11 @@ class XSectionGenerator(object):
             [MaterialLayer(LayoutData([Polygon(self._box_dbu)], self), -d, d)],
             self, 0)
 
-        info('    XSG._area:      {}'.format(self._area))
-        info('    XSG._roi:       {}'.format(self._roi))
-        info('    XSG._air:       {}'.format(self._air))
-        info('    XSG._bulk:      {}'.format(self._bulk))
-        info('    XSG._air_below: {}'.format(self._air_below))
+        info(f'    XSG._area:      {self._area}')
+        info(f'    XSG._roi:       {self._roi}')
+        info(f'    XSG._air:       {self._air}')
+        info(f'    XSG._bulk:      {self._bulk}')
+        info(f'    XSG._air_below: {self._air_below}')
 
     @print_info(True)
     def _setup(self):
@@ -1185,7 +1178,6 @@ class XSectionGenerator(object):
             # get the start and end points in database units and micron
             p1_dbu = Point.from_dpoint(rulers[0].p1 * (1.0 / self._dbu))
             p2_dbu = Point.from_dpoint(rulers[0].p2 * (1.0 / self._dbu))
-            self._box_dbu = Box(p1_dbu, p2_dbu)  # box describing the ruler
         else:
             # TODO: choose current cell, not top cell
             top_cell = self._layout.top_cell()
@@ -1193,9 +1185,8 @@ class XSectionGenerator(object):
             p1_dbu = top_cell.bbox().p1.dup()
             p2_dbu = (top_cell.bbox().p2 * (1.0 / self._dbu)).dup()
             p2_dbu = top_cell.bbox().p2.dup()
-            self._box_dbu = Box(p1_dbu, p2_dbu)  # box describing the top cell
-
-        info('XSG._box_dbu to be used is: {}'.format(self._box_dbu))
+        self._box_dbu = Box(p1_dbu, p2_dbu)  # box describing the ruler
+        info(f'XSG._box_dbu to be used is: {self._box_dbu}')
 
         # create a new layout for the output
         cv = app.main_window().create_layout(1)
@@ -1213,12 +1204,12 @@ class XSectionGenerator(object):
         self._depth = int_floor(2.0 / self._dbu + 0.5)  # 2 um in dbu
         self._below = int_floor(2.0 / self._dbu + 0.5)  # 2 um in dbu
 
-        info('    XSG._dbu is:    {}'.format(self._dbu))
-        info('    XSG._extend is: {}'.format(self._extend))
-        info('    XSG._delta is:  {}'.format(self._delta))
-        info('    XSG._height is: {}'.format(self._height))
-        info('    XSG._depth is:  {}'.format(self._depth))
-        info('    XSG._below is:  {}'.format(self._below))
+        info(f'    XSG._dbu is:    {self._dbu}')
+        info(f'    XSG._extend is: {self._extend}')
+        info(f'    XSG._delta is:  {self._delta}')
+        info(f'    XSG._height is: {self._height}')
+        info(f'    XSG._depth is:  {self._depth}')
+        info(f'    XSG._below is:  {self._below}')
 
         return True
 
@@ -1410,15 +1401,13 @@ class XSectionScriptEnvironment(object):
         for i in range(len(self._mru_actions)):
             self._mru_actions[i].script = scripts[i]
 
-        # try to save the MRU list to $HOME/.klayout-xsection
-        home = os.getenv("HOME", None) or os.getenv("HOMESHARE", None)
-        if home:
+        if home := os.getenv("HOME", None) or os.getenv("HOMESHARE", None):
             fn = home + "\\.klayout-pyxs-scripts"
             with open(fn, "w") as file:
                 file.write("<pyxs>\n")
                 for a in self._mru_actions:
                     if a.script:
-                        file.write("<mru>{}</mru>\n".format(a.script))
+                        file.write(f"<mru>{a.script}</mru>\n")
                 file.write("</pyxs>\n")
 
 

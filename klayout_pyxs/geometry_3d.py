@@ -649,15 +649,15 @@ def layer_to_tech_str(layer_no_gds, layer, name='', color=None, filter=0.0,
         )
 
 
-    s = '' + 'LayerStart: {}\n'.format(name)
-    s += 'Layer: {}\n'.format(layer_no_gds)
-    s += 'Height: {}\n'.format(layer.bottom)
-    s += 'Thickness: {}\n'.format(layer.thickness)
+    s = '' + f'LayerStart: {name}\n'
+    s += f'Layer: {layer_no_gds}\n'
+    s += f'Height: {layer.bottom}\n'
+    s += f'Thickness: {layer.thickness}\n'
 
-    s += 'Red: {}\nGreen: {}\nBlue: {}\nFilter: {}\n'.format(r, g, b, a)
-    s += 'Metal: {}\n'.format(metal)
-    s += 'Shortkey: {}\n'.format(shortcut) if shortcut else ''
-    s += 'Show: {}\n'.format(int(show))
+    s += f'Red: {r}\nGreen: {g}\nBlue: {b}\nFilter: {a}\n'
+    s += f'Metal: {metal}\n'
+    s += f'Shortkey: {shortcut}\n' if shortcut else ''
+    s += f'Show: {int(show)}\n'
     s += 'LayerEnd\n\n'
     return s
 
