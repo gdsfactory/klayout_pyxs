@@ -23,9 +23,8 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
-          cache: 'pip'
       - name: run tests
         run: |
-          pip install -e .
+          pip install .
           sudo apt install klayout
           bash tests/run_tests.sh
