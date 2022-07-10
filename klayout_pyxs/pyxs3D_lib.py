@@ -479,11 +479,7 @@ class MaterialData3D:
         layers : list of MaterialLayer
         """
         info(
-            "    method={}, xy={}, z={}, \n"
-            "    into={}, through={}, on={}, \n"
-            "    taper={}, bias={}, mode={}, buried={})".format(
-                method, xy, z, into, through, on, taper, bias, mode, buried
-            )
+            f"    method={method}, xy={xy}, z={z}, \n    into={into}, through={through}, on={on}, \n    taper={taper}, bias={bias}, mode={mode}, buried={buried})"
         )
 
         prebias = bias or 0.0
@@ -597,9 +593,9 @@ class MaterialData3D:
         if through:
             layers = self._lp.boolean_l2l(layers, thru_layers, LP.ModeANotB)
 
-        info(f"    layers before and with into:")
+        info("    layers before and with into:")
         layers = self._lp.boolean_l2l(layers, into_layers, LP.ModeAnd)
-        info(f"    layers after and with into:")
+        info("    layers after and with into:")
 
         info(f"    final layers = {layers}")
         return layers
@@ -1067,11 +1063,7 @@ class XSectionGenerator:
 
         # prepare variables to be visible in the script
         locals_ = dir(self)
-        locals_dict = {}
-        for attr in locals_:
-            if attr[0] != "_":
-                locals_dict.update({attr: getattr(self, attr)})
-
+        locals_dict = {attr: getattr(self, attr) for attr in locals_ if attr[0] != "_"}
         try:
             exec(text, locals_dict)
         except Exception as e:
@@ -1139,9 +1131,7 @@ class XSectionGenerator:
 
         info(f"    seed_layers= {seed_layers}")
 
-        seed = MaterialData3D(seed_layers, self, self._delta)
-
-        return seed
+        return MaterialData3D(seed_layers, self, self._delta)
 
     @print_info(False)
     def _update_basic_regions(self):
@@ -1237,7 +1227,6 @@ class XSectionGenerator:
             # get the start and end points in database units and micron
             p1_dbu = Point.from_dpoint(rulers[0].p1 * (1.0 / self._dbu))
             p2_dbu = Point.from_dpoint(rulers[0].p2 * (1.0 / self._dbu))
-            self._box_dbu = Box(p1_dbu, p2_dbu)  # box describing the ruler
         else:
             # TODO: choose current cell, not top cell
             top_cell = self._layout.top_cell()
@@ -1245,8 +1234,7 @@ class XSectionGenerator:
             p1_dbu = top_cell.bbox().p1.dup()
             p2_dbu = (top_cell.bbox().p2 * (1.0 / self._dbu)).dup()
             p2_dbu = top_cell.bbox().p2.dup()
-            self._box_dbu = Box(p1_dbu, p2_dbu)  # box describing the top cell
-
+        self._box_dbu = Box(p1_dbu, p2_dbu)  # box describing the ruler
         info(f"XSG._box_dbu to be used is: {self._box_dbu}")
 
         # create a new layout for the output

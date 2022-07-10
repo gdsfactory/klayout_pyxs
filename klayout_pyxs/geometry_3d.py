@@ -660,7 +660,7 @@ def layer_to_tech_str(
             f"Filter / transparency value must be from 0 to 1. {a} is given"
         )
 
-    s = "" + f"LayerStart: {name}\n"
+    s = f"LayerStart: {name}\n"
     s += f"Layer: {layer_no_gds}\n"
     s += f"Height: {layer.bottom}\n"
     s += f"Thickness: {layer.thickness}\n"

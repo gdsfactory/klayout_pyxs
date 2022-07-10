@@ -329,12 +329,10 @@ class XSectionGenerator:
                 if not self._hide_png_save_error:
                     MessageBox.critical(
                         "Error",
-                        "Error saving png file {}. \n\n Error: {}. \n\n"
-                        "Further error messages will not be displayed.".format(
-                            file_name, e
-                        ),
+                        f"Error saving png file {file_name}. \n\n Error: {e}. \n\nFurther error messages will not be displayed.",
                         MessageBox.b_ok(),
                     )
+
                     self._hide_png_save_error = True
         return None
 
