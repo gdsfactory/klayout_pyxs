@@ -27,4 +27,5 @@ jobs:
         run: |
           pip install .
           sudo apt install klayout
-          bash tests/run_tests.sh
+          cd tests
+          bash run_tests.sh

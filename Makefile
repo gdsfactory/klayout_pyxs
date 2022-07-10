@@ -8,8 +8,6 @@ install:
 	cp pymacros/pyxs.lym  ~/.klayout/pymacros/
 	# ln -s $(PWD)/klayout_pyxs  ~/.klayout/python/
 
-tests:
-	bash tests/run_tests.sh
 
 release:
 	git push
