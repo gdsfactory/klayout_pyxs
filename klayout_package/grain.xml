@@ -3,7 +3,7 @@
  <name>klayout_pyxs</name>
  <token/>
  <hidden>false</hidden>
- <version>0.1.8</version>
+ <version>0.1.9</version>
  <api-version/>
  <title>klayout_pyxs</title>
  <doc>python port of the Klayout xsection project</doc>

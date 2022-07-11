@@ -13,7 +13,7 @@ with open("README.md") as f:
 
 setup(
     name="klayout_pyxs",
-    version="0.1.8",
+    version="0.1.9",
     url="https://github.com/dimapu/klayout_pyxs",
     license="MIT",
     author="Dima Pustakhod",
