@@ -1,7 +1,7 @@
 project = "klayout_pyxs"
 copyright = "2019, Dzmitry Pustakhod"
 author = "Dzmitry Pustakhod"
-release = "0.1.7"
+release = "0.1.8"
 
 extensions = [
     "matplotlib.sphinxext.plot_directive",
