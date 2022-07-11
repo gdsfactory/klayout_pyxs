@@ -11,11 +11,6 @@ It is a port of Ruby script
 Most of the algorithms / tests / documentation are taken with minor
 adaptations from XSection project.
 
-Installation
-------------
-
-Installations instructions to be defined.
-
 In order to use the cross section generator, a description of the
 process must be provided. Such a description is stored in files with
 extension ``.pyxs``. They contain a step-by-step recipe how the layer
@@ -55,6 +50,7 @@ The following screenshot shows a sample cross section taken from the
    :caption: Contents
    :maxdepth: 2
 
+   README
    DocIntro
    DocGrow
    DocEtch

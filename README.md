@@ -1,5 +1,13 @@
 # klayout_pyxs 0.1.9
 
+[![docs](https://github.com/gdsfactory/klayout_pyxs/actions/workflows/pages.yml/badge.svg)](https://gdsfactory.github.io/klayout_pyxs/)
+[![pypi](https://img.shields.io/pypi/v/klayout_pyxs)](https://pypi.org/project/klayout_pyxs/)
+[![MIT](https://img.shields.io/github/license/gdsfactory/gdsfactory)](https://choosealicense.com/licenses/mit/)
+[![black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![Downloads](https://pepy.tech/badge/klayout_pyxs)](https://pepy.tech/project/klayout_pyxs)
+[![Downloads](https://pepy.tech/badge/klayout_pyxs/month)](https://pepy.tech/project/klayout_pyxs)
+[![Downloads](https://pepy.tech/badge/klayout_pyxs/week)](https://pepy.tech/project/klayout_pyxs)
+
 This is a python port of the XSection project
 (https://github.com/klayoutmatthias/xsection).
 
@@ -9,13 +17,8 @@ supporting a wide range of technology options.
 
 ## User Documentation
 
-For the project description see [klayout_pyxs Project Home Page](https://github.com/dimapu/klayout_pyxs).
+For the project description see [klayout_pyxs Project Home Page](https://gdsfactory.github.io/klayout_pyxs).
 
-For an introduction into writing PYXS files, see
-[Writing PYXS Files - an Introduction](https://klayout-pyxs.readthedocs.io/en/latest/DocIntro.html).
-
-For a reference of the elements of the PYXS scripts, see
-[PYXS File Reference](https://klayout-pyxs.readthedocs.io/en/latest/DocReference.html).
 
 ## Project Files
 
@@ -60,15 +63,26 @@ Ruby-based .xs scripts to .pyxs scripts. It performs necessary but not
 sufficient string replacements. Depending on the .xs script complexity,
 more changes are likely to be needed.
 
-## Installation
+
+## Installation for users
+
+You can install the module 
+
+```
+pip install klayout_pyxs
+```
+
+And the klayout macro from klayout package manager.
+
+![](https://i.imgur.com/0e1vAqW.png)
+
+## Installation for developers
 
 To run .pyxs scripts from the KLayout menu, klayout_pyxs package and
 python macros file have to be installed to the KLayout folders.
 According to [KLayout documentation](https://www.klayout.de/doc-qt4/about/macro_editor.html),
 they should go to the "pymacros" and "python" folders in KLayout's user
 specific application folder. In Windows, it is $USERPROFILE/KLayout.
-
-### Prerequisites
 
 If you are using Python 2.7 in your KLayout distribution, you need
 `six` package installed.
