@@ -37,3 +37,7 @@ autopep8:
 
 codestyle:
 	pycodestyle --max-line-length=88
+
+release:
+	git push
+	git push origin --tags
