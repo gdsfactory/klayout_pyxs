@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 
 Author: Dima Pustakhod
@@ -9,4 +8,4 @@ Changelog
 2019.06.15
     Initial commit
 """
-__version__ = '0.1.5'
+__version__ = "0.1.5"

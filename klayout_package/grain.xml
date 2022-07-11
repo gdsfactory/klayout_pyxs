@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<salt-grain>
+ <name>klayout_pyxs</name>
+ <token/>
+ <hidden>false</hidden>
+ <version>0.0.1</version>
+ <api-version/>
+ <title>klayout_pyxs</title>
+ <doc>python port of the Klayout xsection project</doc>
+ <doc-url>https://klayout-pyxs.readthedocs.io/en/latest/index.html</doc-url>
+ <url>https://github.com/gdsfactory/klayout_pyxs</url>
+ <license>MIT</license>
+ <author>Dima Pustakhod</author>
+ <author-contact>D.Pustakhod@tue.nl></author-contact>
+ <authored-time>2022</authored-time>
+ <icon>
+ </icon>
+</salt-grain>

@@ -60,4 +60,3 @@ end
 if diff
   raise "Differences found between layouts #{$a} and #{$b}"
 end
-

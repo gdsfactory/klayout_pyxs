@@ -1,8 +1,6 @@
-# coding: utf-8
 """klayout_pyxs.py
 
 """
-
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -14,24 +12,18 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
-
 # A feasibility study for a cross section generation using
 # boolean operations. See "cmos.pyxs" for a brief description of the
 # commands available and some examples.
-
 # TODO: use a much smaller dbu for the simulation to have a really small delta
 # the paths used for generating the masks are somewhat too thick
 # TODO: the left and right areas are not treated correctly
-
-from __future__ import absolute_import
-from __future__ import print_function
 import math
 import os
 import re
 
-import klayout_pyxs
-from klayout_pyxs.compat import range
-from klayout_pyxs.compat import zip
+from klayout_pyxs import HAS_PYA, Box, Edge, Point, Polygon
+from klayout_pyxs.compat import range, zip
 
 # from importlib import reload
 # try:
@@ -41,12 +33,6 @@ from klayout_pyxs.compat import zip
 # except:
 #     pass
 
-from klayout_pyxs import HAS_PYA
-
-from klayout_pyxs import Box
-from klayout_pyxs import Edge
-from klayout_pyxs import Point
-from klayout_pyxs import Polygon
 
 if HAS_PYA:
     # Imports for KLayout plugin
@@ -55,16 +41,15 @@ if HAS_PYA:
     from klayout_pyxs import Action
     from klayout_pyxs import FileDialog
 
-from klayout_pyxs.utils import print_info, int_floor, make_iterable, info
-from klayout_pyxs.geometry_2d import ep, EP, LayoutData, MaterialData, MaskData
+from klayout_pyxs.geometry_2d import EP, LayoutData, MaskData, MaterialData, ep
 from klayout_pyxs.layer_parameters import string_to_layer_info
+from klayout_pyxs.utils import info, int_floor, make_iterable, print_info
 
-info('Module klayout_pyxs.pyxs_lib.py reloaded')
+info("Module klayout_pyxs.pyxs_lib.py reloaded")
 
 
-class XSectionGenerator(object):
-    """ The main class that creates a cross-section file
-    """
+class XSectionGenerator:
+    """The main class that creates a cross-section file"""
 
     def __init__(self, file_name):
         """
@@ -90,13 +75,13 @@ class XSectionGenerator(object):
         self._hide_png_save_error = False
 
         self._output_all_parameters = {
-            'save_png': False,
-            'output_layers': None,
-            'png_path': None,
+            "save_png": False,
+            "output_layers": None,
+            "png_path": None,
         }
 
     def layer(self, layer_spec):
-        """ Fetches an input layer from the original layout.
+        """Fetches an input layer from the original layout.
 
         Parameters
         ----------
@@ -119,7 +104,7 @@ class XSectionGenerator(object):
 
     @print_info(False)
     def mask(self, layer_data):
-        """ Designates the layout_data object as a litho pattern (mask).
+        """Designates the layout_data object as a litho pattern (mask).
 
         This is the starting point for structured grow or etch operations.
 
@@ -133,30 +118,28 @@ class XSectionGenerator(object):
         """
         crossing_points = []
 
-        info(f'    layer_data: {layer_data}')
+        info(f"    layer_data: {layer_data}")
 
-        info(f'    n polygons in layer_data: {layer_data.n_poly}')
+        info(f"    n polygons in layer_data: {layer_data.n_poly}")
 
         for polygon in layer_data.data:
-            info(f'    polygon: {polygon}')
+            info(f"    polygon: {polygon}")
             for edge_dbu in polygon.each_edge():
-                info(f'        edge: {edge_dbu}')
+                info(f"        edge: {edge_dbu}")
                 if self._line_dbu.crossed_by(edge_dbu):
-                    info('        crosses!')
+                    info("        crosses!")
 
                 if self._line_dbu.crossed_by(edge_dbu) and (
                     self._line_dbu.side_of(edge_dbu.p1) > 0
                     or self._line_dbu.side_of(edge_dbu.p2) > 0
                 ):
-                    info('        inside if')
+                    info("        inside if")
                     # compute the crossing point of "edge" and "line" in
                     # database units
                     # confine the point to the length of the line
                     z = (
-                        float(edge_dbu.dx())
-                        * (edge_dbu.p1.y - self._line_dbu.p1.y)
-                        - float(edge_dbu.dy())
-                        * (edge_dbu.p1.x - self._line_dbu.p1.x)
+                        float(edge_dbu.dx()) * (edge_dbu.p1.y - self._line_dbu.p1.y)
+                        - float(edge_dbu.dy()) * (edge_dbu.p1.x - self._line_dbu.p1.x)
                     ) / (
                         float(edge_dbu.dx())
                         * (self._line_dbu.p2.y - self._line_dbu.p1.y)
@@ -182,7 +165,7 @@ class XSectionGenerator(object):
 
                     # store that along with the orientation of the edge
                     # (+1: "enter geometry", -1: "leave geometry")
-                    info(f'        appending x-point [{z}, {s}]')
+                    info(f"        appending x-point [{z}, {s}]")
                     crossing_points.append([z, s])
 
         # compress the crossing points by collecting all of those which
@@ -219,7 +202,7 @@ class XSectionGenerator(object):
 
     # @property
     def bulk(self):
-        """ Return a material describing the wafer body
+        """Return a material describing the wafer body
 
         Return
         ------
@@ -247,7 +230,6 @@ class XSectionGenerator(object):
                 f"'output()': layer_data parameter must be a geometry object. {type(layer_data)} is given"
             )
 
-
         if not self._is_target_layout_created:
             self._create_new_layout()
 
@@ -268,7 +250,7 @@ class XSectionGenerator(object):
         new_target_layout=True,
         step_name=None,
         save_png=None,
-        *args
+        *args,
     ):
         """Output a list of material objects to the output layout
 
@@ -300,14 +282,14 @@ class XSectionGenerator(object):
 
         if output_layers:
             ol = output_layers
-        elif self._output_all_parameters['output_layers']:
-            ol = self._output_all_parameters['output_layers']
+        elif self._output_all_parameters["output_layers"]:
+            ol = self._output_all_parameters["output_layers"]
         else:
             return None
 
         for ld, ls in ol.items():
             if isinstance(ld, str):
-                if ld == 'air':
+                if ld == "air":
                     a = self.air()
                     self.output(layer_spec=ls, layer_data=a)
                 # elif ld in list(globals.keys()):
@@ -322,17 +304,17 @@ class XSectionGenerator(object):
             else:
                 self.output(layer_spec=ls, layer_data=ld)
 
-        sp = self._output_all_parameters['save_png'] if save_png is None else save_png
+        sp = self._output_all_parameters["save_png"] if save_png is None else save_png
         if sp:
             self._finalize_view()
             if step_name:
-                file_name = f'{self._cell_file_name} ({step_name}).png'
+                file_name = f"{self._cell_file_name} ({step_name}).png"
             else:
-                file_name = f'{self._cell_file_name}.png'
+                file_name = f"{self._cell_file_name}.png"
 
-            if self._output_all_parameters['png_path']:
+            if self._output_all_parameters["png_path"]:
                 file_name = os.path.join(
-                    self._output_all_parameters['png_path'], file_name
+                    self._output_all_parameters["png_path"], file_name
                 )
             else:
                 file_name = os.path.join(self._file_path, file_name)
@@ -347,18 +329,15 @@ class XSectionGenerator(object):
                 if not self._hide_png_save_error:
                     MessageBox.critical(
                         "Error",
-                        "Error saving png file {}. \n\n Error: {}. \n\n"
-                        "Further error messages will not be displayed.".format(
-                            file_name, e
-                        ),
+                        f"Error saving png file {file_name}. \n\n Error: {e}. \n\nFurther error messages will not be displayed.",
                         MessageBox.b_ok(),
                     )
+
                     self._hide_png_save_error = True
         return None
 
     def output_raw(self, layer_spec, d):
-        """ For debugging only
-        """
+        """For debugging only"""
         ls = string_to_layer_info(layer_spec)
         li = self._target_layout.insert_layer(ls)
         shapes = self._target_layout.cell(self._target_cell).shapes(li)
@@ -367,37 +346,34 @@ class XSectionGenerator(object):
 
     @print_info(False)
     def all(self):
-        """ A pseudo-mask, covering the whole wafer
+        """A pseudo-mask, covering the whole wafer
 
         Return
         ------
         res : MaterialData
         """
         e = self._extend
-        info(f'e = {e}')
+        info(f"e = {e}")
 
         line_dbu = self._line_dbu
-        info(f'line_dbu = {line_dbu}')
+        info(f"line_dbu = {line_dbu}")
 
         res = self._xpoints_to_mask([[-e, 1], [line_dbu.length() + e, -1]])
 
-        info(f'    all().res = {res}')
+        info(f"    all().res = {res}")
         return res
 
     def flip(self):
-        """ Start or end backside processing
-
-        """
+        """Start or end backside processing"""
         self._air, self._air_below = self._air_below, self._air
         self._flipped = not self._flipped
 
     def diffuse(self, *args, **kwargs):
-        """ Same as deposit()
-        """
+        """Same as deposit()"""
         return self.all().grow(*args, **kwargs)
 
     def deposit(self, *args, **kwargs):
-        """ Deposits material as a uniform sheet.
+        """Deposits material as a uniform sheet.
 
         Equivalent to all.grow(...)
 
@@ -409,14 +385,13 @@ class XSectionGenerator(object):
 
     @print_info(False)
     def grow(self, *args, **kwargs):
-        """ Same as deposit()
-        """
+        """Same as deposit()"""
         all = self.all()
         info(all)
         return all.grow(*args, **kwargs)
 
     def etch(self, *args, **kwargs):
-        """ Uniform etching
+        """Uniform etching
 
         Equivalent to all.etch(...)
 
@@ -425,15 +400,14 @@ class XSectionGenerator(object):
 
     @print_info(False)
     def planarize(self, *args, **kwargs):
-        """ Planarization
-        """
+        """Planarization"""
         downto = None
         less = None
         to = None
         into = []
 
         for k, v in kwargs.items():
-            if k == 'downto':
+            if k == "downto":
                 downto = make_iterable(v)
                 for i in downto:
                     if not isinstance(i, MaterialData):
@@ -443,7 +417,7 @@ class XSectionGenerator(object):
                             "of such"
                         )
 
-            elif k == 'into':
+            elif k == "into":
                 into = make_iterable(v)
                 for i in into:
                     if not isinstance(i, MaterialData):
@@ -452,18 +426,18 @@ class XSectionGenerator(object):
                             "a material parameter or an array "
                             "of such"
                         )
-            elif k == 'less':
+            elif k == "less":
                 less = int_floor(0.5 + float(v) / self.dbu)
-            elif k == 'to':
+            elif k == "to":
                 to = int_floor(0.5 + float(v) / self.dbu)
 
         if not into:
             raise ValueError("'planarize' requires an 'into' argument")
 
-        info(f'   downto = {downto}')
-        info(f'   less = {less}')
-        info(f'   to = {to}')
-        info(f'   into = {into}')
+        info(f"   downto = {downto}")
+        info(f"   less = {less}")
+        info(f"   to = {to}")
+        info(f"   into = {into}")
 
         if downto:
             downto_data = None
@@ -485,7 +459,7 @@ class XSectionGenerator(object):
                     yb = p.bbox().bottom
                     to = to or yt
                     to = min([to, yt, yb]) if self._flipped else max([to, yt, yb])
-                info(f'    to = {to}')
+                info(f"    to = {to}")
 
         elif into and not to:
 
@@ -497,7 +471,7 @@ class XSectionGenerator(object):
                     to = to or yt
                     to = min([to, yt, yb]) if self._flipped else max([to, yt, yb])
         if to is not None:
-            info('    to is true')
+            info("    to is true")
             less = less or 0
             if self._flipped:
                 removed_box = Box(
@@ -537,27 +511,26 @@ class XSectionGenerator(object):
         assert output_layers is None or isinstance(output_layers, dict)
 
         if save_png:
-            self._output_all_parameters['save_png'] = save_png
+            self._output_all_parameters["save_png"] = save_png
 
         if output_layers:
-            self._output_all_parameters['output_layers'] = output_layers
+            self._output_all_parameters["output_layers"] = output_layers
 
         if png_path:
             if not os.path.exists(png_path):
                 os.makedirs(png_path)
-            self._output_all_parameters['png_path'] = png_path
+            self._output_all_parameters["png_path"] = png_path
 
     @print_info(False)
     def set_delta(self, x):
-        """Configures the accuracy parameter
-        """
+        """Configures the accuracy parameter"""
         self._delta = int_floor(x / self._dbu + 0.5)
-        info(f'XSG._delta set to {self._delta}')
+        info(f"XSG._delta set to {self._delta}")
 
     @print_info(False)
     def delta(self, x):
         self._delta = int_floor(x / self._dbu + 0.5)
-        info(f'XSG._delta set to {self._delta}')
+        info(f"XSG._delta set to {self._delta}")
 
     @property
     def delta_dbu(self):
@@ -565,20 +538,16 @@ class XSectionGenerator(object):
 
     @print_info(False)
     def set_height(self, x):
-        """ Configures the height of the processing window
-
-        """
+        """Configures the height of the processing window"""
         self._height = int_floor(x / self._dbu + 0.5)
-        info(f'XSG._height set to {self._height}')
+        info(f"XSG._height set to {self._height}")
         self._update_basic_regions()
 
     @print_info(False)
     def height(self, x):
-        """ Configures the height of the processing window
-
-        """
+        """Configures the height of the processing window"""
         self._height = int_floor(x / self._dbu + 0.5)
-        info(f'XSG._height set to {self._height}')
+        info(f"XSG._height set to {self._height}")
         self._update_basic_regions()
 
     @property
@@ -592,7 +561,7 @@ class XSectionGenerator(object):
 
         """
         self._depth = int_floor(x / self._dbu + 0.5)
-        info(f'XSG._depth set to {self._depth}')
+        info(f"XSG._depth set to {self._depth}")
         self._update_basic_regions()
 
     @print_info(False)
@@ -602,7 +571,7 @@ class XSectionGenerator(object):
 
         """
         self._depth = int_floor(x / self._dbu + 0.5)
-        info(f'XSG._depth set to {self._depth}')
+        info(f"XSG._depth set to {self._depth}")
         self._update_basic_regions()
 
     @property
@@ -620,7 +589,7 @@ class XSectionGenerator(object):
 
         """
         self._below = int_floor(x / self._dbu + 0.5)
-        info(f'XSG._below set to {self._below}')
+        info(f"XSG._below set to {self._below}")
         self._update_basic_regions()
 
     @print_info(False)
@@ -634,7 +603,7 @@ class XSectionGenerator(object):
 
         """
         self._below = int_floor(x / self._dbu + 0.5)
-        info(f'XSG._below set to {self._below}')
+        info(f"XSG._below set to {self._below}")
         self._update_basic_regions()
 
     @property
@@ -642,9 +611,7 @@ class XSectionGenerator(object):
         return self._below
 
     def set_extend(self, x):
-        """ Configures the computation margin
-
-        """
+        """Configures the computation margin"""
         self._extend = int_floor(x / self._dbu + 0.5)
         self._update_basic_regions()
 
@@ -654,7 +621,7 @@ class XSectionGenerator(object):
 
     @property
     def width_dbu(self):
-        """ Cross-section width.
+        """Cross-section width.
 
         Determined by the ruler width.
         """
@@ -691,9 +658,7 @@ class XSectionGenerator(object):
         return self._dbu
 
     def layers_file(self, lyp_file):
-        """Set a .lyp layer properties file to be used on the cross-section layout
-
-        """
+        """Set a .lyp layer properties file to be used on the cross-section layout"""
         self._lyp_file = lyp_file
 
     # The basic generation method
@@ -719,14 +684,12 @@ class XSectionGenerator(object):
 
         text = None
         try:
-            with open(self._file_name, 'r') as file:
+            with open(self._file_name) as file:
                 text = file.read()
         except Exception as e:
             MessageBox.critical(
                 "Error",
-                "Error reading file {}. \n\nError: {}".format(
-                    self._file_name, e
-                ),
+                f"Error reading file {self._file_name}. \n\nError: {e}",
                 MessageBox.b_ok(),
             )
             return None
@@ -742,7 +705,7 @@ class XSectionGenerator(object):
 
         # prepare variables to be visible in the script
         locals_ = dir(self)
-        locals_dict = {attr: getattr(self, attr) for attr in locals_ if attr[0] != '_'}
+        locals_dict = {attr: getattr(self, attr) for attr in locals_ if attr[0] != "_"}
         try:
             exec(text, locals_dict)
         except Exception as e:
@@ -767,7 +730,7 @@ class XSectionGenerator(object):
 
     @print_info(False)
     def _xpoints_to_mask(self, iv):
-        """ Convert crossing points to a mask
+        """Convert crossing points to a mask
 
         Parameters
         ----------
@@ -777,9 +740,9 @@ class XSectionGenerator(object):
         Return
         ------
         res : MaterialData
-            Top ot the surface for deposition
+            Top of the surface for deposition
         """
-        info(f'    iv = {iv})')
+        info(f"    iv = {iv})")
         s = 0
         last_s = 0
         p1 = 0
@@ -794,16 +757,14 @@ class XSectionGenerator(object):
                 p1 = z
             elif last_s > 0 >= s:  # s decreased and became < 0
                 p2 = z
-                poly = Polygon(
-                    Box(p1, -self._depth - self._below, p2, self._height)
-                )
-                info(f'        Appending poly {poly}')
+                poly = Polygon(Box(p1, -self._depth - self._below, p2, self._height))
+                info(f"        Appending poly {poly}")
                 mask_polygons.append(poly)
             last_s = s
 
-        info(f'    mask_polys = {mask_polygons}')
+        info(f"    mask_polys = {mask_polygons}")
 
-        '''
+        """
         air = self._air.data
         info('    air =        {}'.format(air))
 
@@ -824,10 +785,10 @@ class XSectionGenerator(object):
 
         # info('____Creating MD from {}'.format([str(p) for p in mask_data]))
         return MaterialData(mask_data, self)
-        '''
-        info('Before MaskData creation')
+        """
+        info("Before MaskData creation")
         res = MaskData(self._air.data, mask_polygons, self)
-        info(f'res = {res}')
+        info(f"res = {res}")
         return res
 
     @print_info(False)
@@ -842,18 +803,16 @@ class XSectionGenerator(object):
 
         self._area = Box(-e, -(d + b), w + e, h)
         self._air = MaterialData([Polygon(Box(-e, 0, w + e, h))], self)
-        self._air_below = MaterialData(
-            [Polygon(Box(-e, -(d + b), w + e, -d))], self
-        )
+        self._air_below = MaterialData([Polygon(Box(-e, -(d + b), w + e, -d))], self)
 
         self._bulk = MaterialData([Polygon(Box(-e, -d, w + e, 0))], self)
         self._roi = Box(0, -(d + b), w, h)
 
-        info(f'    XSG._area:      {self._area}')
-        info(f'    XSG._roi:       {self._roi}')
-        info(f'    XSG._air:       {self._air}')
-        info(f'    XSG._bulk:      {self._bulk}')
-        info(f'    XSG._air_below: {self._air_below}')
+        info(f"    XSG._area:      {self._area}")
+        info(f"    XSG._roi:       {self._roi}")
+        info(f"    XSG._air:       {self._air}")
+        info(f"    XSG._bulk:      {self._bulk}")
+        info(f"    XSG._air_below: {self._air_below}")
 
     @print_info(False)
     def _setup(self, p1, p2):
@@ -901,18 +860,18 @@ class XSectionGenerator(object):
         self._depth = int_floor(2.0 / self._dbu + 0.5)  # 2 um in dbu
         self._below = int_floor(2.0 / self._dbu + 0.5)  # 2 um in dbu
 
-        info(f'    XSG._dbu is:    {self._dbu}')
-        info(f'    XSG._extend is: {self._extend}')
-        info(f'    XSG._delta is:  {self._delta}')
-        info(f'    XSG._height is: {self._height}')
-        info(f'    XSG._depth is:  {self._depth}')
-        info(f'    XSG._below is:  {self._below}')
+        info(f"    XSG._dbu is:    {self._dbu}")
+        info(f"    XSG._extend is: {self._extend}")
+        info(f"    XSG._delta is:  {self._delta}")
+        info(f"    XSG._height is: {self._height}")
+        info(f"    XSG._depth is:  {self._depth}")
+        info(f"    XSG._below is:  {self._below}")
 
         return True
 
     def _create_new_layout(self, cell_name_extension=None):
         if cell_name_extension:
-            cell_name = f'{self._target_cell_name} ({cell_name_extension})'
+            cell_name = f"{self._target_cell_name} ({cell_name_extension})"
         else:
             cell_name = self._target_cell_name
 
@@ -939,8 +898,7 @@ pyxs_scripts = None
 
 
 class MenuHandler(Action):
-    """ Handler for the load .xs file action
-    """
+    """Handler for the load .xs file action"""
 
     def __init__(self, title, action, shortcut=None, icon=None):
         """
@@ -963,8 +921,7 @@ class MenuHandler(Action):
 
 
 class XSectionMRUAction(Action):
-    """ A special action to implement the cross section MRU menu item
-    """
+    """A special action to implement the cross section MRU menu item"""
 
     def __init__(self, action):
         """
@@ -992,21 +949,20 @@ class XSectionMRUAction(Action):
             self.title = os.path.basename(s)
 
 
-class XSectionScriptEnvironment(object):
-    """ The cross section script environment
-    """
+class XSectionScriptEnvironment:
+    """The cross section script environment"""
 
-    def __init__(self, menu_name='pyxs'):
+    def __init__(self, menu_name="pyxs"):
         self._menu_name = menu_name
 
         app = Application.instance()
         mw = app.main_window()
         if mw is None:
-            print('none')
+            print("none")
             return
 
         def _on_triggered_callback():
-            """ Load pyxs script menu action.
+            """Load pyxs script menu action.
 
             Load new .pyxs file and run it.
             """
@@ -1031,7 +987,7 @@ class XSectionScriptEnvironment(object):
                 self.make_mru(filename.value())
 
         def _XSectionMRUAction_callback(script):
-            """ *.pyxs menu action
+            """*.pyxs menu action
 
             Load selected .pyxs file and run it.
 
@@ -1045,15 +1001,11 @@ class XSectionScriptEnvironment(object):
         # Create pyxs submenu in Tools
         menu = mw.menu()
 
-        if not menu.is_valid(
-            "tools_menu.{}_script_group".format(self._menu_name)
-        ):
-            menu.insert_separator(
-                "tools_menu.end", "{}_script_group".format(self._menu_name)
-            )
+        if not menu.is_valid(f"tools_menu.{self._menu_name}_script_group"):
+            menu.insert_separator("tools_menu.end", f"{self._menu_name}_script_group")
             menu.insert_menu(
                 "tools_menu.end",
-                "{}_script_submenu".format(self._menu_name),
+                f"{self._menu_name}_script_submenu",
                 self._menu_name,
             )
 
@@ -1063,13 +1015,13 @@ class XSectionScriptEnvironment(object):
             "Load pyxs script", _on_triggered_callback
         )
         menu.insert_item(
-            "tools_menu.{}_script_submenu.end".format(self._menu_name),
-            "{}_script_load".format(self._menu_name),
+            f"tools_menu.{self._menu_name}_script_submenu.end",
+            f"{self._menu_name}_script_load",
             self.pyxs_script_load_menuhandler,
         )
         menu.insert_separator(
-            "tools_menu.{}_script_submenu.end.end".format(self._menu_name),
-            "{}_script_mru_group".format(self._menu_name),
+            f"tools_menu.{self._menu_name}_script_submenu.end.end",
+            f"{self._menu_name}_script_mru_group",
         )
 
         # Create list of existing pyxs scripts item in pyxs
@@ -1078,8 +1030,8 @@ class XSectionScriptEnvironment(object):
             a = XSectionMRUAction(_XSectionMRUAction_callback)
             self._mru_actions.append(a)
             menu.insert_item(
-                "tools_menu.{}_script_submenu.end".format(self._menu_name),
-                "{}_script_mru{}".format(self._menu_name, i),
+                f"tools_menu.{self._menu_name}_script_submenu.end",
+                f"{self._menu_name}_script_mru{i}",
                 a,
             )
             a.script = None
@@ -1093,11 +1045,11 @@ class XSectionScriptEnvironment(object):
                 if i < len(self._mru_actions):
                     self._mru_actions[i].script = script
         elif home:
-            fn = os.path.join(home, '.klayout-pyxs-scripts')
+            fn = os.path.join(home, ".klayout-pyxs-scripts")
             try:
-                with open(fn, "r") as file:
+                with open(fn) as file:
                     for line in file.readlines():
-                        match = re.match('<mru>(.*)<\/mru>', line)
+                        match = re.match(r"<mru>(.*)<\/mru>", line)
                         if match:
                             if i < len(self._mru_actions):
                                 self._mru_actions[i].script = match.group(1)
@@ -1106,7 +1058,7 @@ class XSectionScriptEnvironment(object):
                 pass
 
     def run_script(self, filename, p1=None, p2=None):
-        """ Run .pyxs script
+        """Run .pyxs script
 
         filename : str
             path to the .pyxs script
@@ -1142,10 +1094,10 @@ class XSectionScriptEnvironment(object):
             for ruler in rulers:
                 p1_arr.append(ruler.p1)
                 p2_arr.append(ruler.p2)
-                ruler_text_arr.append(ruler.text().split('.')[0])
+                ruler_text_arr.append(ruler.text().split(".")[0])
 
         else:
-            p1_arr, p2_arr, ruler_text_arr = [p1], [p2], ['']
+            p1_arr, p2_arr, ruler_text_arr = [p1], [p2], [""]
             scr_view_idx = None
 
         target_views = []
@@ -1167,7 +1119,7 @@ class XSectionScriptEnvironment(object):
         #                             MessageBox.b_ok())
 
     def make_mru(self, script):
-        """ Save list of scripts
+        """Save list of scripts
 
         script : str
             path to the script to be saved
@@ -1193,16 +1145,16 @@ class XSectionScriptEnvironment(object):
             self._mru_actions[i].script = scripts[i]
 
         if home := os.getenv("HOME", None) or os.getenv("HOMESHARE", None):
-            fn = os.path.join(home, '.klayout-pyxs-scripts')
+            fn = os.path.join(home, ".klayout-pyxs-scripts")
             with open(fn, "w") as file:
                 file.write("<pyxs>\n")
                 for a in self._mru_actions:
                     if a.script:
-                        file.write("<mru>{}</mru>\n".format(a.script))
+                        file.write(f"<mru>{a.script}</mru>\n")
                 file.write("</pyxs>\n")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     import doctest
 
     doctest.testmod()
