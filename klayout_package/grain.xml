@@ -7,7 +7,7 @@
  <api-version/>
  <title>klayout_pyxs</title>
  <doc>python port of the Klayout xsection project</doc>
- <doc-url>https://klayout-pyxs.readthedocs.io/en/latest/index.html</doc-url>
+ <doc-url>https://gdsfactory.github.io/klayout_pyxs/</doc-url>
  <url>https://github.com/gdsfactory/klayout_pyxs</url>
  <license>MIT</license>
  <author>Dima Pustakhod</author>
