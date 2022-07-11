@@ -112,7 +112,7 @@ Now, run Klayout. In the Tools menu, you should see pyxs > Load pyxs script.
 
 ### Linux / Mac OS
 
-(Not tested well but might work). Use provided Makefile. Run
+Run
 
 ```bash
 $ make install
