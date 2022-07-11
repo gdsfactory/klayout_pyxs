@@ -1,4 +1,4 @@
-# klayout_pyxs 0.1.6
+# klayout_pyxs 0.1.7
 
 This is a python port of the XSection project
 (https://github.com/klayoutmatthias/xsection).
