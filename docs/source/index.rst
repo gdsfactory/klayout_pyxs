@@ -59,3 +59,4 @@ The following screenshot shows a sample cross section taken from the
    DocGrow
    DocEtch
    DocReference
+   CHANGELOG

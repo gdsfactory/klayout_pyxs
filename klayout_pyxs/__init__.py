@@ -86,6 +86,8 @@ Polygon.__repr__ = _poly_repr
 
 from klayout_pyxs.pyxs_lib import XSectionScriptEnvironment
 
+__version__ = "0.1.6"
+
 __all__ = [
     "XSectionScriptEnvironment",
     "__version__",
