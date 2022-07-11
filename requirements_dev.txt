@@ -27,3 +27,4 @@ tox
 types-PyYAML
 types-waitress
 xdoctest
+matplotlib
