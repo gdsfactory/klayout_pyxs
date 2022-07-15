@@ -41,6 +41,9 @@ if HAS_PYA:
     from klayout_pyxs import Action
     from klayout_pyxs import FileDialog
 
+else:
+    Action = object
+
 from klayout_pyxs.geometry_2d import EP, LayoutData, MaskData, MaterialData, ep
 from klayout_pyxs.layer_parameters import string_to_layer_info
 from klayout_pyxs.utils import info, int_floor, make_iterable, print_info
