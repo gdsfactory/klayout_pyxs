@@ -1,3 +1,8 @@
+"""Pure python example, where we don't use the klayout GUI.
+
+FIXME! it does not work yet
+"""
+
 import pathlib
 from klayout_pyxs.pyxs_lib import XSectionGenerator
 
