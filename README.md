@@ -66,7 +66,7 @@ more changes are likely to be needed.
 
 ## Installation for users
 
-You can install the module 
+You can install the module
 
 ```
 pip install klayout_pyxs
