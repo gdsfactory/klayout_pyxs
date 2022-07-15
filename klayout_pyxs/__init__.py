@@ -3,7 +3,6 @@
 Copyright 2017-2019 Dima Pustakhod
 
 """
-from ._version import __version__
 
 DEBUG = False
 HAS_KLAYOUT = False
