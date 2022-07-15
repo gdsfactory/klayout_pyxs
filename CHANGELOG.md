@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## [0.1.10](https://github.com/dimapu/klayout_pyxs/pull/4)
+
+- fix python package
+
 ## [0.1.9](https://github.com/dimapu/klayout_pyxs/pull/16)
 
 - make klayout package
