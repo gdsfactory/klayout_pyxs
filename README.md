@@ -1,4 +1,4 @@
-# klayout_pyxs 0.1.9
+# klayout_pyxs 0.1.10
 
 [![docs](https://github.com/gdsfactory/klayout_pyxs/actions/workflows/pages.yml/badge.svg)](https://gdsfactory.github.io/klayout_pyxs/)
 [![pypi](https://img.shields.io/pypi/v/klayout_pyxs)](https://pypi.org/project/klayout_pyxs/)
