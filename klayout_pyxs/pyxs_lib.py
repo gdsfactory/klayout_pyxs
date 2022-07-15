@@ -1052,7 +1052,7 @@ class XSectionScriptEnvironment:
                         match = re.match(r"<mru>(.*)<\/mru>", line)
                         if match:
                             if i < len(self._mru_actions):
-                                self._mru_actions[i].script = match.group(1)
+                                self._mru_actions[i].script = match[1]
                             i += 1
             except:
                 pass
