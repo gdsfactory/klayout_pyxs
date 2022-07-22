@@ -21,6 +21,8 @@ setup(
     long_description=LONG_DESCRIPTION,
     long_description_content_type="text/markdown",
     packages=find_packages(exclude=("tests",)),
+    # packages=['python/klayout_pyxs'],
+    # packages=find_packages(exclude=("tests",), where="./python/klayout_pyxs"),
     # install_requires=get_install_requires(),
     python_requires=">=3.6",
     classifiers=[
