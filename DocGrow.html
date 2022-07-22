@@ -1,0 +1,817 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>The grow() Method &#8212; klayout_pyxs 0.1.13 documentation</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+<link href="_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" href="_static/styles/sphinx-book-theme.css?digest=5115cc725059bd94278eecd172e13a965bf8f5a9" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="_static/autodoc_pydantic.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
+
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/clipboard.min.js"></script>
+    <script src="_static/copybutton.js"></script>
+    <script src="_static/scripts/sphinx-book-theme.js?digest=9c920249402e914e316237a7dbc6769907cce411"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="The etch() Method" href="DocEtch.html" />
+    <link rel="prev" title="Writing PYXS files - an Introduction" href="DocIntro.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="None">
+    
+
+    <!-- Google Analytics -->
+    
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+<!-- Checkboxes to toggle the left sidebar -->
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle navigation sidebar">
+<label class="overlay overlay-navbar" for="__navigation">
+    <div class="visually-hidden">Toggle navigation sidebar</div>
+</label>
+<!-- Checkboxes to toggle the in-page toc -->
+<input type="checkbox" class="sidebar-toggle" name="__page-toc" id="__page-toc" aria-label="Toggle in-page Table of Contents">
+<label class="overlay overlay-pagetoc" for="__page-toc">
+    <div class="visually-hidden">Toggle in-page Table of Contents</div>
+</label>
+<!-- Headers at the top -->
+<div class="announcement header-item noprint"></div>
+<div class="header header-item noprint"></div>
+
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<!-- Sidebar -->
+<div class="bd-sidebar noprint" id="site-navigation">
+    <div class="bd-sidebar__content">
+        <div class="bd-sidebar__top"><div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="index.html">
+      
+      
+      
+      <h1 class="site-logo" id="site-title">klayout_pyxs 0.1.13 documentation</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item active">
+        <p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  Contents
+ </span>
+</p>
+<ul class="current nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="README.html">
+   klayout_pyxs 0.1.13
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="DocIntro.html">
+   Writing PYXS files - an Introduction
+  </a>
+ </li>
+ <li class="toctree-l1 current active">
+  <a class="current reference internal" href="#">
+   The
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     grow()
+    </span>
+   </code>
+   Method
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="DocEtch.html">
+   The
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     etch()
+    </span>
+   </code>
+   Method
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="DocReference.html">
+   PYXS File Reference
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="CHANGELOG.html">
+   CHANGELOG
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav></div>
+        <div class="bd-sidebar__bottom">
+             <!-- To handle the deprecated key -->
+            
+            <div class="navbar_extra_footer">
+            Theme by the <a href="https://ebp.jupyterbook.org">Executable Book Project</a>
+            </div>
+            
+        </div>
+    </div>
+    <div id="rtd-footer-container"></div>
+</div>
+
+
+          
+
+
+          
+<!-- A tiny helper pixel to detect if we've scrolled -->
+<div class="sbt-scroll-pixel-helper"></div>
+<!-- Main content -->
+<div class="col py-0 content-container">
+    
+    <div class="header-article row sticky-top noprint">
+        
+
+
+
+<div class="col py-1 d-flex header-article-main">
+    <div class="header-article__left">
+        
+        <label for="__navigation"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="right"
+title="Toggle navigation"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-bars"></i>
+  </span>
+
+</label>
+
+        
+    </div>
+    <div class="header-article__right">
+<button onclick="toggleFullScreen()"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="bottom"
+title="Fullscreen mode"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+<div class="menu-dropdown menu-dropdown-repository-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Source repositories">
+      <i class="fab fa-github"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="https://github.com/gdsfactory/klayout_pyxs"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Source repository"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="headerbtn__text-container">repository</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/gdsfactory/klayout_pyxs/issues/new?title=Issue%20on%20page%20%2FDocGrow.html&body=Your%20issue%20content%20here."
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Open an issue"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="headerbtn__text-container">open issue</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/gdsfactory/klayout_pyxs/edit/master/docs/DocGrow.rst"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Edit this page"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-pencil-alt"></i>
+  </span>
+<span class="headerbtn__text-container">suggest edit</span>
+</a>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+
+<div class="menu-dropdown menu-dropdown-download-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Download this page">
+      <i class="fas fa-download"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="_sources/DocGrow.rst.txt"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Download source file"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="headerbtn__text-container">.rst</span>
+</a>
+
+      </li>
+      
+      <li>
+        
+<button onclick="printPdf(this)"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="left"
+title="Print to PDF"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="headerbtn__text-container">.pdf</span>
+</button>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+<label for="__page-toc"
+  class="headerbtn headerbtn-page-toc"
+  
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-list"></i>
+  </span>
+
+</label>
+
+    </div>
+</div>
+
+<!-- Table of contents -->
+<div class="col-md-3 bd-toc show noprint">
+    <div class="tocsection onthispage pt-5 pb-3">
+        <i class="fas fa-list"></i> Contents
+    </div>
+    <nav id="bd-toc-nav" aria-label="Page">
+        <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#mode-taper-and-bias">
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     mode
+    </span>
+   </code>
+   ,
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     taper
+    </span>
+   </code>
+   and
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     bias
+    </span>
+   </code>
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#step-coverage">
+   Step coverage
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#on-growing-on-specific-material">
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     on
+    </span>
+   </code>
+   - growing on specific material
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#into-converting-material">
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     into
+    </span>
+   </code>
+   - converting material
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#through-selective-conversion">
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     through
+    </span>
+   </code>
+   - selective conversion
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#buried-applies-a-conversion-in-a-region-below-the-surface">
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     buried
+    </span>
+   </code>
+   - applies a conversion in a region below the surface
+  </a>
+ </li>
+</ul>
+
+    </nav>
+</div>
+    </div>
+    <div class="article row">
+        <div class="col pl-md-3 pl-lg-5 content-container">
+            <!-- Table of contents that is only displayed when printing the page -->
+            <div id="jb-print-docs-body" class="onlyprint">
+                <h1>The grow() Method</h1>
+                <!-- Table of contents -->
+                <div id="print-main-content">
+                    <div id="jb-print-toc">
+                        
+                        <div>
+                            <h2> Contents </h2>
+                        </div>
+                        <nav aria-label="Page">
+                            <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#mode-taper-and-bias">
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     mode
+    </span>
+   </code>
+   ,
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     taper
+    </span>
+   </code>
+   and
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     bias
+    </span>
+   </code>
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#step-coverage">
+   Step coverage
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#on-growing-on-specific-material">
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     on
+    </span>
+   </code>
+   - growing on specific material
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#into-converting-material">
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     into
+    </span>
+   </code>
+   - converting material
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#through-selective-conversion">
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     through
+    </span>
+   </code>
+   - selective conversion
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#buried-applies-a-conversion-in-a-region-below-the-surface">
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     buried
+    </span>
+   </code>
+   - applies a conversion in a region below the surface
+  </a>
+ </li>
+</ul>
+
+                        </nav>
+                    </div>
+                </div>
+            </div>
+            <main id="main-content" role="main">
+                
+              <div>
+                
+  <section id="the-grow-method">
+<span id="docgrow"></span><h1>The <code class="docutils literal notranslate"><span class="pre">grow()</span></code> Method<a class="headerlink" href="#the-grow-method" title="Permalink to this headline">#</a></h1>
+<p>The <code class="docutils literal notranslate"><span class="pre">grow()</span></code> method is one of the basic methods for describing a process.
+It is called on a mask data object. The basic use case is:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">l1</span> <span class="o">=</span> <span class="n">layer</span><span class="p">(</span><span class="s2">&quot;1/0&quot;</span><span class="p">)</span>
+<span class="n">metal</span> <span class="o">=</span> <span class="n">mask</span><span class="p">(</span><span class="n">l1</span><span class="p">)</span><span class="o">.</span><span class="n">grow</span><span class="p">(</span><span class="mf">0.3</span><span class="p">)</span>
+<span class="n">output</span><span class="p">(</span><span class="s2">&quot;1/0&quot;</span><span class="p">,</span> <span class="n">metal</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This simple case deposits a material where the layer is drawn with a
+rectangular profile.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">grow()</span></code> method has up to two arguments and a couple of options which
+have to be put after the arguments in the usual Python keyword notation
+<code class="docutils literal notranslate"><span class="pre">name=value</span></code>:</p>
+<p><code class="docutils literal notranslate"><span class="pre">grow(height,</span> <span class="pre">lateral=0,</span> <span class="pre">option=value...)</span></code></p>
+<p>The <code class="docutils literal notranslate"><span class="pre">height</span></code> argument is mandatory and specifies the thickness of the
+layer grown. The <code class="docutils literal notranslate"><span class="pre">lateral</span></code> parameter specifies the lateral extension
+(overgrow, diffusion). The lateral extension is optional and defaults
+to 0. The lateral extension can be negative. In that case, the profile
+will be aligned with the mask at the bottom. Otherwise it is aligned
+at the top.</p>
+<p>There are several options:</p>
+<table class="colwidths-given table">
+<colgroup>
+<col style="width: 14%" />
+<col style="width: 86%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Option</p></th>
+<th class="head"><p>Value</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">mode</span></code></p></td>
+<td><div class="line-block">
+<div class="line">The profile mode. Can be <code class="docutils literal notranslate"><span class="pre">'round'</span></code>, <code class="docutils literal notranslate"><span class="pre">'square'</span></code> and</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">'octagon'</span></code>. The default is ‘square’.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">taper</span></code></p></td>
+<td><div class="line-block">
+<div class="line">The taper angle. This option specifies tapered mode and cannot</div>
+<div class="line">be combined with <code class="docutils literal notranslate"><span class="pre">'mode'</span></code>.</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">bias</span></code></p></td>
+<td><div class="line-block">
+<div class="line">Adjusts the profile by shifting it to the interior of the</div>
+<div class="line">figure. Positive values will reduce the line width by twice</div>
+<div class="line">the value.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">on</span></code></p></td>
+<td><div class="line-block">
+<div class="line">A material or an array of materials onto which the material</div>
+<div class="line">is deposited (selective grow). The default is <code class="docutils literal notranslate"><span class="pre">'all'</span></code>. This</div>
+<div class="line">option cannot be combined with <code class="docutils literal notranslate"><span class="pre">&quot;into&quot;</span></code>. With <code class="docutils literal notranslate"><span class="pre">&quot;into&quot;</span></code>,</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">&quot;through&quot;</span></code> has the same effect than <code class="docutils literal notranslate"><span class="pre">&quot;on&quot;</span></code>.</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">into</span></code></p></td>
+<td><div class="line-block">
+<div class="line">Specifies a material or an array of materials that the new</div>
+<div class="line">material should consume instead of growing upwards. This</div>
+<div class="line">will make “grow” a “conversion” process like an implant step.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">through</span></code></p></td>
+<td><div class="line-block">
+<div class="line">To be used together with “into”. Specifies a material or an</div>
+<div class="line">array of materials to be used for selecting grow. Grow will</div>
+<div class="line">happen starting on the interface of that material with air,</div>
+<div class="line">pass through the <code class="docutils literal notranslate"><span class="pre">through</span></code> material (hence the name) and</div>
+<div class="line">consume and convert the <code class="docutils literal notranslate"><span class="pre">into</span></code> material below.</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">buried</span></code></p></td>
+<td><div class="line-block">
+<div class="line">Applies the conversion of material at the given depth below</div>
+<div class="line">the mask level. This is intended to be used together with</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">into</span></code> and allows modeling of deep implants. The value is</div>
+<div class="line">the depth below the surface.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<section id="mode-taper-and-bias">
+<h2><code class="docutils literal notranslate"><span class="pre">mode</span></code>, <code class="docutils literal notranslate"><span class="pre">taper</span></code> and <code class="docutils literal notranslate"><span class="pre">bias</span></code><a class="headerlink" href="#mode-taper-and-bias" title="Permalink to this headline">#</a></h2>
+<p>The effect of the <code class="docutils literal notranslate"><span class="pre">mode</span></code> and <code class="docutils literal notranslate"><span class="pre">bias</span></code> interaction is best illustrated with
+some examples.</p>
+<p>The initial layout is always this in all following examples:</p>
+<img alt="_images/g1.png" src="_images/g1.png" />
+<p>The first example if the effect of the plain grow with a thickness of
+0.3 um. It will deposit a rectangular material profile at the mask:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">grow</span><span class="p">(</span><span class="mf">0.3</span><span class="p">)</span>
+</pre></div>
+</div>
+<img alt="_images/g1_xs.png" src="_images/g1_xs.png" />
+<p>The next example illustrates the effect of a lateral extension on a
+square profile. The 0.1 um extension will add material left and right of
+the main patch:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">grow</span><span class="p">(</span><span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">)</span>
+</pre></div>
+</div>
+<img alt="_images/g2_xs.png" src="_images/g2_xs.png" />
+<p>In <code class="docutils literal notranslate"><span class="pre">'round'</span></code> mode, the material will be deposited with an elliptical
+profile. The vertical axis will be 0.3 um, the horizontal 0.1 um
+representing the laternal extension. The patch will become bigger than
+the mask by the lateral extension at the bottom:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">grow</span><span class="p">(</span><span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;round&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<img alt="_images/g3_xs.png" src="_images/g3_xs.png" />
+<p>To avoid overgrow, a negative lateral extension can be specified,
+resulting in a alignment of patch and mask at the bottom:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">grow</span><span class="p">(</span><span class="mf">0.3</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;round&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<img alt="_images/g4_xs.png" src="_images/g4_xs.png" />
+<p>Another mode is <code class="docutils literal notranslate"><span class="pre">'octagon'</span></code> which is basically a coarse approximation
+of the ellipse and computationally less expensive:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">grow</span><span class="p">(</span><span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;octagon&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<img alt="_images/g5_xs.png" src="_images/g5_xs.png" />
+<p>A <code class="docutils literal notranslate"><span class="pre">bias</span></code> value can be specified to fine-tune the position of the bottom
+edge of the patch. A <em>positive</em> bias value will <em>shrink</em> the figure:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">grow</span><span class="p">(</span><span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;round&#39;</span><span class="p">,</span> <span class="n">bias</span><span class="o">=</span><span class="mf">0.05</span><span class="p">)</span>
+</pre></div>
+</div>
+<img alt="_images/g6_xs.png" src="_images/g6_xs.png" />
+<p>A special profile can be specified with the <code class="docutils literal notranslate"><span class="pre">taper</span></code> option. This option
+specifies a taper angle and a conical patch will be created. The taper
+angle will be the sidewall angle of the patch. This option cannot be
+combined with <code class="docutils literal notranslate"><span class="pre">mode</span></code> and the lateral extension should be omitted. It can
+be combined with <code class="docutils literal notranslate"><span class="pre">bias</span></code> however:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">grow</span><span class="p">(</span><span class="mf">0.3</span><span class="p">,</span> <span class="n">taper</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+</pre></div>
+</div>
+<img alt="_images/g7_xs.png" src="_images/g7_xs.png" />
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">grow</span><span class="p">(</span><span class="mf">0.3</span><span class="p">,</span> <span class="n">taper</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">bias</span><span class="o">=-</span><span class="mf">0.1</span><span class="p">)</span>
+</pre></div>
+</div>
+<img alt="_images/g8_xs.png" src="_images/g8_xs.png" />
+</section>
+<section id="step-coverage">
+<h2>Step coverage<a class="headerlink" href="#step-coverage" title="Permalink to this headline">#</a></h2>
+<p>The following image shows the step coverage of a 30° slope and a
+vertical step by a material deposited in round mode with thickness of
+0.3 um and lateral extension of 0.1 um. The sidewall of the step will be
+covered with a thickness of 0.1 um corresponding to the lateral
+extension:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">grow</span><span class="p">(</span><span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;round&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<img alt="_images/g10_xs.png" src="_images/g10_xs.png" />
+</section>
+<section id="on-growing-on-specific-material">
+<h2><code class="docutils literal notranslate"><span class="pre">on</span></code> - growing on specific material<a class="headerlink" href="#on-growing-on-specific-material" title="Permalink to this headline">#</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">on</span></code> option allows to select growth on a material surface in
+addition to selection by a mask. To do so, specify the array of
+materials or the single material on which the new material will be
+deposited. The surface of these substrate materials will form the seed
+of the growth process.</p>
+<p>An array of materials is written as a list of material data objects in
+square brackets.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Prepare input layers</span>
+<span class="n">m1</span> <span class="o">=</span> <span class="n">layer</span><span class="p">(</span><span class="s2">&quot;1/0&quot;</span><span class="p">)</span>
+<span class="n">m2</span> <span class="o">=</span> <span class="n">layer</span><span class="p">(</span><span class="s2">&quot;2/0&quot;</span><span class="p">)</span>
+
+<span class="c1"># Grow a stop layer</span>
+<span class="n">stop</span> <span class="o">=</span> <span class="n">mask</span><span class="p">(</span><span class="n">m2</span><span class="p">)</span><span class="o">.</span><span class="n">grow</span><span class="p">(</span><span class="mf">0.05</span><span class="p">)</span>
+
+<span class="c1"># Grow with mask m1, but only where there is a substrate surface</span>
+<span class="n">metal</span> <span class="o">=</span> <span class="n">mask</span><span class="p">(</span><span class="n">m1</span><span class="p">)</span><span class="o">.</span><span class="n">grow</span><span class="p">(</span><span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;round&#39;</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="n">bulk</span><span class="p">())</span>
+
+<span class="c1"># output the material data to the target layout</span>
+<span class="n">output</span><span class="p">(</span><span class="s2">&quot;0/0&quot;</span><span class="p">,</span> <span class="n">bulk</span><span class="p">())</span>
+<span class="n">output</span><span class="p">(</span><span class="s2">&quot;1/0&quot;</span><span class="p">,</span> <span class="n">metal</span><span class="p">)</span>
+<span class="n">output</span><span class="p">(</span><span class="s2">&quot;2/0&quot;</span><span class="p">,</span> <span class="n">stop</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Here is the input data:</p>
+<img alt="_images/g12.png" src="_images/g12.png" />
+<p>And this is the result:</p>
+<img alt="_images/g12_xs.png" src="_images/g12_xs.png" />
+</section>
+<section id="into-converting-material">
+<h2><code class="docutils literal notranslate"><span class="pre">into</span></code> - converting material<a class="headerlink" href="#into-converting-material" title="Permalink to this headline">#</a></h2>
+<p>With the <code class="docutils literal notranslate"><span class="pre">into</span></code> option it is possible to convert material below the
+mask rather than growing upwards. <code class="docutils literal notranslate"><span class="pre">into</span></code> specifies a single material
+or an array of materials in square brackets. In effect, the direction
+is reversed and the material given by <code class="docutils literal notranslate"><span class="pre">into</span></code> is consumed and replaced
+by the new material. Note: the <code class="docutils literal notranslate"><span class="pre">etch</span></code> operation is basically doing the
+same, replacing the material by “air”.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Prepare input layers</span>
+<span class="n">m1</span> <span class="o">=</span> <span class="n">layer</span><span class="p">(</span><span class="s2">&quot;1/0&quot;</span><span class="p">)</span>
+<span class="n">m2</span> <span class="o">=</span> <span class="n">layer</span><span class="p">(</span><span class="s2">&quot;2/0&quot;</span><span class="p">)</span>
+
+<span class="n">substrate</span> <span class="o">=</span> <span class="n">bulk</span><span class="p">()</span>
+
+<span class="c1"># Grow with mask m1 into the substrate</span>
+<span class="n">metal</span> <span class="o">=</span> <span class="n">mask</span><span class="p">(</span><span class="n">m1</span><span class="p">)</span><span class="o">.</span><span class="n">grow</span><span class="p">(</span><span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;round&#39;</span><span class="p">,</span> <span class="n">into</span><span class="o">=</span><span class="n">substrate</span><span class="p">)</span>
+
+<span class="c1"># output the material data to the target layout</span>
+<span class="n">output</span><span class="p">(</span><span class="s2">&quot;0/0&quot;</span><span class="p">,</span> <span class="n">substrate</span><span class="p">)</span>
+<span class="n">output</span><span class="p">(</span><span class="s2">&quot;1/0&quot;</span><span class="p">,</span> <span class="n">metal</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This script gives the following result:</p>
+<img alt="_images/g13_xs.png" src="_images/g13_xs.png" />
+</section>
+<section id="through-selective-conversion">
+<h2><code class="docutils literal notranslate"><span class="pre">through</span></code> - selective conversion<a class="headerlink" href="#through-selective-conversion" title="Permalink to this headline">#</a></h2>
+<p>The same way that <code class="docutils literal notranslate"><span class="pre">on</span></code> will make the grow selective on the chosen
+materials, <code class="docutils literal notranslate"><span class="pre">through</span></code> will select seed materials for conversion with
+<code class="docutils literal notranslate"><span class="pre">into</span></code>. Conversion will start at the interface between <code class="docutils literal notranslate"><span class="pre">through</span></code> and
+air and consume the materials of <code class="docutils literal notranslate"><span class="pre">into</span></code>. It will not consume the
+<code class="docutils literal notranslate"><span class="pre">through</span></code> materials:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Prepare input layers</span>
+<span class="n">m1</span> <span class="o">=</span> <span class="n">layer</span><span class="p">(</span><span class="s2">&quot;1/0&quot;</span><span class="p">)</span>
+<span class="n">m2</span> <span class="o">=</span> <span class="n">layer</span><span class="p">(</span><span class="s2">&quot;2/0&quot;</span><span class="p">)</span>
+
+<span class="n">substrate</span> <span class="o">=</span> <span class="n">bulk</span><span class="p">()</span>
+
+<span class="n">stop</span> <span class="o">=</span> <span class="n">mask</span><span class="p">(</span><span class="n">m2</span><span class="p">)</span><span class="o">.</span><span class="n">grow</span><span class="p">(</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">into</span><span class="o">=</span><span class="n">substrate</span><span class="p">)</span>
+
+<span class="c1"># Grow with mask m1 into the substrate</span>
+<span class="n">metal</span> <span class="o">=</span> <span class="n">mask</span><span class="p">(</span><span class="n">m1</span><span class="p">)</span><span class="o">.</span><span class="n">grow</span><span class="p">(</span><span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;round&#39;</span><span class="p">,</span> <span class="n">through</span><span class="o">=</span><span class="n">stop</span><span class="p">,</span> <span class="n">into</span><span class="o">=</span><span class="n">substrate</span><span class="p">)</span>
+
+<span class="c1"># output the material data to the target layout</span>
+<span class="n">output</span><span class="p">(</span><span class="s2">&quot;0/0&quot;</span><span class="p">,</span> <span class="n">substrate</span><span class="p">)</span>
+<span class="n">output</span><span class="p">(</span><span class="s2">&quot;1/0&quot;</span><span class="p">,</span> <span class="n">metal</span><span class="p">)</span>
+<span class="n">output</span><span class="p">(</span><span class="s2">&quot;2/0&quot;</span><span class="p">,</span> <span class="n">stop</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>With the following input:</p>
+<img alt="_images/g14.png" src="_images/g14.png" />
+<p>This script gives the following result:</p>
+<img alt="_images/g14_xs.png" src="_images/g14_xs.png" />
+</section>
+<section id="buried-applies-a-conversion-in-a-region-below-the-surface">
+<h2><code class="docutils literal notranslate"><span class="pre">buried</span></code> - applies a conversion in a region below the surface<a class="headerlink" href="#buried-applies-a-conversion-in-a-region-below-the-surface" title="Permalink to this headline">#</a></h2>
+<p>If <code class="docutils literal notranslate"><span class="pre">buried</span></code> parameter is given, the process is not applied on the
+surface, but at the given depth below the surface. The main application
+is to model deep implants. In that case, <code class="docutils literal notranslate"><span class="pre">into</span></code> can be given to specify
+the material to convert and <code class="docutils literal notranslate"><span class="pre">buried</span></code> will specify the depth at which the
+material is converted. The region of conversion extends below and above
+that depth:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Prepare input layers</span>
+<span class="n">m1</span> <span class="o">=</span> <span class="n">layer</span><span class="p">(</span><span class="s2">&quot;1/0&quot;</span><span class="p">)</span>
+<span class="n">m2</span> <span class="o">=</span> <span class="n">layer</span><span class="p">(</span><span class="s2">&quot;2/0&quot;</span><span class="p">)</span>
+
+<span class="n">substrate</span> <span class="o">=</span> <span class="n">bulk</span><span class="p">()</span>
+
+<span class="c1"># Grow with mask m1 into the substrate</span>
+<span class="n">metal</span> <span class="o">=</span> <span class="n">mask</span><span class="p">(</span><span class="n">m1</span><span class="p">)</span><span class="o">.</span><span class="n">grow</span><span class="p">(</span><span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;round&#39;</span><span class="p">,</span> <span class="n">into</span><span class="o">=</span><span class="n">substrate</span><span class="p">,</span> <span class="n">buried</span><span class="o">=</span><span class="mf">0.4</span><span class="p">)</span>
+
+<span class="c1"># output the material data to the target layout</span>
+<span class="n">output</span><span class="p">(</span><span class="s2">&quot;0/0&quot;</span><span class="p">,</span> <span class="n">substrate</span><span class="p">)</span>
+<span class="n">output</span><span class="p">(</span><span class="s2">&quot;1/0&quot;</span><span class="p">,</span> <span class="n">metal</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>With the following input:</p>
+<img alt="_images/g15.png" src="_images/g15.png" />
+<p>This script gives the following result:</p>
+<img alt="_images/g15_xs.png" src="_images/g15_xs.png" />
+</section>
+</section>
+
+
+              </div>
+              
+            </main>
+            <footer class="footer-article noprint">
+                
+    <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+    <a class='left-prev' id="prev-link" href="DocIntro.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">Writing PYXS files - an Introduction</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="DocEtch.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">The <code class="docutils literal notranslate"><span class="pre">etch()</span></code> Method</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
+            </footer>
+        </div>
+    </div>
+    <div class="footer-content row">
+        <footer class="col footer"><p>
+  
+    By Dzmitry Pustakhod<br/>
+  
+      &copy; Copyright 2019, Dzmitry Pustakhod.<br/>
+</p>
+        </footer>
+    </div>
+    
+</div>
+
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
+
+
+  </body>
+</html>

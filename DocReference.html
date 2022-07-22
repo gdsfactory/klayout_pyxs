@@ -1,0 +1,1441 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>PYXS File Reference &#8212; klayout_pyxs 0.1.13 documentation</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+<link href="_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" href="_static/styles/sphinx-book-theme.css?digest=5115cc725059bd94278eecd172e13a965bf8f5a9" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="_static/autodoc_pydantic.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
+
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/clipboard.min.js"></script>
+    <script src="_static/copybutton.js"></script>
+    <script src="_static/scripts/sphinx-book-theme.js?digest=9c920249402e914e316237a7dbc6769907cce411"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="CHANGELOG" href="CHANGELOG.html" />
+    <link rel="prev" title="The etch() Method" href="DocEtch.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="None">
+    
+
+    <!-- Google Analytics -->
+    
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+<!-- Checkboxes to toggle the left sidebar -->
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle navigation sidebar">
+<label class="overlay overlay-navbar" for="__navigation">
+    <div class="visually-hidden">Toggle navigation sidebar</div>
+</label>
+<!-- Checkboxes to toggle the in-page toc -->
+<input type="checkbox" class="sidebar-toggle" name="__page-toc" id="__page-toc" aria-label="Toggle in-page Table of Contents">
+<label class="overlay overlay-pagetoc" for="__page-toc">
+    <div class="visually-hidden">Toggle in-page Table of Contents</div>
+</label>
+<!-- Headers at the top -->
+<div class="announcement header-item noprint"></div>
+<div class="header header-item noprint"></div>
+
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+<!-- Sidebar -->
+<div class="bd-sidebar noprint" id="site-navigation">
+    <div class="bd-sidebar__content">
+        <div class="bd-sidebar__top"><div class="navbar-brand-box">
+    <a class="navbar-brand text-wrap" href="index.html">
+      
+      
+      
+      <h1 class="site-logo" id="site-title">klayout_pyxs 0.1.13 documentation</h1>
+      
+    </a>
+</div><form class="bd-search d-flex align-items-center" action="search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item active">
+        <p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  Contents
+ </span>
+</p>
+<ul class="current nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="README.html">
+   klayout_pyxs 0.1.13
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="DocIntro.html">
+   Writing PYXS files - an Introduction
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="DocGrow.html">
+   The
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     grow()
+    </span>
+   </code>
+   Method
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="DocEtch.html">
+   The
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     etch()
+    </span>
+   </code>
+   Method
+  </a>
+ </li>
+ <li class="toctree-l1 current active">
+  <a class="current reference internal" href="#">
+   PYXS File Reference
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="CHANGELOG.html">
+   CHANGELOG
+  </a>
+ </li>
+</ul>
+
+    </div>
+</nav></div>
+        <div class="bd-sidebar__bottom">
+             <!-- To handle the deprecated key -->
+            
+            <div class="navbar_extra_footer">
+            Theme by the <a href="https://ebp.jupyterbook.org">Executable Book Project</a>
+            </div>
+            
+        </div>
+    </div>
+    <div id="rtd-footer-container"></div>
+</div>
+
+
+          
+
+
+          
+<!-- A tiny helper pixel to detect if we've scrolled -->
+<div class="sbt-scroll-pixel-helper"></div>
+<!-- Main content -->
+<div class="col py-0 content-container">
+    
+    <div class="header-article row sticky-top noprint">
+        
+
+
+
+<div class="col py-1 d-flex header-article-main">
+    <div class="header-article__left">
+        
+        <label for="__navigation"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="right"
+title="Toggle navigation"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-bars"></i>
+  </span>
+
+</label>
+
+        
+    </div>
+    <div class="header-article__right">
+<button onclick="toggleFullScreen()"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="bottom"
+title="Fullscreen mode"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+<div class="menu-dropdown menu-dropdown-repository-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Source repositories">
+      <i class="fab fa-github"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="https://github.com/gdsfactory/klayout_pyxs"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Source repository"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="headerbtn__text-container">repository</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/gdsfactory/klayout_pyxs/issues/new?title=Issue%20on%20page%20%2FDocReference.html&body=Your%20issue%20content%20here."
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Open an issue"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="headerbtn__text-container">open issue</span>
+</a>
+
+      </li>
+      
+      <li>
+        <a href="https://github.com/gdsfactory/klayout_pyxs/edit/master/docs/DocReference.rst"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Edit this page"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-pencil-alt"></i>
+  </span>
+<span class="headerbtn__text-container">suggest edit</span>
+</a>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+
+<div class="menu-dropdown menu-dropdown-download-buttons">
+  <button class="headerbtn menu-dropdown__trigger"
+      aria-label="Download this page">
+      <i class="fas fa-download"></i>
+  </button>
+  <div class="menu-dropdown__content">
+    <ul>
+      <li>
+        <a href="_sources/DocReference.rst.txt"
+   class="headerbtn"
+   data-toggle="tooltip"
+data-placement="left"
+title="Download source file"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="headerbtn__text-container">.rst</span>
+</a>
+
+      </li>
+      
+      <li>
+        
+<button onclick="printPdf(this)"
+  class="headerbtn"
+  data-toggle="tooltip"
+data-placement="left"
+title="Print to PDF"
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="headerbtn__text-container">.pdf</span>
+</button>
+
+      </li>
+      
+    </ul>
+  </div>
+</div>
+<label for="__page-toc"
+  class="headerbtn headerbtn-page-toc"
+  
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-list"></i>
+  </span>
+
+</label>
+
+    </div>
+</div>
+
+<!-- Table of contents -->
+<div class="col-md-3 bd-toc show noprint">
+    <div class="tocsection onthispage pt-5 pb-3">
+        <i class="fas fa-list"></i> Contents
+    </div>
+    <nav id="bd-toc-nav" aria-label="Page">
+        <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#functions">
+   Functions
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#all-method">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       all()
+      </span>
+     </code>
+     method
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#below-depth-and-height-methods">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       below()
+      </span>
+     </code>
+     ,
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       depth()
+      </span>
+     </code>
+     and
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       height()
+      </span>
+     </code>
+     methods
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#bulk-method">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       bulk()
+      </span>
+     </code>
+     method
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#delta-method">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       delta()
+      </span>
+     </code>
+     method
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#deposit-grow-diffuse-methods">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       deposit()
+      </span>
+     </code>
+     (
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       grow()
+      </span>
+     </code>
+     ,
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       diffuse()
+      </span>
+     </code>
+     ) methods
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#etch-method">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       etch()
+      </span>
+     </code>
+     method
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#extend-method">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       extend()
+      </span>
+     </code>
+     method
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#flip-method">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       flip()
+      </span>
+     </code>
+     method
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#layer-method">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       layer()
+      </span>
+     </code>
+     method
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#layers-file-method">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       layers_file()
+      </span>
+     </code>
+     method
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#mask-method">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       mask()
+      </span>
+     </code>
+     method
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#output-method">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       output()
+      </span>
+     </code>
+     method
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#planarize-method">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       planarize()
+      </span>
+     </code>
+     method
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#methods-on-original-layout-layers-or-material-data-objects">
+   Methods on original layout layers or material data objects
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#size-method">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       size()
+      </span>
+     </code>
+     method
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#sized-method">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       sized()
+      </span>
+     </code>
+     method
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#invert-method">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       invert()
+      </span>
+     </code>
+     method
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#inverted-method">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       inverted()
+      </span>
+     </code>
+     method
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#or-and-xor-not-methods">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       or_()
+      </span>
+     </code>
+     ,
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       and_()
+      </span>
+     </code>
+     ,
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       xor()
+      </span>
+     </code>
+     ,
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       not_()
+      </span>
+     </code>
+     methods
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#methods-on-mask-data-objects-grow-and-etch">
+   Methods on mask data objects:
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     grow()
+    </span>
+   </code>
+   and
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     etch()
+    </span>
+   </code>
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#grow-method">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       grow()
+      </span>
+     </code>
+     method
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#id1">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       etch()
+      </span>
+     </code>
+     method
+    </a>
+   </li>
+  </ul>
+ </li>
+</ul>
+
+    </nav>
+</div>
+    </div>
+    <div class="article row">
+        <div class="col pl-md-3 pl-lg-5 content-container">
+            <!-- Table of contents that is only displayed when printing the page -->
+            <div id="jb-print-docs-body" class="onlyprint">
+                <h1>PYXS File Reference</h1>
+                <!-- Table of contents -->
+                <div id="print-main-content">
+                    <div id="jb-print-toc">
+                        
+                        <div>
+                            <h2> Contents </h2>
+                        </div>
+                        <nav aria-label="Page">
+                            <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#functions">
+   Functions
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#all-method">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       all()
+      </span>
+     </code>
+     method
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#below-depth-and-height-methods">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       below()
+      </span>
+     </code>
+     ,
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       depth()
+      </span>
+     </code>
+     and
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       height()
+      </span>
+     </code>
+     methods
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#bulk-method">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       bulk()
+      </span>
+     </code>
+     method
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#delta-method">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       delta()
+      </span>
+     </code>
+     method
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#deposit-grow-diffuse-methods">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       deposit()
+      </span>
+     </code>
+     (
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       grow()
+      </span>
+     </code>
+     ,
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       diffuse()
+      </span>
+     </code>
+     ) methods
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#etch-method">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       etch()
+      </span>
+     </code>
+     method
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#extend-method">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       extend()
+      </span>
+     </code>
+     method
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#flip-method">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       flip()
+      </span>
+     </code>
+     method
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#layer-method">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       layer()
+      </span>
+     </code>
+     method
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#layers-file-method">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       layers_file()
+      </span>
+     </code>
+     method
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#mask-method">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       mask()
+      </span>
+     </code>
+     method
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#output-method">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       output()
+      </span>
+     </code>
+     method
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#planarize-method">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       planarize()
+      </span>
+     </code>
+     method
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#methods-on-original-layout-layers-or-material-data-objects">
+   Methods on original layout layers or material data objects
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#size-method">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       size()
+      </span>
+     </code>
+     method
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#sized-method">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       sized()
+      </span>
+     </code>
+     method
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#invert-method">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       invert()
+      </span>
+     </code>
+     method
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#inverted-method">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       inverted()
+      </span>
+     </code>
+     method
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#or-and-xor-not-methods">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       or_()
+      </span>
+     </code>
+     ,
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       and_()
+      </span>
+     </code>
+     ,
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       xor()
+      </span>
+     </code>
+     ,
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       not_()
+      </span>
+     </code>
+     methods
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#methods-on-mask-data-objects-grow-and-etch">
+   Methods on mask data objects:
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     grow()
+    </span>
+   </code>
+   and
+   <code class="docutils literal notranslate">
+    <span class="pre">
+     etch()
+    </span>
+   </code>
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#grow-method">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       grow()
+      </span>
+     </code>
+     method
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#id1">
+     <code class="docutils literal notranslate">
+      <span class="pre">
+       etch()
+      </span>
+     </code>
+     method
+    </a>
+   </li>
+  </ul>
+ </li>
+</ul>
+
+                        </nav>
+                    </div>
+                </div>
+            </div>
+            <main id="main-content" role="main">
+                
+              <div>
+                
+  <section id="pyxs-file-reference">
+<span id="docreference"></span><h1>PYXS File Reference<a class="headerlink" href="#pyxs-file-reference" title="Permalink to this headline">#</a></h1>
+<p>This document details the functions available in PYXS scripts. An
+introduction is available as a separate document:
+<a class="reference internal" href="DocIntro.html"><span class="doc">Writing PYXS files - an Introduction</span></a>.</p>
+<p>In PYXS scripts, there are basically three kind of functions and
+methods:</p>
+<ul class="simple">
+<li><p>Standalone functions which don’t require an object. For example
+<code class="docutils literal notranslate"><span class="pre">input()</span></code> and <code class="docutils literal notranslate"><span class="pre">deposit()</span></code>.</p></li>
+<li><p>Methods on original layout layers (and in some weaker sense on
+material data objects), i.e. <code class="docutils literal notranslate"><span class="pre">invert()</span></code> or <code class="docutils literal notranslate"><span class="pre">not_()</span></code>.</p></li>
+<li><p>Methods on mask data objects, i.e. <code class="docutils literal notranslate"><span class="pre">grow()</span></code> and <code class="docutils literal notranslate"><span class="pre">etch()</span></code>.</p></li>
+</ul>
+<section id="functions">
+<h2>Functions<a class="headerlink" href="#functions" title="Permalink to this headline">#</a></h2>
+<p>The following standalone functions are available:</p>
+<table class="colwidths-given table">
+<colgroup>
+<col style="width: 18%" />
+<col style="width: 82%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Function</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">all()</span></code></p></td>
+<td><p>Return a pseudo-mask, covering the whole wafer</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">below(b)</span></code></p></td>
+<td><div class="line-block">
+<div class="line">Configure the lower height of the processing window for</div>
+<div class="line">backside processing (see below)</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">bulk()</span></code></p></td>
+<td><p>Return a pseudo-material describing the wafer body</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">delta(d)</span></code></p></td>
+<td><p>Configure the accuracy parameter (see <code class="docutils literal notranslate"><span class="pre">below()</span></code>)</p></td>
+</tr>
+<tr class="row-even"><td><div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">deposit(...)</span></code></div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">grow()</span></code></div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">diffuse()</span></code></div>
+</div>
+</td>
+<td><div class="line-block">
+<div class="line">Deposit material as a uniform sheet. Equivalent to</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">all().grow(...)</span></code>. Return a material data object</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">depth(d)</span></code></p></td>
+<td><div class="line-block">
+<div class="line">Configure the depth of the processing window or the wafer</div>
+<div class="line">thickness for backside processing (see below)</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">etch(...)</span></code></p></td>
+<td><p>Uniform etching. Equivalent to <code class="docutils literal notranslate"><span class="pre">all.etch(...)</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">extend(x)</span></code></p></td>
+<td><p>Configure the computation margin (see below)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">flip()</span></code></p></td>
+<td><p>Start or end backside processing</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">height(h)</span></code></p></td>
+<td><p>Configure the height of the processing window (see below)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">layer(layer_spec)</span></code></p></td>
+<td><div class="line-block">
+<div class="line">Fetche an input layer from the original layout. Return a</div>
+<div class="line">layer data object.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">layers_file(lyp_filename)</span></code></p></td>
+<td><div class="line-block">
+<div class="line">Configure a <code class="docutils literal notranslate"><span class="pre">.lyp</span></code> layer properties file to be used on the</div>
+<div class="line">cross-section layout</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">mask(layout_data)</span></code></p></td>
+<td><div class="line-block">
+<div class="line">Designate the <code class="docutils literal notranslate"><span class="pre">layout_data</span></code> object as a litho pattern (mask).</div>
+<div class="line">This is the starting point for structured grow or etch</div>
+<div class="line">operations. Return a mask data object.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">output(layer_spec,</span> <span class="pre">material)</span></code></p></td>
+<td><p>Output a material object to the output layout</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">planarize(...)</span></code></p></td>
+<td><p>Planarization</p></td>
+</tr>
+</tbody>
+</table>
+<section id="all-method">
+<h3><code class="docutils literal notranslate"><span class="pre">all()</span></code> method<a class="headerlink" href="#all-method" title="Permalink to this headline">#</a></h3>
+<p>This method delivers a mask data object which covers the whole wafer.
+It’s used as seed for the global etch and grow function only.</p>
+</section>
+<section id="below-depth-and-height-methods">
+<h3><code class="docutils literal notranslate"><span class="pre">below()</span></code>, <code class="docutils literal notranslate"><span class="pre">depth()</span></code> and <code class="docutils literal notranslate"><span class="pre">height()</span></code> methods<a class="headerlink" href="#below-depth-and-height-methods" title="Permalink to this headline">#</a></h3>
+<p>The material operations a performed in a limited processing window,
+which extends a certain height over the wafer top surface (<code class="docutils literal notranslate"><span class="pre">height</span></code>),
+covers the wafer with a certain depth (<code class="docutils literal notranslate"><span class="pre">depth</span></code>) and extends below the
+wafer for backside processing (<code class="docutils literal notranslate"><span class="pre">below</span></code> parameter). Material cannot grow
+outside the space above or below the wafer. Etching cannot happen
+deeper than <code class="docutils literal notranslate"><span class="pre">depth</span></code>. For backside processing, <code class="docutils literal notranslate"><span class="pre">depth</span></code> also defines the
+wafer thickness.</p>
+<p>The parameters can be modified with the respective functions. All
+functions accept a value in micrometer units. The default value is
+2 micrometers.</p>
+</section>
+<section id="bulk-method">
+<h3><code class="docutils literal notranslate"><span class="pre">bulk()</span></code> method<a class="headerlink" href="#bulk-method" title="Permalink to this headline">#</a></h3>
+<p>This methods returns a material data object which represents the wafer
+at it’s initial state. This object can be used to represent the
+unmodified wafer substrate and can be target of etch operations. Every
+call of <code class="docutils literal notranslate"><span class="pre">bulk()</span></code> will return a fresh object, so the object needs to be
+stored in a variable for later use:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">substrate</span> <span class="o">=</span> <span class="n">bulk</span><span class="p">()</span>
+<span class="n">mask</span><span class="p">(</span><span class="n">layer</span><span class="p">)</span><span class="o">.</span><span class="n">etch</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">into</span><span class="o">=</span><span class="s1">&#39;substrate&#39;</span><span class="p">)</span>
+<span class="n">output</span><span class="p">(</span><span class="s2">&quot;1/0&quot;</span><span class="p">,</span> <span class="n">substrate</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="delta-method">
+<h3><code class="docutils literal notranslate"><span class="pre">delta()</span></code> method<a class="headerlink" href="#delta-method" title="Permalink to this headline">#</a></h3>
+<p>Due to limitations of the underlying processor which cannot handle
+infinitely thin polygons, there is an accuracy limit for the creation
+or modification or geometrical regions. The delta parameter will
+basically determine that accuracy level and in some cases, for example
+the sheet thickness will only be accurate to that level. In addition,
+healing or small gaps and slivers during the processing uses the delta
+value as a dimension threshold, so shapes or gaps smaller than that
+value cannot be produced.</p>
+<p>The default value of <code class="docutils literal notranslate"><span class="pre">delta</span></code> is 10 database units. To modify the value,
+call the <code class="docutils literal notranslate"><span class="pre">delta()</span></code> function with the desired delta value in micrometer
+units. The minimum value recommended is 2 database unit. That implies
+that the accuracy can be increased by using a smaller database unit for
+the input layout.</p>
+</section>
+<section id="deposit-grow-diffuse-methods">
+<h3><code class="docutils literal notranslate"><span class="pre">deposit()</span></code> (<code class="docutils literal notranslate"><span class="pre">grow()</span></code>, <code class="docutils literal notranslate"><span class="pre">diffuse()</span></code>) methods<a class="headerlink" href="#deposit-grow-diffuse-methods" title="Permalink to this headline">#</a></h3>
+<p>This function will deposit material uniformly. <code class="docutils literal notranslate"><span class="pre">grow()</span></code> and <code class="docutils literal notranslate"><span class="pre">diffuse()</span></code>
+are just synonyms. It is equivalent to <code class="docutils literal notranslate"><span class="pre">all.grow(...)</span></code>. For a
+description of the parameters see the <code class="docutils literal notranslate"><span class="pre">grow()</span></code> method on the mask data
+object.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">deposit()</span></code> function will return a material object representing the
+deposited material.</p>
+</section>
+<section id="etch-method">
+<h3><code class="docutils literal notranslate"><span class="pre">etch()</span></code> method<a class="headerlink" href="#etch-method" title="Permalink to this headline">#</a></h3>
+<p>This function will perform a uniform etch and is equivalent to
+<code class="docutils literal notranslate"><span class="pre">all().etch(...)</span></code>. For a description of the parameter see the
+“etch()” function on the mask data object.</p>
+</section>
+<section id="extend-method">
+<h3><code class="docutils literal notranslate"><span class="pre">extend()</span></code> method<a class="headerlink" href="#extend-method" title="Permalink to this headline">#</a></h3>
+<p>To reduce the likelihood of missing important features, the cross
+section script will sample the layout in a window around the cut line.
+The dimensions of that window are controlled by the <code class="docutils literal notranslate"><span class="pre">extend</span></code> parameter.
+The window extends the specified value to the left, the right, the start
+and end of the cut line.</p>
+<p>The default value is 2 micrometers. To catch all relevant input data in
+cases where positive sizing values larger than the extend parameter are
+used, increase the extend value by calling <code class="docutils literal notranslate"><span class="pre">extend(e)</span></code> with the desired
+value in micrometer units.</p>
+<p>In addition, the <code class="docutils literal notranslate"><span class="pre">extend</span></code> parameter determines the extension of an
+invisible part left and right of the cross section, which is included
+in the processing to reduce border effects. If deposition or etching
+happens with dimensions bigger than the extend value, artifacts start
+to appear at the borders of the simulation window. The extend value can
+then be increased to hide these effects.</p>
+</section>
+<section id="flip-method">
+<h3><code class="docutils literal notranslate"><span class="pre">flip()</span></code> method<a class="headerlink" href="#flip-method" title="Permalink to this headline">#</a></h3>
+<p>This function will start backside processing. After this function,
+modifications will be applied on the back side of the wafer. Calling
+<code class="docutils literal notranslate"><span class="pre">flip()</span></code> again, will continue processing on the front side.</p>
+</section>
+<section id="layer-method">
+<h3><code class="docutils literal notranslate"><span class="pre">layer()</span></code> method<a class="headerlink" href="#layer-method" title="Permalink to this headline">#</a></h3>
+<p>The layer method fetches a layout layer and prepares a layout data
+object for further processing. The <code class="docutils literal notranslate"><span class="pre">layer()</span></code> function expects a single
+string parameter which encodes the source of the layout data.</p>
+<p>The function understands the following variants:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">layer(&quot;17&quot;)</span></code>: Layer 17, datatype 0</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">layer(&quot;17/6&quot;)</span></code>: Layer 17, datatype 6</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">layer(&quot;METAL1&quot;)</span></code>: layer “METAL1” for formats that support
+named layers (DXF, CIF)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">layer(&quot;METAL1</span> <span class="pre">(17/0)&quot;)</span></code>: hybrid specification for GDS
+(layer 17, datatype 0) and “METAL1” for named-layer formats like DXF
+and CIF.</p></li>
+</ul>
+</section>
+<section id="layers-file-method">
+<h3><code class="docutils literal notranslate"><span class="pre">layers_file()</span></code> method<a class="headerlink" href="#layers-file-method" title="Permalink to this headline">#</a></h3>
+<p>This function specifies a layer properties file which will be loaded
+when the cross section has been generated. This file specifies colors,
+fill pattern and other parameters of the display:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">layers_file</span><span class="p">(</span><span class="s2">&quot;/home/matthias/xsection/lyp_files/cmos1.lyp&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="mask-method">
+<h3><code class="docutils literal notranslate"><span class="pre">mask()</span></code> method<a class="headerlink" href="#mask-method" title="Permalink to this headline">#</a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">mask()</span></code> function designates the given layout data object as a litho
+mask. It returns a mask data object which is the starting point for
+further <code class="docutils literal notranslate"><span class="pre">etch()</span></code> or <code class="docutils literal notranslate"><span class="pre">grow()</span></code> operations:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">l1</span> <span class="o">=</span> <span class="n">layer</span><span class="p">(</span><span class="s2">&quot;1/0&quot;</span><span class="p">)</span>
+<span class="n">metal</span> <span class="o">=</span> <span class="n">mask</span><span class="p">(</span><span class="n">l1</span><span class="p">)</span><span class="o">.</span><span class="n">grow</span><span class="p">(</span><span class="mf">0.3</span><span class="p">)</span>
+<span class="n">output</span><span class="p">(</span><span class="s2">&quot;1/0&quot;</span><span class="p">,</span> <span class="n">metal</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="output-method">
+<h3><code class="docutils literal notranslate"><span class="pre">output()</span></code> method<a class="headerlink" href="#output-method" title="Permalink to this headline">#</a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">output()</span></code> function will write the given material to the output
+layout. The function expects two parameters: an output layer
+specification and a material object:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">output</span><span class="p">(</span><span class="s2">&quot;1/0&quot;</span><span class="p">,</span> <span class="n">metal</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The layer specifications follow the same rules than for the <code class="docutils literal notranslate"><span class="pre">layer()</span></code>
+function described above.</p>
+</section>
+<section id="planarize-method">
+<h3><code class="docutils literal notranslate"><span class="pre">planarize()</span></code> method<a class="headerlink" href="#planarize-method" title="Permalink to this headline">#</a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">planarize()</span></code> function removes material of the given kind (<code class="docutils literal notranslate"><span class="pre">into</span></code>
+argument) down to a certain level. The level can be determined
+numerically or by a stop layer.</p>
+<p>The function takes a couple of keyword parameters in the Python notation
+(<code class="docutils literal notranslate"><span class="pre">name=value</span></code>), for example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">planarize</span><span class="p">(</span><span class="n">downto</span><span class="o">=</span><span class="n">substrate</span><span class="p">,</span> <span class="n">into</span><span class="o">=</span><span class="n">metal</span><span class="p">)</span>
+<span class="n">planarize</span><span class="p">(</span><span class="n">less</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">into</span><span class="o">=</span><span class="p">[</span><span class="n">metal</span><span class="p">,</span> <span class="n">substrate</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>The keyword parameters are:</p>
+<table class="colwidths-given table">
+<colgroup>
+<col style="width: 13%" />
+<col style="width: 88%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Name</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">into</span></code></p></td>
+<td><div class="line-block">
+<div class="line">(mandatory) A single material or an array or materials. The</div>
+<div class="line">planarization will remove these materials selectively.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">downto</span></code></p></td>
+<td><div class="line-block">
+<div class="line">Value is a material. Planarization stops at the topmost point</div>
+<div class="line">of that material. Cannot be used together with <code class="docutils literal notranslate"><span class="pre">less</span></code> or <code class="docutils literal notranslate"><span class="pre">to</span></code>.</div>
+</div>
+</td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">less</span></code></p></td>
+<td><div class="line-block">
+<div class="line">Value is a micrometer distance. Planarization will remove a</div>
+<div class="line">horizontal alice of the given material, stopping <code class="docutils literal notranslate"><span class="pre">less</span></code></div>
+<div class="line">micrometers measured from the topmost point of that material</div>
+<div class="line">before the planarization. Cannot be used together with <code class="docutils literal notranslate"><span class="pre">downto</span></code></div>
+<div class="line">or <code class="docutils literal notranslate"><span class="pre">to</span></code>.</div>
+</div>
+</td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">to</span></code></p></td>
+<td><div class="line-block">
+<div class="line">Value is micrometer z value. Planarization stops when reaching</div>
+<div class="line">that value. The z value is measured from the initial wafer</div>
+<div class="line">surface. Cannot be used together with <code class="docutils literal notranslate"><span class="pre">downto</span></code> or <code class="docutils literal notranslate"><span class="pre">less</span></code>.</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="methods-on-original-layout-layers-or-material-data-objects">
+<h2>Methods on original layout layers or material data objects<a class="headerlink" href="#methods-on-original-layout-layers-or-material-data-objects" title="Permalink to this headline">#</a></h2>
+<p>The following methods are available for these objects:</p>
+<table class="colwidths-given table">
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 80%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Method</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">size(s)</span></code> or <code class="docutils literal notranslate"><span class="pre">size(x,</span> <span class="pre">y)</span></code></p></td>
+<td><p>Isotropic or anisotropic sizing</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">sized(s)</span></code> or <code class="docutils literal notranslate"><span class="pre">sized(x,</span> <span class="pre">y)</span></code></p></td>
+<td><p>Out-of-place version of <code class="docutils literal notranslate"><span class="pre">size()</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">invert()</span></code></p></td>
+<td><p>Invert a layer</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">inverted()</span></code></p></td>
+<td><p>Out-of-place version of <code class="docutils literal notranslate"><span class="pre">invert()</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">or_(other)</span></code></p></td>
+<td><p>Boolean OR (merging) with another layer</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">and_(other)</span></code></p></td>
+<td><p>Boolean AND (intersection) with another layer</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">xor(other)</span></code></p></td>
+<td><p>Boolean XOR (symmetric difference) with another layer</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">not_(other)</span></code></p></td>
+<td><p>Boolean NOT (difference) with another layer</p></td>
+</tr>
+</tbody>
+</table>
+<section id="size-method">
+<h3><code class="docutils literal notranslate"><span class="pre">size()</span></code> method<a class="headerlink" href="#size-method" title="Permalink to this headline">#</a></h3>
+<p>This method will apply a bias to the layout data. A bias is applied by
+shifting the edges to the outside (for positive bias) or the inside
+(for negative bias) of the figure.</p>
+<p>Applying a bias will increase or reduce the dimension of a figure by
+twice the value.</p>
+<p>Two versions are available: isotropic or anisotropic sizing. The first
+version takes one single value in micrometer units and applies this value
+in x and y direction. The second version takes two values for x and y
+direction.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">size()</span></code> method will modify the layer object (in-place). A
+non-modifying version (out-of-place) is <code class="docutils literal notranslate"><span class="pre">sized()</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">l1</span> <span class="o">=</span> <span class="n">layer</span><span class="p">(</span><span class="s2">&quot;1/0&quot;</span><span class="p">)</span>
+<span class="n">l1</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="mf">0.3</span><span class="p">)</span>
+<span class="n">metal</span> <span class="o">=</span> <span class="n">mask</span><span class="p">(</span><span class="n">l1</span><span class="p">)</span><span class="o">.</span><span class="n">grow</span><span class="p">(</span><span class="mf">0.3</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="sized-method">
+<h3><code class="docutils literal notranslate"><span class="pre">sized()</span></code> method<a class="headerlink" href="#sized-method" title="Permalink to this headline">#</a></h3>
+<p>Same as <code class="docutils literal notranslate"><span class="pre">size()</span></code>, but returns a new layout data object rather than
+modifying it:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">l1</span> <span class="o">=</span> <span class="n">layer</span><span class="p">(</span><span class="s2">&quot;1/0&quot;</span><span class="p">)</span>
+<span class="n">l1_sized</span> <span class="o">=</span> <span class="n">l1</span><span class="o">.</span><span class="n">sized</span><span class="p">(</span><span class="mf">0.3</span><span class="p">)</span>
+<span class="n">metal</span> <span class="o">=</span> <span class="n">mask</span><span class="p">(</span><span class="n">l1_sized</span><span class="p">)</span><span class="o">.</span><span class="n">grow</span><span class="p">(</span><span class="mf">0.3</span><span class="p">)</span>
+<span class="c1"># l1 can still be used in the original form</span>
+</pre></div>
+</div>
+</section>
+<section id="invert-method">
+<h3><code class="docutils literal notranslate"><span class="pre">invert()</span></code> method<a class="headerlink" href="#invert-method" title="Permalink to this headline">#</a></h3>
+<p>Inverts a layer (creates layout where nothing is drawn and vice versa).
+This method modifies the layout data object (in-place):</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">l1</span> <span class="o">=</span> <span class="n">layer</span><span class="p">(</span><span class="s2">&quot;1/0&quot;</span><span class="p">)</span>
+<span class="n">l1</span><span class="o">.</span><span class="n">invert</span><span class="p">()</span>
+<span class="n">metal</span> <span class="o">=</span> <span class="n">mask</span><span class="p">(</span><span class="n">l1</span><span class="p">)</span><span class="o">.</span><span class="n">grow</span><span class="p">(</span><span class="mf">0.3</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>A non-modifying version (out-of-place) is <code class="docutils literal notranslate"><span class="pre">inverted()</span></code>.</p>
+</section>
+<section id="inverted-method">
+<h3><code class="docutils literal notranslate"><span class="pre">inverted()</span></code> method<a class="headerlink" href="#inverted-method" title="Permalink to this headline">#</a></h3>
+<p>Returns a new layout data object representing the inverted source
+layout:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">l1</span> <span class="o">=</span> <span class="n">layer</span><span class="p">(</span><span class="s2">&quot;1/0&quot;</span><span class="p">)</span>
+<span class="n">l1_inv</span> <span class="o">=</span> <span class="n">l1</span><span class="o">.</span><span class="n">inverted</span><span class="p">()</span>
+<span class="n">metal</span> <span class="o">=</span> <span class="n">mask</span><span class="p">(</span><span class="n">l1_inv</span><span class="p">)</span><span class="o">.</span><span class="n">grow</span><span class="p">(</span><span class="mf">0.3</span><span class="p">)</span>
+<span class="c1"># l1 can still be used in the original form</span>
+</pre></div>
+</div>
+</section>
+<section id="or-and-xor-not-methods">
+<h3><code class="docutils literal notranslate"><span class="pre">or_()</span></code>, <code class="docutils literal notranslate"><span class="pre">and_()</span></code>, <code class="docutils literal notranslate"><span class="pre">xor()</span></code>, <code class="docutils literal notranslate"><span class="pre">not_()</span></code> methods<a class="headerlink" href="#or-and-xor-not-methods" title="Permalink to this headline">#</a></h3>
+<p>These methods perform boolean operations. Their notation is somewhat
+unusual but follows the method notation of Python:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">l1</span> <span class="o">=</span> <span class="n">layer</span><span class="p">(</span><span class="s2">&quot;1/0&quot;</span><span class="p">)</span>
+<span class="n">l2</span> <span class="o">=</span> <span class="n">layer</span><span class="p">(</span><span class="s2">&quot;2/0&quot;</span><span class="p">)</span>
+<span class="n">one_of_them</span> <span class="o">=</span> <span class="n">l1</span><span class="o">.</span><span class="n">xor</span><span class="p">(</span><span class="n">l2</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Here is the output of the operations:</p>
+<table class="colwidths-given table">
+<colgroup>
+<col style="width: 13%" />
+<col style="width: 13%" />
+<col style="width: 19%" />
+<col style="width: 19%" />
+<col style="width: 19%" />
+<col style="width: 19%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>layer <code class="docutils literal notranslate"><span class="pre">a</span></code></p></th>
+<th class="head"><p>layer <code class="docutils literal notranslate"><span class="pre">b</span></code></p></th>
+<th class="head"><p><code class="docutils literal notranslate"><span class="pre">a.or_(b)</span></code></p></th>
+<th class="head"><p><code class="docutils literal notranslate"><span class="pre">a.and_(b)</span></code></p></th>
+<th class="head"><p><code class="docutils literal notranslate"><span class="pre">a.xor(b)</span></code></p></th>
+<th class="head"><p><code class="docutils literal notranslate"><span class="pre">a.not_(b)</span></code></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>clear</p></td>
+<td><p>clear</p></td>
+<td><p>clear</p></td>
+<td><p>clear</p></td>
+<td><p>clear</p></td>
+<td><p>clear</p></td>
+</tr>
+<tr class="row-odd"><td><p>drawn</p></td>
+<td><p>clear</p></td>
+<td><p>drawn</p></td>
+<td><p>clear</p></td>
+<td><p>drawn</p></td>
+<td><p>drawn</p></td>
+</tr>
+<tr class="row-even"><td><p>clear</p></td>
+<td><p>drawn</p></td>
+<td><p>drawn</p></td>
+<td><p>clear</p></td>
+<td><p>drawn</p></td>
+<td><p>clear</p></td>
+</tr>
+<tr class="row-odd"><td><p>drawn</p></td>
+<td><p>drawn</p></td>
+<td><p>drawn</p></td>
+<td><p>drawn</p></td>
+<td><p>clear</p></td>
+<td><p>clear</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="methods-on-mask-data-objects-grow-and-etch">
+<h2>Methods on mask data objects: <code class="docutils literal notranslate"><span class="pre">grow()</span></code> and <code class="docutils literal notranslate"><span class="pre">etch()</span></code><a class="headerlink" href="#methods-on-mask-data-objects-grow-and-etch" title="Permalink to this headline">#</a></h2>
+<p>The following methods are available for mask data objects:</p>
+<table class="colwidths-given table">
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 80%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Method</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">grow(...)</span></code></p></td>
+<td><p>Deposition of material where this mask is present</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">etch(...)</span></code></p></td>
+<td><p>Removal of material where this mask is present</p></td>
+</tr>
+</tbody>
+</table>
+<section id="grow-method">
+<h3><code class="docutils literal notranslate"><span class="pre">grow()</span></code> method<a class="headerlink" href="#grow-method" title="Permalink to this headline">#</a></h3>
+<p>This method is important and has a rich parameter set, so it is
+described in an individual document here: <a class="reference internal" href="DocGrow.html"><span class="doc">The grow() Method</span></a>.</p>
+</section>
+<section id="id1">
+<h3><code class="docutils literal notranslate"><span class="pre">etch()</span></code> method<a class="headerlink" href="#id1" title="Permalink to this headline">#</a></h3>
+<p>This method is important and has a rich parameter set, so it is
+described in an individual document here: <a class="reference internal" href="DocEtch.html"><span class="doc">The etch() Method</span></a>.</p>
+</section>
+</section>
+</section>
+
+
+              </div>
+              
+            </main>
+            <footer class="footer-article noprint">
+                
+    <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+    <a class='left-prev' id="prev-link" href="DocEtch.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">The <code class="docutils literal notranslate"><span class="pre">etch()</span></code> Method</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="CHANGELOG.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">CHANGELOG</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
+            </footer>
+        </div>
+    </div>
+    <div class="footer-content row">
+        <footer class="col footer"><p>
+  
+    By Dzmitry Pustakhod<br/>
+  
+      &copy; Copyright 2019, Dzmitry Pustakhod.<br/>
+</p>
+        </footer>
+    </div>
+    
+</div>
+
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
+
+
+  </body>
+</html>
