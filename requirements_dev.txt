@@ -17,7 +17,7 @@ pytest-cov
 pytest-regressions
 qrcode
 recommonmark
-sphinx>=4.4.0
+sphinx>=7.4.7
 sphinx-autodoc-typehints
 sphinx-book-theme
 sphinx-click
