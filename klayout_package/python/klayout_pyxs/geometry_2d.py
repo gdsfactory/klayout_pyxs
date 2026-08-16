@@ -911,7 +911,8 @@ class MaskData(LayoutData):
             kernel_pts.append(Point(0, zi))
             kernel_pts.append(Point(xyi, 0))
             kernel_pts.append(Point(0, -zi))
-            kp = Polygon(kernel_pts)
+            kp = SimplePolygon()
+            kp.set_points(kernel_pts, True)  # "raw" - don't optimize away
             for e in me:
                 d.insert(kp.minkowsky_sum(e, False))
 
@@ -921,7 +922,9 @@ class MaskData(LayoutData):
             # since polygons cannot be lines except through dirty tricks
             dz = Point(0, zi)
             for e in me:
-                d.insert(Polygon([e.p1 - dz, e.p2 - dz, e.p2 + dz, e.p1 + dz]))
+                polygon = SimplePolygon()
+                polygon.set_points([e.p1 - dz, e.p2 - dz, e.p2 + dz, e.p1 + dz], True)
+                d.insert(Polygon(polygon))
         elif mode in ("round", "octagon"):
             info("    case round / octagon")
             # approximate round corners by 64 points for "round" and
@@ -944,7 +947,8 @@ class MaskData(LayoutData):
             info(f"    n kernel_pts: {len(kernel_pts)}")
             info(f"    kernel_pts: {kernel_pts}")
 
-            kp = Polygon(kernel_pts)
+            kp = SimplePolygon()
+            kp.set_points(kernel_pts, True)  # "raw" - don't optimize away
             for n, e in enumerate(me):
                 d.insert(kp.minkowsky_sum(e, False))
                 if n > 0 and n % 10 == 0:
