@@ -34,12 +34,16 @@ from klayout_pyxs.compat import range, zip
 #     pass
 
 
-if HAS_PYA:
-    # Imports for KLayout plugin
-    from klayout_pyxs import Action, Application, FileDialog, MessageBox
+try:
+    # KLayout GUI APIs are exposed through pya.
+    from pya import Action, Application, FileDialog, MessageBox
+except ImportError:
+    if HAS_PYA:
+        # Imports for KLayout plugin
+        from klayout_pyxs import Action, Application, FileDialog, MessageBox
 
-else:
-    Action = object
+    else:
+        Action = object
 
 from klayout_pyxs.geometry_2d import EP, LayoutData, MaskData, MaterialData, ep
 from klayout_pyxs.layer_parameters import string_to_layer_info
