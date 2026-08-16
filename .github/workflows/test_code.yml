@@ -13,15 +13,28 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
-env:
-  KLAYOUT_VERSION: "0.30.10"
-
 jobs:
   linux:
-    runs-on: ubuntu-24.04
+    name: Linux / KLayout ${{ matrix.klayout_version }}
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-22.04
+            download_dir: Ubuntu-22
+            klayout_version: "0.28.17"
+            klayout_sha256: "2e453ea4594b0f98bc690e24f01aa8f85cfb2c1a8b3537235dfefb6c24e7f5c3"
+          - os: ubuntu-24.04
+            download_dir: Ubuntu-24
+            klayout_version: "0.30.10"
+            klayout_sha256: "558ea6d6729cd119041481d22099a5c080ef59e3ebc17da9aa301d11a7faf407"
 
     env:
-      KLAYOUT_SHA256: "558ea6d6729cd119041481d22099a5c080ef59e3ebc17da9aa301d11a7faf407"
+      KLAYOUT_VERSION: ${{ matrix.klayout_version }}
+      KLAYOUT_DOWNLOAD_DIR: ${{ matrix.download_dir }}
+      KLAYOUT_SHA256: ${{ matrix.klayout_sha256 }}
 
     steps:
       - uses: actions/checkout@v6
@@ -29,7 +42,7 @@ jobs:
       - name: Install KLayout
         run: |
           package="klayout_${KLAYOUT_VERSION}-1_amd64.deb"
-          url="https://www.klayout.org/downloads/Ubuntu-24/${package}"
+          url="https://www.klayout.org/downloads/${KLAYOUT_DOWNLOAD_DIR}/${package}"
 
           curl --fail --location --output "$package" "$url"
           echo "${KLAYOUT_SHA256}  ${package}" | sha256sum --check -
@@ -46,10 +59,25 @@ jobs:
           bash run_tests_3d.sh
 
   windows:
+    name: Windows / KLayout ${{ matrix.klayout_version }}
     runs-on: windows-2022
 
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # KLayout publishes an MD5 for this legacy portable archive.
+          - klayout_version: "0.28.17"
+            checksum_algorithm: MD5
+            klayout_checksum: "a2ea72713c49c35ebb3eddd10b17d727"
+          - klayout_version: "0.30.10"
+            checksum_algorithm: SHA256
+            klayout_checksum: "298d1aaf49dd73240031a91de66103177af821956e14fe46a549d987963c6ff1"
+
     env:
-      KLAYOUT_SHA256: "298d1aaf49dd73240031a91de66103177af821956e14fe46a549d987963c6ff1"
+      KLAYOUT_VERSION: ${{ matrix.klayout_version }}
+      KLAYOUT_CHECKSUM_ALGORITHM: ${{ matrix.checksum_algorithm }}
+      KLAYOUT_CHECKSUM: ${{ matrix.klayout_checksum }}
 
     steps:
       - uses: actions/checkout@v6
@@ -63,9 +91,10 @@ jobs:
           $destination = Join-Path $env:RUNNER_TEMP "klayout"
 
           Invoke-WebRequest -Uri $url -OutFile $archive
-          $hash = (Get-FileHash -Algorithm SHA256 $archive).Hash.ToLowerInvariant()
-          if ($hash -ne $env:KLAYOUT_SHA256) {
-            throw "Unexpected SHA-256 for ${package}: $hash"
+          $algorithm = $env:KLAYOUT_CHECKSUM_ALGORITHM
+          $hash = (Get-FileHash -Algorithm $algorithm $archive).Hash.ToLowerInvariant()
+          if ($hash -ne $env:KLAYOUT_CHECKSUM) {
+            throw "Unexpected $algorithm checksum for ${package}: $hash"
           }
 
           Expand-Archive -Path $archive -DestinationPath $destination -Force

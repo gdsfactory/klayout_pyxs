@@ -5,6 +5,11 @@ repo_root="$(cd "$test_dir/.." && pwd)"
 cd "$test_dir"
 
 klayout_bin="${KLAYOUT_BIN:-klayout}"
+klayout_home="$test_dir/run_dir/klayout_home"
+
+# KLAYOUT_PYTHONPATH replaces the embedded interpreter's standard-library path
+# in KLayout 0.28.  Stage the package in KLAYOUT_HOME/python instead.
+unset KLAYOUT_PYTHONPATH
 
 case "$(uname -s)" in
   MINGW*|MSYS*|CYGWIN*)
@@ -12,15 +17,11 @@ case "$(uname -s)" in
       klayout_bin="$(cygpath -u "$klayout_bin")"
     fi
 
-    klayout_home="$test_dir/run_dir/klayout_home"
-    mkdir -p "$klayout_home"
     export KLAYOUT_HOME="$(cygpath -w "$klayout_home")"
-    export KLAYOUT_PYTHONPATH="$(cygpath -w "$repo_root/klayout_package/python")${KLAYOUT_PYTHONPATH:+;$KLAYOUT_PYTHONPATH}"
     ;;
   *)
-    export KLAYOUT_HOME=/dev/null
+    export KLAYOUT_HOME="$klayout_home"
     export QT_QPA_PLATFORM="${QT_QPA_PLATFORM:-offscreen}"
-    export KLAYOUT_PYTHONPATH="$repo_root/klayout_package/python${KLAYOUT_PYTHONPATH:+:$KLAYOUT_PYTHONPATH}"
     ;;
 esac
 
@@ -30,6 +31,8 @@ echo ""
 
 rm -rf run_dir/3d
 mkdir -p run_dir/3d
+mkdir -p "$klayout_home/python"
+cp -R "$repo_root/klayout_package/python/klayout_pyxs" "$klayout_home/python/"
 
 failed=""
 runner="$test_dir/run_3d.py"
@@ -56,8 +59,9 @@ for tc_file in $tc_files; do
   xs_out="run_dir/3d/$tc.gds"
   "$klayout_bin" -rx -z -rd xs_run="$tc_file" -rd xs_out="$xs_out" "$xs_input" -r "$runner"
 
+  # Blank lines in KLayout's generated tech file are not semantically meaningful.
   if "$klayout_bin" -b -rd a="au/$tc.gds" -rd b="$xs_out" -rd tol=10 -r run_xor.rb \
-    && diff -u \
+    && diff -u -B \
       <(grep -Ev '^(Red|Green|Blue):' "au/$tc.gds_tech") \
       <(grep -Ev '^(Red|Green|Blue):' "$xs_out"_tech); then
     echo "No differences found."

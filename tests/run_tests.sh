@@ -5,7 +5,11 @@ repo_root="$(cd "$test_dir/.." && pwd)"
 cd "$test_dir"
 
 klayout_bin="${KLAYOUT_BIN:-klayout}"
-klayout_home=""
+klayout_home="$test_dir/run_dir/klayout_home"
+
+# KLAYOUT_PYTHONPATH replaces the embedded interpreter's standard-library path
+# in KLayout 0.28.  Stage the package in KLAYOUT_HOME/python instead.
+unset KLAYOUT_PYTHONPATH
 
 case "$(uname -s)" in
   MINGW*|MSYS*|CYGWIN*)
@@ -13,14 +17,11 @@ case "$(uname -s)" in
       klayout_bin="$(cygpath -u "$klayout_bin")"
     fi
 
-    klayout_home="$test_dir/run_dir/klayout_home"
     export KLAYOUT_HOME="$(cygpath -w "$klayout_home")"
-    export KLAYOUT_PYTHONPATH="$(cygpath -w "$repo_root/klayout_package/python")${KLAYOUT_PYTHONPATH:+;$KLAYOUT_PYTHONPATH}"
     ;;
   *)
-    export KLAYOUT_HOME=/dev/null
+    export KLAYOUT_HOME="$klayout_home"
     export QT_QPA_PLATFORM="${QT_QPA_PLATFORM:-offscreen}"
-    export KLAYOUT_PYTHONPATH="$repo_root/klayout_package/python${KLAYOUT_PYTHONPATH:+:$KLAYOUT_PYTHONPATH}"
     ;;
 esac
 
@@ -30,9 +31,8 @@ echo ""
 
 rm -rf run_dir
 mkdir -p run_dir
-if [ -n "$klayout_home" ]; then
-  mkdir -p "$klayout_home"
-fi
+mkdir -p "$klayout_home/python"
+cp -R "$repo_root/klayout_package/python/klayout_pyxs" "$klayout_home/python/"
 
 failed=""
 

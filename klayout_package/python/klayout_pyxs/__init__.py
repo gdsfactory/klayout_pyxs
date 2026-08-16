@@ -16,7 +16,11 @@ try:
     importlib.import_module("klayout")
     HAS_KLAYOUT = True
 
-    from klayout.db import Box, DPoint, Edge
+    from klayout.db import (
+        Box,
+        DPoint,
+        Edge,
+    )
     from klayout.db import EdgeProcessor as EP_
     from klayout.db import (
         Edges,
@@ -39,7 +43,13 @@ except:
         import pya as klayout
 
         # For plugin only
-        from pya import Action, Application, Box, DPoint, Edge
+        from pya import (
+            Action,
+            Application,
+            Box,
+            DPoint,
+            Edge,
+        )
         from pya import EdgeProcessor as EP_
         from pya import (
             Edges,
