@@ -18,21 +18,20 @@
 import os
 import re
 
-from klayout_pyxs import (
-    Action,
-    Application,
-    Box,
-    FileDialog,
-    LayerInfo,
-    MessageBox,
-    Point,
-    Polygon,
-)
+from klayout_pyxs import HAS_PYA, Box, LayerInfo, Point, Polygon
 from klayout_pyxs.compat import range, zip
 from klayout_pyxs.geometry_2d import EP, LayoutData, parse_grow_etch_args
 from klayout_pyxs.geometry_3d import LP, MaterialLayer, layer_to_tech_str, lp
 from klayout_pyxs.layer_parameters import string_to_layer_info_params
 from klayout_pyxs.utils import info, int_floor, make_iterable, print_info
+
+try:
+    from pya import Action, Application, FileDialog, MessageBox
+except ImportError:
+    if HAS_PYA:
+        from klayout_pyxs import Action, Application, FileDialog, MessageBox
+    else:
+        Action = object
 
 # from importlib import reload
 # try:
@@ -1211,7 +1210,11 @@ class XSectionGenerator:
         #             "section line. Will be exporting only shapes in the box",
         #             pya.MessageBox.b_ok())
 
-        cv = view.cellview(view.active_cellview_index())  # CellView
+        active_cellview_index = view.active_cellview_index
+        if callable(active_cellview_index):
+            active_cellview_index = active_cellview_index()
+
+        cv = view.cellview(active_cellview_index)  # CellView
         if not cv.is_valid():
             MessageBox.critical(
                 "Error", "The selected layout is not valid", MessageBox.b_ok()

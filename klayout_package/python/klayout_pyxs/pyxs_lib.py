@@ -840,7 +840,11 @@ class XSectionGenerator:
             )
             return False
 
-        cv = view.cellview(view.active_cellview_index())  # CellView
+        active_cellview_index = view.active_cellview_index
+        if callable(active_cellview_index):
+            active_cellview_index = active_cellview_index()
+
+        cv = view.cellview(active_cellview_index)
         if not cv.is_valid():
             MessageBox.critical(
                 "Error", "The selected layout is not valid", MessageBox.b_ok()
