@@ -48,7 +48,8 @@ is in your path and use
 
 ```sh
 $ cd tests
-$ ./run_tests.sh
+$ bash run_tests.sh
+$ bash run_tests_3d.sh
 ```
 
 or (from e.g. git bash console on Windows)
@@ -56,6 +57,7 @@ or (from e.g. git bash console on Windows)
 ```bash
 $ cd tests
 $ bash run_tests_windows.sh
+$ bash run_tests_3d_windows.sh
 ```
 
 The `xs2pyxs` folder contains a shell script which helps converting

@@ -6,26 +6,76 @@ on:
   schedule:
     - cron: 0 2 * * * # run at 2 AM UTC
 
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  KLAYOUT_VERSION: "0.30.10"
+
 jobs:
-  build:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      max-parallel: 12
-      matrix:
-        python-version: [3.7]
-        os: [ubuntu-latest]
+  linux:
+    runs-on: ubuntu-24.04
+
+    env:
+      KLAYOUT_SHA256: "558ea6d6729cd119041481d22099a5c080ef59e3ebc17da9aa301d11a7faf407"
 
     steps:
-      - name: Cancel Workflow Action
-        uses: styfle/cancel-workflow-action@0.12.0
       - uses: actions/checkout@v6
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
-        with:
-          python-version: ${{ matrix.python-version }}
-      - name: run tests
+
+      - name: Install KLayout
         run: |
-          pip install .
-          sudo apt install klayout
+          package="klayout_${KLAYOUT_VERSION}-1_amd64.deb"
+          url="https://www.klayout.org/downloads/Ubuntu-24/${package}"
+
+          curl --fail --location --output "$package" "$url"
+          echo "${KLAYOUT_SHA256}  ${package}" | sha256sum --check -
+
+          sudo apt-get update
+          sudo apt-get install --yes "./${package}"
+
+          klayout -v
+
+      - name: Run regression tests
+        run: |
           cd tests
           bash run_tests.sh
+          bash run_tests_3d.sh
+
+  windows:
+    runs-on: windows-2022
+
+    env:
+      KLAYOUT_SHA256: "298d1aaf49dd73240031a91de66103177af821956e14fe46a549d987963c6ff1"
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Install KLayout
+        shell: pwsh
+        run: |
+          $package = "klayout-$env:KLAYOUT_VERSION-win64.zip"
+          $url = "https://www.klayout.org/downloads/Windows/$package"
+          $archive = Join-Path $env:RUNNER_TEMP $package
+          $destination = Join-Path $env:RUNNER_TEMP "klayout"
+
+          Invoke-WebRequest -Uri $url -OutFile $archive
+          $hash = (Get-FileHash -Algorithm SHA256 $archive).Hash.ToLowerInvariant()
+          if ($hash -ne $env:KLAYOUT_SHA256) {
+            throw "Unexpected SHA-256 for $package: $hash"
+          }
+
+          Expand-Archive -Path $archive -DestinationPath $destination -Force
+          $folder = [System.IO.Path]::GetFileNameWithoutExtension($package)
+          $klayout = Join-Path $destination "$folder\klayout_app.exe"
+          & $klayout -v
+          "KLAYOUT_BIN=$klayout" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
+      - name: Run regression tests
+        shell: bash
+        run: |
+          bash tests/run_tests.sh
+          bash tests/run_tests_3d.sh

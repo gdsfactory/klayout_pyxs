@@ -1,0 +1,11 @@
+# Representative 3D regression: mask, grow, etch, and multi-layer output.
+
+pattern = layer("1/0")
+substrate = bulk()
+seed = mask(pattern)
+
+film = seed.grow(0.30, xy=0.05)
+seed.etch(0.10, into=substrate)
+
+output("100/0", substrate)
+output("200/0", film)

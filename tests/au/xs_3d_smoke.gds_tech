@@ -1,0 +1,50 @@
+# This file was generated automatically by pyxs.
+
+LayerStart: Substrate (255)
+Layer: 255
+Height: -2000
+Thickness: 2000
+Red: 0.5402911770075781
+Green: 0.05976874498491391
+Blue: 0.1596930956138387
+Filter: 0.0
+Metal: 0
+Show: 1
+LayerEnd
+
+LayerStart: -- (100)
+Layer: 100
+Height: -2000
+Thickness: 1900
+Red: 0.8013258909522979
+Green: 0.21791994249368163
+Blue: 0.49213103435240957
+Filter: 0.0
+Metal: 0
+Show: 1
+LayerEnd
+
+LayerStart: -- (101)
+Layer: 101
+Height: -100
+Thickness: 100
+Red: 0.7664856778322949
+Green: 0.2107336441849441
+Blue: 0.9387090688755668
+Filter: 0.0
+Metal: 0
+Show: 1
+LayerEnd
+
+LayerStart: -- (200)
+Layer: 200
+Height: 0
+Thickness: 290
+Red: 0.8064844209494657
+Green: 0.7589000899536078
+Blue: 0.3801236058701032
+Filter: 0.0
+Metal: 0
+Show: 1
+LayerEnd
+
