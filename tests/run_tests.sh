@@ -1,6 +1,12 @@
 #!/bin/bash -e
 
+test_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+repo_root="$(cd "$test_dir/.." && pwd)"
+cd "$test_dir"
+
 export KLAYOUT_HOME=/dev/null
+export QT_QPA_PLATFORM="${QT_QPA_PLATFORM:-offscreen}"
+export KLAYOUT_PYTHONPATH="$repo_root/klayout_package/python${KLAYOUT_PYTHONPATH:+:$KLAYOUT_PYTHONPATH}"
 
 echo "Using KLayout:"
 klayout -v
@@ -11,7 +17,7 @@ mkdir -p run_dir
 
 failed=""
 
-bin=../pymacros/pyxs.lym
+bin="$repo_root/klayout_package/pymacros/pyxs.lym"
 
 if [ "$1" == "" ]; then
   all_xs=( *.pyxs )
@@ -51,4 +57,5 @@ if [ "$failed" = "" ]; then
   echo "All tests successful."
 else
   echo "*** TESTS FAILED:$failed"
+  exit 1
 fi
