@@ -65,7 +65,7 @@ jobs:
           Invoke-WebRequest -Uri $url -OutFile $archive
           $hash = (Get-FileHash -Algorithm SHA256 $archive).Hash.ToLowerInvariant()
           if ($hash -ne $env:KLAYOUT_SHA256) {
-            throw "Unexpected SHA-256 for $package: $hash"
+            throw "Unexpected SHA-256 for ${package}: $hash"
           }
 
           Expand-Archive -Path $archive -DestinationPath $destination -Force

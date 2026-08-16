@@ -6,8 +6,8 @@ repos:
       - id: end-of-file-fixer
       - id: trailing-whitespace
 
-  - repo: https://github.com/hakancelik96/unimport
-    rev: df8eb1a4c91acb84da197828af8157708968b596
+  - repo: https://github.com/hakancelikdev/unimport
+    rev: fae6ae70d2e0c2a1380e41fb276a44687189d562
     hooks:
       - id: unimport
         args: [--remove, --include-star-import]
