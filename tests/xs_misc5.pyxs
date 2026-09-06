@@ -1,13 +1,13 @@
 # This script tests new format of output function.
 # It accepts a dictionary as an output_layers parameter.
-# Keys are layer specifications, and values are LayoutData instances.
+# Keys are LayoutData names, and values are layer specifications.
 
 l1 = layer("1/0")
 
 output_layers = {
-    "100/0": 'blk',
-    "101/0": 'substrate',
-    "102/0": 'm1',
+    "blk": "100/0",
+    "substrate": "101/0",
+    "m1": "102/0",
 }
 
 blk = bulk()

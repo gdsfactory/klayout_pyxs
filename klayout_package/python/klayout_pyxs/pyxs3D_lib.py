@@ -18,21 +18,27 @@
 import os
 import re
 
-from klayout_pyxs import (
-    Action,
-    Application,
-    Box,
-    FileDialog,
-    LayerInfo,
-    MessageBox,
-    Point,
-    Polygon,
+from klayout_pyxs import HAS_PYA, Box, LayerInfo, Point, Polygon
+from klayout_pyxs.compat import (
+    get_active_cellview_index,
+    get_application,
+    get_main_window,
+    range,
+    zip,
 )
-from klayout_pyxs.compat import range, zip
 from klayout_pyxs.geometry_2d import EP, LayoutData, parse_grow_etch_args
 from klayout_pyxs.geometry_3d import LP, MaterialLayer, layer_to_tech_str, lp
 from klayout_pyxs.layer_parameters import string_to_layer_info_params
 from klayout_pyxs.utils import info, int_floor, make_iterable, print_info
+
+try:
+    from pya import Action, Application, FileDialog, MessageBox
+except ImportError:
+    if HAS_PYA:
+        from klayout_pyxs import Action, Application, FileDialog, MessageBox
+    else:
+        Action = object
+        Application = FileDialog = MessageBox = None
 
 # from importlib import reload
 # try:
@@ -1178,8 +1184,8 @@ class XSectionGenerator:
     def _setup(self):
 
         # locate the layout
-        app = Application.instance()
-        view = app.main_window().current_view()  # LayoutView
+        app = get_application(Application)
+        view = get_main_window(Application).current_view()  # LayoutView
         if not view:
             MessageBox.critical(
                 "Error",
@@ -1211,7 +1217,7 @@ class XSectionGenerator:
         #             "section line. Will be exporting only shapes in the box",
         #             pya.MessageBox.b_ok())
 
-        cv = view.cellview(view.active_cellview_index())  # CellView
+        cv = view.cellview(get_active_cellview_index(view))  # CellView
         if not cv.is_valid():
             MessageBox.critical(
                 "Error", "The selected layout is not valid", MessageBox.b_ok()
@@ -1325,15 +1331,14 @@ class XSectionScriptEnvironment:
     """The cross section script environment"""
 
     def __init__(self):
-        app = Application.instance()
-        mw = app.main_window()
+        mw = get_main_window(Application)
 
         def _on_triggered_callback():
             """Load pyxs script menu action.
 
             Load new .pyxs file and run it.
             """
-            view = Application.instance().main_window().current_view()
+            view = get_main_window(Application).current_view()
             if not view:
                 raise UserWarning("No view open for running the pyxs script")
 
@@ -1419,7 +1424,7 @@ class XSectionScriptEnvironment:
         filename : str
             path to the .pyxs script
         """
-        view = Application.instance().main_window().current_view()
+        view = get_main_window(Application).current_view()
         if not view:
             raise UserWarning("No view open for running the pyxs script")
 

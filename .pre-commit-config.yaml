@@ -1,18 +1,18 @@
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: "b0f06dc9f2260909f3423243de180edfc823ec5a"
+    rev: "3e8a8703264a2f4a69428a0aa4dcb512790b2c8c"
     hooks:
       - id: check-yaml
       - id: end-of-file-fixer
       - id: trailing-whitespace
 
-  - repo: https://github.com/hakancelik96/unimport
-    rev: df8eb1a4c91acb84da197828af8157708968b596
+  - repo: https://github.com/hakancelikdev/unimport
+    rev: bd2e7d94a7d76a73c72c533f213271c055e77c7c
     hooks:
       - id: unimport
         args: [--remove, --include-star-import]
   - repo: https://github.com/pycqa/isort
-    rev: "12cc5fbd67eebf92eb2213b03c07b138ae1fb448"
+    rev: "ec0efaee4acfce198521e43caa3029b06cedd64a"
     hooks:
       - id: isort
         files: "klayout_pyxs/.*"
@@ -57,7 +57,7 @@ repos:
   #     - id: python-use-type-annotations
 
   - repo: https://github.com/PyCQA/bandit
-    rev: 44c05fcac53de3a39589173177c931b38de5bb0f
+    rev: 92ae8b82fb422a639f0ed8d99e96cea769594e08
     hooks:
       - id: bandit
         args: [--exit-zero]

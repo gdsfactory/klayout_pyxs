@@ -23,7 +23,12 @@ import os
 import re
 
 from klayout_pyxs import HAS_PYA, Box, Edge, Point, Polygon
-from klayout_pyxs.compat import range, zip
+from klayout_pyxs.compat import (
+    get_active_cellview_index,
+    get_application,
+    get_main_window,
+    range,
+)
 
 # from importlib import reload
 # try:
@@ -34,18 +39,40 @@ from klayout_pyxs.compat import range, zip
 #     pass
 
 
-if HAS_PYA:
-    # Imports for KLayout plugin
-    from klayout_pyxs import Action, Application, FileDialog, MessageBox
+try:
+    # KLayout GUI APIs are exposed through pya.
+    from pya import Action, Annotation, Application, FileDialog, MessageBox
+except ImportError:
+    if HAS_PYA:
+        # Imports for KLayout plugin
+        from klayout_pyxs import Action, Application, FileDialog, MessageBox
 
-else:
-    Action = object
+        # Annotation is not re-exported by klayout_pyxs.__init__.
+        try:
+            from pya import Annotation
+        except ImportError:
+            Annotation = None
+
+    else:
+        Action = object
+        Application = FileDialog = MessageBox = None
+        Annotation = None
 
 from klayout_pyxs.geometry_2d import EP, LayoutData, MaskData, MaterialData, ep
 from klayout_pyxs.layer_parameters import string_to_layer_info
 from klayout_pyxs.utils import info, int_floor, make_iterable, print_info
 
 info("Module klayout_pyxs.pyxs_lib.py reloaded")
+
+
+_XSECTION_RULER_CATEGORY = "XSection"
+_XSECTION_RULER_TITLE = "XSection"
+
+
+def _annotation_value(annotation, name, default=None):
+    """Read an Annotation property exposed as either an attribute or method."""
+    value = getattr(annotation, name, default)
+    return value() if callable(value) else value
 
 
 class XSectionGenerator:
@@ -826,8 +853,7 @@ class XSectionGenerator:
 
         """
         # locate the layout
-        app = Application.instance()
-        view = app.main_window().current_view()  # LayoutView
+        view = get_main_window(Application).current_view()  # LayoutView
         if not view:
             MessageBox.critical(
                 "Error",
@@ -836,7 +862,7 @@ class XSectionGenerator:
             )
             return False
 
-        cv = view.cellview(view.active_cellview_index())  # CellView
+        cv = view.cellview(get_active_cellview_index(view))
         if not cv.is_valid():
             MessageBox.critical(
                 "Error", "The selected layout is not valid", MessageBox.b_ok()
@@ -876,8 +902,7 @@ class XSectionGenerator:
             cell_name = self._target_cell_name
 
         # create a new layout for the output
-        app = Application.instance()
-        main_window = app.main_window()
+        main_window = get_main_window(Application)
         cv = main_window.create_layout(1)  # type: CellView
         cell = cv.layout().add_cell(cell_name)  # type: Cell
         self._target_view = main_window.current_view()  # type: LayoutView
@@ -955,7 +980,7 @@ class XSectionScriptEnvironment:
     def __init__(self, menu_name="pyxs"):
         self._menu_name = menu_name
 
-        app = Application.instance()
+        app = get_application(Application)
         mw = app.main_window()
         if mw is None:
             print("none")
@@ -966,7 +991,7 @@ class XSectionScriptEnvironment:
 
             Load new .pyxs file and run it.
             """
-            view = Application.instance().main_window().current_view()
+            view = get_main_window(Application).current_view()
             if not view:
                 MessageBox.critical(
                     "Error",
@@ -1056,59 +1081,109 @@ class XSectionScriptEnvironment:
                             i += 1
             except:
                 pass
+        self._register_xsection_ruler_template()
+
+    def _register_xsection_ruler_template(self):
+        """Register the dedicated, single-segment XSection ruler template."""
+        if Annotation is None:
+            return
+
+        try:
+            # The category is owned by PyXS. Removing it first keeps macro
+            # reloads idempotent and refreshes the existing template.
+            Annotation.unregister_templates(_XSECTION_RULER_CATEGORY)
+            ruler_template = Annotation()
+            ruler_template.category = _XSECTION_RULER_CATEGORY
+            Annotation.register_template(
+                ruler_template,
+                _XSECTION_RULER_TITLE,
+                Annotation.RulerModeNormal,
+            )
+        except Exception as exc:
+            info(f"Could not register XSection ruler template: {exc}")
 
     def run_script(self, filename, p1=None, p2=None):
-        """Run .pyxs script
+        """Run a .pyxs script.
 
-        filename : str
-            path to the .pyxs script
+        In interactive mode, PyXS prefers rulers created with the dedicated
+        XSection template. Each ruler generates one cross-section.
         """
-        view = Application.instance().main_window().current_view()
+        main_window = get_main_window(Application)
+        view = main_window.current_view()
         if not view:
             raise UserWarning("No view open for running the pyxs script")
 
-        if p1 is None or p2 is None:
-            app = Application.instance()
-            scr_view = app.main_window().current_view()  # type: LayoutView
-            scr_view_idx = app.main_window().current_view_index
-            if not scr_view:
-                MessageBox.critical(
-                    "Error",
-                    "No view open for creating the cross-" "section from",
-                    MessageBox.b_ok(),
+        # Preserve the original programmatic/headless behaviour and name.
+        if p1 is not None and p2 is not None:
+            target_view = XSectionGenerator(filename).run(p1, p2, "")
+            return [target_view] if target_view is not None else []
+
+        source_view_idx = main_window.current_view_index
+        rulers = list(view.each_annotation())
+
+        if not rulers:
+            MessageBox.critical(
+                "Error",
+                "No ruler present for the cross section line",
+                MessageBox.b_ok(),
+            )
+            return None
+
+        xsection_rulers = [
+            ruler
+            for ruler in rulers
+            if _annotation_value(ruler, "category", "") == _XSECTION_RULER_CATEGORY
+        ]
+        if xsection_rulers:
+            rulers = xsection_rulers
+
+        jobs = []
+        for ruler_index, ruler in enumerate(rulers, start=1):
+            try:
+                base_name = ruler.text().split(".")[0].strip()
+            except Exception:
+                base_name = ""
+            if not base_name:
+                base_name = f"R{ruler_index:02d}"
+
+            try:
+                n_segments = int(_annotation_value(ruler, "segments", 1))
+            except Exception:
+                n_segments = 1
+            if n_segments != 1:
+                info(
+                    f"Skipping multi-ruler {base_name}; use one XSection ruler per cut"
                 )
-                return False
+                continue
 
-            rulers = list(scr_view.each_annotation())
+            try:
+                rp1, rp2 = ruler.seg_p1(0), ruler.seg_p2(0)
+            except Exception:
+                rp1, rp2 = ruler.p1, ruler.p2
+            jobs.append((rp1, rp2, base_name))
 
-            if not rulers:
-                MessageBox.critical(
-                    "Error",
-                    "No ruler present for the cross " "section line",
-                    MessageBox.b_ok(),
-                )
-                return None
-
-            p1_arr, p2_arr, ruler_text_arr = [], [], []
-
-            for ruler in rulers:
-                p1_arr.append(ruler.p1)
-                p2_arr.append(ruler.p2)
-                ruler_text_arr.append(ruler.text().split(".")[0])
-
-        else:
-            p1_arr, p2_arr, ruler_text_arr = [p1], [p2], [""]
-            scr_view_idx = None
+        if not jobs:
+            MessageBox.critical(
+                "Error",
+                "No valid XSection ruler segments found",
+                MessageBox.b_ok(),
+            )
+            return None
 
         target_views = []
-        for p1_, p2_, text_ in zip(p1_arr, p2_arr, ruler_text_arr):
+        try:
+            for rp1, rp2, name in jobs:
+                # View index 0 is valid, so use an explicit None check.
+                if source_view_idx is not None:
+                    main_window.select_view(source_view_idx)
 
-            if scr_view_idx:
-                # return to the original view to run it again
-                app.main_window().select_view(scr_view_idx)
-
-            view = XSectionGenerator(filename).run(p1_, p2_, text_)
-            target_views.append(view)
+                target_view = XSectionGenerator(filename).run(rp1, rp2, name)
+                if target_view is not None:
+                    target_views.append(target_view)
+        finally:
+            # A failed recipe must not leave a partial output as the input view.
+            if source_view_idx is not None:
+                main_window.select_view(source_view_idx)
 
         return target_views
         # try:
