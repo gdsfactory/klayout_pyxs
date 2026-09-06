@@ -50,6 +50,7 @@ is in your path and use
 $ cd tests
 $ bash run_tests.sh
 $ bash run_tests_3d.sh
+$ bash run_compat_tests.sh
 ```
 
 or (from e.g. git bash console on Windows)
@@ -58,7 +59,17 @@ or (from e.g. git bash console on Windows)
 $ cd tests
 $ bash run_tests_windows.sh
 $ bash run_tests_3d_windows.sh
+$ KLAYOUT_BIN=klayout_app bash run_compat_tests.sh
 ```
+
+The runners stage the current package in a fresh temporary `KLAYOUT_HOME` and
+remove that temporary home on exit. Generated layouts remain in `tests/run_dir`.
+Compatibility tests exercise both cell-view API forms, native GUI imports with
+`HAS_PYA=False`, and explicit errors for GUI calls from standalone Python.
+All runners return a nonzero status when setup or a test fails.
+Hidden-GUI regression runs turn PyXS error dialogs into exceptions so failures
+cannot wait indefinitely for a click. Use a UTF-8 locale when running the tests
+in a minimal Linux container (for example, `LANG=C.UTF-8 LC_ALL=C.UTF-8`).
 
 The `xs2pyxs` folder contains a shell script which helps converting
 Ruby-based .xs scripts to .pyxs scripts. It performs necessary but not

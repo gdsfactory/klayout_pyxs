@@ -23,7 +23,13 @@ import os
 import re
 
 from klayout_pyxs import HAS_PYA, Box, Edge, Point, Polygon
-from klayout_pyxs.compat import range, zip
+from klayout_pyxs.compat import (
+    get_active_cellview_index,
+    get_application,
+    get_main_window,
+    range,
+    zip,
+)
 
 # from importlib import reload
 # try:
@@ -44,6 +50,7 @@ except ImportError:
 
     else:
         Action = object
+        Application = FileDialog = MessageBox = None
 
 from klayout_pyxs.geometry_2d import EP, LayoutData, MaskData, MaterialData, ep
 from klayout_pyxs.layer_parameters import string_to_layer_info
@@ -830,8 +837,8 @@ class XSectionGenerator:
 
         """
         # locate the layout
-        app = Application.instance()
-        view = app.main_window().current_view()  # LayoutView
+        app = get_application(Application)
+        view = get_main_window(Application).current_view()  # LayoutView
         if not view:
             MessageBox.critical(
                 "Error",
@@ -840,11 +847,7 @@ class XSectionGenerator:
             )
             return False
 
-        active_cellview_index = view.active_cellview_index
-        if callable(active_cellview_index):
-            active_cellview_index = active_cellview_index()
-
-        cv = view.cellview(active_cellview_index)
+        cv = view.cellview(get_active_cellview_index(view))
         if not cv.is_valid():
             MessageBox.critical(
                 "Error", "The selected layout is not valid", MessageBox.b_ok()
@@ -884,8 +887,7 @@ class XSectionGenerator:
             cell_name = self._target_cell_name
 
         # create a new layout for the output
-        app = Application.instance()
-        main_window = app.main_window()
+        main_window = get_main_window(Application)
         cv = main_window.create_layout(1)  # type: CellView
         cell = cv.layout().add_cell(cell_name)  # type: Cell
         self._target_view = main_window.current_view()  # type: LayoutView
@@ -963,7 +965,7 @@ class XSectionScriptEnvironment:
     def __init__(self, menu_name="pyxs"):
         self._menu_name = menu_name
 
-        app = Application.instance()
+        app = get_application(Application)
         mw = app.main_window()
         if mw is None:
             print("none")
@@ -974,7 +976,7 @@ class XSectionScriptEnvironment:
 
             Load new .pyxs file and run it.
             """
-            view = Application.instance().main_window().current_view()
+            view = get_main_window(Application).current_view()
             if not view:
                 MessageBox.critical(
                     "Error",
@@ -1071,13 +1073,13 @@ class XSectionScriptEnvironment:
         filename : str
             path to the .pyxs script
         """
-        view = Application.instance().main_window().current_view()
+        view = get_main_window(Application).current_view()
         if not view:
             raise UserWarning("No view open for running the pyxs script")
 
         if p1 is None or p2 is None:
-            app = Application.instance()
-            scr_view = app.main_window().current_view()  # type: LayoutView
+            app = get_application(Application)
+            scr_view = get_main_window(Application).current_view()  # type: LayoutView
             scr_view_idx = app.main_window().current_view_index
             if not scr_view:
                 MessageBox.critical(

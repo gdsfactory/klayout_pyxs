@@ -1,80 +1,50 @@
-#!/bin/bash -e
+#!/usr/bin/env bash
+set -euo pipefail
 
-test_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-repo_root="$(cd "$test_dir/.." && pwd)"
-cd "$test_dir"
-
-klayout_bin="${KLAYOUT_BIN:-klayout}"
-klayout_home="$test_dir/run_dir/klayout_home"
-
-# KLAYOUT_PYTHONPATH replaces the embedded interpreter's standard-library path
-# in KLayout 0.28.  Stage the package in KLAYOUT_HOME/python instead.
-unset KLAYOUT_PYTHONPATH
-
-case "$(uname -s)" in
-  MINGW*|MSYS*|CYGWIN*)
-    if [[ "$klayout_bin" == [A-Za-z]:* ]]; then
-      klayout_bin="$(cygpath -u "$klayout_bin")"
-    fi
-
-    export KLAYOUT_HOME="$(cygpath -w "$klayout_home")"
-    ;;
-  *)
-    export KLAYOUT_HOME="$klayout_home"
-    export QT_QPA_PLATFORM="${QT_QPA_PLATFORM:-offscreen}"
-    ;;
-esac
-
-echo "Using KLayout:"
-"$klayout_bin" -v
-echo ""
-
-rm -rf run_dir
+source "$(dirname "${BASH_SOURCE[0]}")/klayout_test_env.sh"
+setup_klayout_test_env
 mkdir -p run_dir
-mkdir -p "$klayout_home/python"
-cp -R "$repo_root/klayout_package/python/klayout_pyxs" "$klayout_home/python/"
 
-failed=""
-
+failed=()
 bin="$repo_root/klayout_package/pymacros/pyxs.lym"
-
-if [ "$1" == "" ]; then
-  all_xs=( *.pyxs )
-  tc_files=${all_xs[@]}
+if (( $# )); then
+  tc_files=( "$@" )
 else
-  tc_files=$*
+  shopt -s nullglob
+  tc_files=( *.pyxs )
+fi
+if (( ${#tc_files[@]} == 0 )); then
+  echo "No 2D testcases found." >&2
+  exit 1
 fi
 
-for tc_file in $tc_files; do
-
-  tc=$(echo "$tc_file" | sed 's/\.pyxs$//')
-
+for tc_file in "${tc_files[@]}"; do
+  tc="$(basename "$tc_file" .pyxs)"
   echo "---------------------------------------------------"
   echo "Running testcase $tc .."
 
-  xs_input=$(grep XS_INPUT $tc.pyxs | sed 's/.*XS_INPUT *= *//')
-  if [ "$xs_input" = "" ]; then
-    xs_input="xs_test.gds"
-  fi
-  xs_cut=$(grep XS_CUT $tc.pyxs | sed 's/.*XS_CUT *= *//')
-  if [ "$xs_cut" = "" ]; then
-    xs_cut="-1,0;1,0"
-  fi
+  xs_input="$(sed -n 's/.*XS_INPUT *= *//p' "$tc_file")"
+  xs_cut="$(sed -n 's/.*XS_CUT *= *//p' "$tc_file")"
+  xs_input="${xs_input:-xs_test.gds}"
+  xs_cut="${xs_cut:--1,0;1,0}"
+  xs_out="run_dir/$tc.gds"
+  # A failed generation must not be compared against an earlier run's output.
+  rm -f -- "$xs_out"
 
-  "$klayout_bin" -rx -z -rd xs_run=$tc.pyxs -rd xs_cut="$xs_cut" -rd xs_out=run_dir/$tc.gds "$xs_input" -r "$bin"
-
-  if "$klayout_bin" -b -rd a=au/"$tc".gds -rd b=run_dir/"$tc".gds -rd tol=10 -r run_xor.rb; then
+  if "$klayout_bin" -rx -z -nc -rm "$test_dir/raise_on_gui_error.py" \
+      -rd "xs_run=$tc_file" -rd "xs_cut=$xs_cut" \
+      -rd "xs_out=$xs_out" "$xs_input" -r "$bin" \
+    && "$klayout_bin" -b -nc -rd "a=au/$tc.gds" -rd "b=$xs_out" \
+      -rd tol=10 -r run_xor.rb; then
     echo "No differences found."
   else
-    failed="$failed $tc"
+    failed+=( "$tc" )
   fi
-
 done
 
 echo "---------------------------------------------------"
-if [ "$failed" = "" ]; then
-  echo "All tests successful."
-else
-  echo "*** TESTS FAILED:$failed"
+if (( ${#failed[@]} )); then
+  echo "*** TESTS FAILED: ${failed[*]}"
   exit 1
 fi
+echo "All ${#tc_files[@]} 2D tests successful."

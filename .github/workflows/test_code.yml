@@ -68,6 +68,7 @@ jobs:
           cd tests
           bash run_tests.sh
           bash run_tests_3d.sh
+          bash run_compat_tests.sh
 
   windows:
     name: Windows / KLayout ${{ matrix.klayout_version }}
@@ -141,3 +142,4 @@ jobs:
         run: |
           bash tests/run_tests.sh
           bash tests/run_tests_3d.sh
+          bash tests/run_compat_tests.sh
