@@ -1284,14 +1284,14 @@ class MenuHandler(Action):
         icon : str
         """
         self.title = title
-        self._action = action
+        self._callback = action
         if shortcut:
             self.shortcut = shortcut
         if icon:
             self.icon = icon
 
     def triggered(self):
-        self._action()
+        self._callback()
 
 
 class XSectionMRUAction(Action):
@@ -1303,11 +1303,11 @@ class XSectionMRUAction(Action):
         ----------
         action : callable
         """
-        self._action = action
+        self._callback = action
         self._script = None
 
     def triggered(self):
-        self._action(self.script)
+        self._callback(self.script)
 
     @property
     def script(self):
@@ -1368,12 +1368,20 @@ class XSectionScriptEnvironment:
 
         # Create Load XSectionpy Script item in XSection (py)
         global pyxs_script_load_menuhandler
+        icon = os.path.abspath(
+            os.path.join(os.path.dirname(__file__), "..", "..", "xs_64x64.png")
+        )
         pyxs_script_load_menuhandler = MenuHandler(
-            "Load pyxs script", _on_triggered_callback
+            "Load pyxs script", _on_triggered_callback, icon=icon
         )
         menu.insert_item(
             "tools_menu.pyxs3D_script_submenu.end",
             "pyxs3D_script_load",
+            pyxs_script_load_menuhandler,
+        )
+        menu.insert_item(
+            "@toolbar.end",
+            "pyxs3D_script_load_toolbar",
             pyxs_script_load_menuhandler,
         )
         menu.insert_separator(

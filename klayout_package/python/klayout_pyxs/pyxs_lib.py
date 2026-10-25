@@ -22,7 +22,7 @@ import math
 import os
 import re
 
-from klayout_pyxs import HAS_PYA, Box, Edge, Point, Polygon
+from klayout_pyxs import HAS_PYA, HAS_KLAYOUT, Box, Edge, Point, Polygon
 from klayout_pyxs.compat import range, zip
 
 # from importlib import reload
@@ -34,7 +34,7 @@ from klayout_pyxs.compat import range, zip
 #     pass
 
 
-if HAS_PYA:
+if HAS_PYA or HAS_KLAYOUT:
     # Imports for KLayout plugin
     from klayout_pyxs import Action, Application, FileDialog, MessageBox
 
@@ -836,7 +836,7 @@ class XSectionGenerator:
             )
             return False
 
-        cv = view.cellview(view.active_cellview_index())  # CellView
+        cv = view.cellview(view.active_cellview_index)  # CellView
         if not cv.is_valid():
             MessageBox.critical(
                 "Error", "The selected layout is not valid", MessageBox.b_ok()
@@ -910,14 +910,14 @@ class MenuHandler(Action):
         icon : str
         """
         self.title = title
-        self._action = action
+        self._callback = action
         if shortcut:
             self.shortcut = shortcut
         if icon:
             self.icon = icon
 
     def triggered(self):
-        self._action()
+        self._callback()
 
 
 class XSectionMRUAction(Action):
@@ -929,13 +929,13 @@ class XSectionMRUAction(Action):
         ----------
         action : callable
         """
-        self._action = action
+        self._callback = action
         self._script = None
         # self.title = None
         # self.visible = False
 
     def triggered(self):
-        self._action(self.script)
+        self._callback(self.script)
 
     @property
     def script(self):
@@ -954,6 +954,7 @@ class XSectionScriptEnvironment:
 
     def __init__(self, menu_name="pyxs"):
         self._menu_name = menu_name
+        self._current_script = None
 
         app = Application.instance()
         mw = app.main_window()
@@ -962,10 +963,7 @@ class XSectionScriptEnvironment:
             return
 
         def _on_triggered_callback():
-            """Load pyxs script menu action.
-
-            Load new .pyxs file and run it.
-            """
+            """Run the selected script, asking for one on the first click."""
             view = Application.instance().main_window().current_view()
             if not view:
                 MessageBox.critical(
@@ -975,6 +973,10 @@ class XSectionScriptEnvironment:
                 )
                 return None
 
+            if self._current_script is not None:
+                self.run_script(self._current_script)
+                return
+
             filename = FileDialog.get_open_file_name(
                 "Select cross-section script",
                 "",
@@ -983,8 +985,9 @@ class XSectionScriptEnvironment:
 
             # run the script and save it
             if filename.has_value():
-                self.run_script(filename.value())
-                self.make_mru(filename.value())
+                self._current_script = filename.value()
+                self.run_script(self._current_script)
+                self.make_mru(self._current_script)
 
         def _XSectionMRUAction_callback(script):
             """*.pyxs menu action
@@ -995,8 +998,10 @@ class XSectionScriptEnvironment:
             ----------
             script : str
             """
-            self.run_script(script)
-            self.make_mru(script)
+            if script is not None:
+                self._current_script = script
+                self.run_script(self._current_script)
+                self.make_mru(self._current_script)
 
         # Create pyxs submenu in Tools
         menu = mw.menu()
@@ -1011,12 +1016,23 @@ class XSectionScriptEnvironment:
 
         # Create Load XSection.py Script item in XSection (py)
         # global pyxs_script_load_menuhandler
+        icon = os.path.abspath(
+            os.path.join(os.path.dirname(__file__), "..", "..", "xs_64x64.png")
+        )
+        title = "Load pyxs script"
+        if self._menu_name == "pyxs_dev":
+            title += " (dev)"
         self.pyxs_script_load_menuhandler = MenuHandler(
-            "Load pyxs script", _on_triggered_callback
+            title, _on_triggered_callback, icon=icon
         )
         menu.insert_item(
             f"tools_menu.{self._menu_name}_script_submenu.end",
             f"{self._menu_name}_script_load",
+            self.pyxs_script_load_menuhandler,
+        )
+        menu.insert_menu(
+            "@toolbar.end",
+            f"{self._menu_name}_script_load_toolbar",
             self.pyxs_script_load_menuhandler,
         )
         menu.insert_separator(
@@ -1032,6 +1048,11 @@ class XSectionScriptEnvironment:
             menu.insert_item(
                 f"tools_menu.{self._menu_name}_script_submenu.end",
                 f"{self._menu_name}_script_mru{i}",
+                a,
+            )
+            menu.insert_item(
+                f"@toolbar.{self._menu_name}_script_load_toolbar.end",
+                f"{self._menu_name}_script_toolbar_mru{i}",
                 a,
             )
             a.script = None
@@ -1056,6 +1077,9 @@ class XSectionScriptEnvironment:
                             i += 1
             except:
                 pass
+
+        if self._mru_actions and self._mru_actions[0].script:
+            self._current_script = self._mru_actions[0].script
 
     def run_script(self, filename, p1=None, p2=None):
         """Run .pyxs script

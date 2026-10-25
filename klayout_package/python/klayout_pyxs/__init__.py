@@ -28,6 +28,13 @@ try:
         Trans,
     )
 
+    #For plugin only
+    from klayout import lay
+    Action = lay.Action
+    Application = lay.Application
+    FileDialog = lay.FileDialog
+    MessageBox = lay.MessageBox
+
     if DEBUG:
         print("found!")
 except:
